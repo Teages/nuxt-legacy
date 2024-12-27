@@ -2,5 +2,5 @@
 </script>
 
 <template>
-  <span id="basic-content">basic</span>
+  <div>basic</div>
 </template>

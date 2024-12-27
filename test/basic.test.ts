@@ -1,15 +1,16 @@
 import { fileURLToPath } from 'node:url'
 import { $fetch, setup } from '@nuxt/test-utils/e2e'
+import { parse } from 'node-html-parser'
 import { describe, expect, it } from 'vitest'
 
-describe('ssr', async () => {
+describe('basic', async () => {
   await setup({
     rootDir: fileURLToPath(new URL('./fixtures/basic', import.meta.url)),
   })
 
   it('renders the index page', async () => {
-    // Get response to a server-rendered page with `$fetch`.
-    const html = await $fetch('/')
-    expect(html).toContain('<div>basic</div>')
+    const document = parse(await $fetch('/'))
+
+    expect(document.querySelector('#basic-content')?.textContent).toBe('basic')
   })
 })

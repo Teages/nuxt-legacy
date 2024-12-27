@@ -8,7 +8,7 @@
   "repository": "teages/nuxt-legacy",
   "exports": {
     ".": {
-      "types": "./dist/module.d.ts",
+      "types": "./dist/types.d.ts",
       "import": "./dist/module.mjs",
       "require": "./dist/module.cjs"
     }

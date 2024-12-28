@@ -6,7 +6,7 @@ import {
   legacyEntryId,
   legacyPolyfillId,
   safari10NoModuleFix,
-} from '../../../../src/snippets'
+} from '../../snippets'
 
 export default <NitroAppPlugin>((nitro) => {
   nitro.hooks.hook('render:html', async (html) => {

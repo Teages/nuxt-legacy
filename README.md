@@ -33,6 +33,55 @@ export default defineNuxtConfig({
 })
 ```
 
+<details>
+  <summary>maximum compatibility (not recommended)</summary>
+
+  ```ts
+  // nuxt.config.ts
+  export default defineNuxtConfig({
+    modules: [
+      '@teages/nuxt-legacy'
+    ],
+
+    legacy: {
+      vite: {
+        targets: ['fully supports proxy'],
+        modernPolyfills: true,
+      },
+    },
+  })
+  ```
+
+</details>
+
+## Compatibility
+
+### Nuxt & @vitejs/plugin-legacy
+
+The module is compatible with Nuxt `~3.15.0` and @vitejs/plugin-legacy `^6.0.0`.
+
+Since the module does not depend on any implicit behavior, it should works with any later Nuxt version. But I will recheck compatibility after Nuxt release minor or major versions.
+
+Check the results for current module version:
+| Nuxt Version | @vitejs/plugin-legacy | Chrome 49 | Chrome 61 | Chrome 91 |
+| ------------ | --------------------- | --------- | --------- | --------- |
+| 3.15.0       | 6.0.0                 | ✅        | ✅        | ✅        |
+
+### Browser support
+
+The module is tested with the following browsers:
+
+- Chrome 49: The minimum required version for Vue 3
+- Chrome 61: supports ESM but does not support [widely-available features](https://vite.dev/guide/build.html#browser-compatibility)
+- Chrome 91: not support `Object.hasOwn` but can be polyfilled
+- latest Chrome
+
+You can test by yourself by visiting the [playground](https://github.com/teages/nuxt-legacy/tree/main/playground) with your target browsers.
+
+## Credits
+
+- [IlyaSemenov/nuxt-vite-legacy](https://github.com/IlyaSemenov/nuxt-vite-legacy): module by [@IlyaSemenov](https://github.com/IlyaSemenov) with [his idea](https://github.com/nuxt/nuxt/issues/15464#issuecomment-1539790246)
+
 ## Contribution
 
 <details>

@@ -1,6 +1,19 @@
 # Changelog
 
 
+## v0.0.4
+
+[compare changes](https://github.com/teages/nuxt-legacy/compare/v0.0.3...v0.0.4)
+
+### 🩹 Fixes
+
+- Remove ext from server plugin ([b695252](https://github.com/teages/nuxt-legacy/commit/b695252))
+- Unexpected sideeffect to server plugin ([452ed1d](https://github.com/teages/nuxt-legacy/commit/452ed1d))
+
+### ❤️ Contributors
+
+- Teages ([@Teages](http://github.com/Teages))
+
 ## v0.0.3
 
 [compare changes](https://github.com/teages/nuxt-legacy/compare/v0.0.2...v0.0.3)

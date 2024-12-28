@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v0.0.5
+
+[compare changes](https://github.com/teages/nuxt-legacy/compare/v0.0.4...v0.0.5)
+
+### 🩹 Fixes
+
+- Bundle missing snippets into dist ([2765567](https://github.com/teages/nuxt-legacy/commit/2765567))
+
+### ❤️ Contributors
+
+- Teages ([@Teages](http://github.com/Teages))
+
 ## v0.0.4
 
 [compare changes](https://github.com/teages/nuxt-legacy/compare/v0.0.3...v0.0.4)

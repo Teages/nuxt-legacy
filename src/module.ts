@@ -1,5 +1,5 @@
 import type { ModuleOptions } from './types'
-import { addServerTemplate, defineNuxtModule } from '@nuxt/kit'
+import { addServerTemplate, createResolver, defineNuxtModule } from '@nuxt/kit'
 import { setupVite } from './setup/vite'
 
 export * from './types'
@@ -11,13 +11,15 @@ export default defineNuxtModule<ModuleOptions>({
   },
   defaults: {},
   setup(options, nuxt) {
+    const moduleResolver = createResolver(import.meta.url)
+
     addServerTemplate({
       filename: '#nuxt-legacy/options.mjs',
       getContents: () => `export const options = ${JSON.stringify(options)}`,
     })
 
     if (options.vite) {
-      setupVite(options.vite, nuxt)
+      setupVite(options.vite, nuxt, moduleResolver)
     }
   },
 })

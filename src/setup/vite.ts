@@ -1,9 +1,9 @@
+import type { createResolver } from '@nuxt/kit'
 import type { Nuxt } from '@nuxt/schema'
 import type { ViteLegacyOptions } from '../types'
-import { addServerPlugin, createResolver } from '@nuxt/kit'
+import { addServerPlugin } from '@nuxt/kit'
 
-export async function setupVite(options: ViteLegacyOptions, nuxt: Nuxt) {
-  const resolver = createResolver(import.meta.url)
+export async function setupVite(options: ViteLegacyOptions, nuxt: Nuxt, moduleResolver: ReturnType<typeof createResolver>) {
   const legacy = await import('@vitejs/plugin-legacy')
     .then(m => m.default || m)
 
@@ -30,6 +30,6 @@ export async function setupVite(options: ViteLegacyOptions, nuxt: Nuxt) {
   })
 
   if (options.renderLegacyChunks ?? true) {
-    addServerPlugin(resolver.resolve('../runtime/server/plugin/vite-legacy'))
+    addServerPlugin(moduleResolver.resolve('./runtime/server/plugin/vite-legacy'))
   }
 }

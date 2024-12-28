@@ -1,6 +1,19 @@
 # Changelog
 
 
+## v0.0.3
+
+[compare changes](https://github.com/teages/nuxt-legacy/compare/v0.0.2...v0.0.3)
+
+### 🏡 Chore
+
+- **release:** V0.0.2 ([beea460](https://github.com/teages/nuxt-legacy/commit/beea460))
+- Fix type export ([fedc3b3](https://github.com/teages/nuxt-legacy/commit/fedc3b3))
+
+### ❤️ Contributors
+
+- Teages ([@Teages](http://github.com/Teages))
+
 ## v0.0.2
 
 [compare changes](https://github.com/teages/nuxt-legacy/compare/v0.0.1...v0.0.2)

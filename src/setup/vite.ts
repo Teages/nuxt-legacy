@@ -30,6 +30,6 @@ export async function setupVite(options: ViteLegacyOptions, nuxt: Nuxt) {
   })
 
   if (options.renderLegacyChunks ?? true) {
-    addServerPlugin(resolver.resolve('../runtime/server/plugin/vite-legacy.ts'))
+    addServerPlugin(resolver.resolve('../runtime/server/plugin/vite-legacy'))
   }
 }

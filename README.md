@@ -76,7 +76,7 @@ The module is tested with the following browsers:
 - Chrome 91: not support `Object.hasOwn` but can be polyfilled
 - latest Chrome
 
-You can test by yourself by visiting the [playground](https://github.com/teages/nuxt-legacy/tree/main/playground) with your target browsers.
+You can test by yourself by visiting the [playground](https://nuxt-legacy.pages.dev/) with your target browsers.
 
 ## Credits
 

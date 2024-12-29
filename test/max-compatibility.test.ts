@@ -42,4 +42,12 @@ describe('max-compatibility', async () => {
       legacyEntryScript?.innerHTML,
     ).toMatch(`System.import(document.getElementById('nuxt-legacy-entry').getAttribute('data-src'))`)
   })
+
+  it('modern polyfills should be the first script', async () => {
+    const document = parse(await $fetch('/'))
+
+    const firstScript = document.querySelector('script[src]')
+    const scriptContent = await $fetch(firstScript!.getAttribute('src')!)
+    expect(scriptContent).toContain('https://github.com/zloirock/core-js')
+  })
 })

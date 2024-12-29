@@ -12,21 +12,35 @@ export async function setupVite(options: ViteLegacyOptions, nuxt: Nuxt, moduleRe
   nuxt.options.vite.plugins.unshift(legacy(options))
 
   nuxt.hook('build:manifest', (manifest) => {
-    Object.keys(manifest)
-      .forEach((key) => {
-        if (!manifest[key].file.endsWith('-legacy.js')) {
+    const manifestEntities = Object.entries(manifest)
+    Object.keys(manifest).forEach(key => delete manifest[key])
+
+    // mark legacy chunks and disable preload
+    manifestEntities
+      .forEach(([_key, meta]) => {
+        if (!meta.file.endsWith('-legacy.js')) {
           return
         }
-        Object.assign(manifest[key], {
+        Object.assign(meta, {
           module: false,
           prefetch: false,
           preload: false,
         } satisfies Partial<typeof manifest[string]>)
 
-        if (manifest[key].name === 'polyfills') {
-          manifest[key].file = manifest[key].file.replace(/-legacy\.js$/, '-legacy.js#polyfills')
+        if (meta.name === 'polyfills') {
+          meta.file = meta.file.replace(/-legacy\.js$/, '-legacy.js#polyfills')
         }
       })
+
+    // Move polyfills to the top
+    const polyfillEntities = manifestEntities
+      .filter(([_key, meta]) => meta.name === 'polyfills')
+    polyfillEntities.forEach(([key]) =>
+      manifestEntities.splice(manifestEntities.findIndex(([k]) => k === key), 1),
+    )
+    manifestEntities.unshift(...polyfillEntities)
+
+    Object.assign(manifest, Object.fromEntries(manifestEntities))
   })
 
   if (options.renderLegacyChunks ?? true) {

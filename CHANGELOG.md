@@ -1,6 +1,22 @@
 # Changelog
 
 
+## v0.0.6
+
+[compare changes](https://github.com/teages/nuxt-legacy/compare/v0.0.5...v0.0.6)
+
+### 🩹 Fixes
+
+- Move polyfills to the first script ([8aa12ec](https://github.com/teages/nuxt-legacy/commit/8aa12ec))
+
+### 📖 Documentation
+
+- Update compatibility description ([94e6ca7](https://github.com/teages/nuxt-legacy/commit/94e6ca7))
+
+### ❤️ Contributors
+
+- Teages ([@Teages](http://github.com/Teages))
+
 ## v0.0.5
 
 [compare changes](https://github.com/teages/nuxt-legacy/compare/v0.0.4...v0.0.5)

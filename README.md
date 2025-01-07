@@ -78,6 +78,21 @@ The module is tested with the following browsers:
 
 You can test by yourself by visiting the [playground](https://nuxt-legacy.pages.dev/) with your target browsers.
 
+### Content Security Policy
+
+It injects some inline scripts to [fix legacy browser compatibility](https://github.com/vitejs/vite/tree/main/packages/plugin-legacy#content-security-policy). The hashes keep sync with the latest version of `@vitejs/plugin-legacy`, the current value is:
+
+- `sha256-MS6/3FCg4WjP9gwgaBGwLpRCY6fZBgwmhVCdrPrNf3E=`
+- `sha256-tQjf8gvb2ROOMapIxFvFAYBeUJ0v1HCbOcSmDNXGtDo=`
+- `sha256-VA8O2hAdooB288EpSTrGLl7z3QikbWU9wwoebO/QaYk=`
+- `sha256-+5XkZFazzJo8n0iOP4ti/cLCMUudTf//Mzkb7xNPXIc=`
+
+`cspHashes` is also available in the module:
+
+```ts
+import { cspHashes } from '@teages/nuxt-legacy'
+```
+
 ## Credits
 
 - [IlyaSemenov/nuxt-vite-legacy](https://github.com/IlyaSemenov/nuxt-vite-legacy): module by [@IlyaSemenov](https://github.com/IlyaSemenov) with [his idea](https://github.com/nuxt/nuxt/issues/15464#issuecomment-1539790246)

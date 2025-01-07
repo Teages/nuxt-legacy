@@ -2,6 +2,7 @@ import type { ModuleOptions } from './types'
 import { addServerTemplate, createResolver, defineNuxtModule } from '@nuxt/kit'
 import { setupVite } from './setup/vite'
 
+export { cspHashes } from './csp'
 export * from './types'
 
 export default defineNuxtModule<ModuleOptions>({

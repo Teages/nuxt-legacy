@@ -1,6 +1,6 @@
 <script setup lang="ts">
 const message = ref<string>('Loading...')
-const key = '__nuxt_is_modern_browser'
+const key = '__vite_is_modern_browser'
 onMounted(() => {
   switch (true) {
     case import.meta.dev: {

@@ -1,22 +1,32 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
-    "config:recommended"
+    "config:base",
+    "group:allNonMajor",
+    ":semanticCommitTypeAll(chore)"
   ],
-  "lockFileMaintenance": {
-    "enabled": true,
-    "automerge": true
+  "meteor": {
+    "enabled": false
+  },
+  "rangeStrategy": "bump",
+  "npm": {
+    "commitMessageTopic": "{{prettyDepType}} {{depName}}"
   },
   "packageRules": [
     {
-      "matchDepTypes": ["devDependencies"],
-      "matchPackageNames": ["@antfu/eslint-config", "@nuxt/eslint-config", "eslint"],
-      "automerge": true
-    },
-    {
-      "matchUpdateTypes": ["minor", "patch"],
-      "matchCurrentVersion": "!/^0/",
-      "automerge": true
+      "matchUpdateTypes": [
+        "minor",
+        "patch",
+        "pin",
+        "digest"
+      ],
+      "automerge": true,
+      "automergeSchedule": [
+        "after 1pm and before 2pm"
+      ],
+      "schedule": [
+        "after 2pm and before 3pm"
+      ]
     }
   ]
 }

@@ -18,6 +18,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+      - name: Upgrade corepack
+        run: npm i -g corepack@latest
 
       - name: Install dependencies
         run: npx nypm@latest i
@@ -34,6 +36,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+      - name: Upgrade corepack
+        run: npm i -g corepack@latest
 
       - name: Install dependencies
         run: npx nypm@latest i

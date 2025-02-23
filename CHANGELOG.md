@@ -1,6 +1,34 @@
 # Changelog
 
 
+## v0.0.7
+
+[compare changes](https://github.com/teages/nuxt-legacy/compare/v0.0.6...v0.0.7)
+
+### 🚀 Enhancements
+
+- Content security policy compatibility ([268326d](https://github.com/teages/nuxt-legacy/commit/268326d))
+
+### 🩹 Fixes
+
+- Playground decided wrong browser type ([6c799eb](https://github.com/teages/nuxt-legacy/commit/6c799eb))
+- **deps:** Update nuxtjs monorepo to v3.15.2 ([#4](https://github.com/teages/nuxt-legacy/pull/4))
+- **ci:** Cloudflare build ([#17](https://github.com/teages/nuxt-legacy/pull/17))
+
+### 📖 Documentation
+
+- Using online playground ([422db67](https://github.com/teages/nuxt-legacy/commit/422db67))
+
+### 🏡 Chore
+
+- Configure Renovate ([#2](https://github.com/teages/nuxt-legacy/pull/2))
+- Enable renovate auto merge ([a4b6b37](https://github.com/teages/nuxt-legacy/commit/a4b6b37))
+- Update dependence and renovate config ([#9](https://github.com/teages/nuxt-legacy/pull/9))
+
+### ❤️ Contributors
+
+- Teages ([@Teages](http://github.com/Teages))
+
 ## v0.0.6
 
 [compare changes](https://github.com/teages/nuxt-legacy/compare/v0.0.5...v0.0.6)

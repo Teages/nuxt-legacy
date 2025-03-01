@@ -27,6 +27,12 @@
       "schedule": [
         "after 2pm and before 3pm"
       ]
+    },
+    {
+      "enabled": false,
+      "matchDepTypes": [
+        "peerDependencies"
+      ]
     }
   ]
 }

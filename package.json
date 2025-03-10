@@ -2,7 +2,7 @@
   "name": "@teages/nuxt-legacy",
   "type": "module",
   "version": "0.0.7",
-  "packageManager": "pnpm@10.6.1",
+  "packageManager": "pnpm@10.6.2",
   "description": "",
   "license": "MIT",
   "repository": "teages/nuxt-legacy",

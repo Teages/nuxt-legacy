@@ -2,7 +2,7 @@
   "name": "@teages/nuxt-legacy",
   "type": "module",
   "version": "0.0.7",
-  "packageManager": "pnpm@10.6.1",
+  "packageManager": "pnpm@10.7.0",
   "description": "",
   "license": "MIT",
   "repository": "teages/nuxt-legacy",
@@ -40,23 +40,23 @@
     }
   },
   "dependencies": {
-    "@nuxt/kit": "^3.16.0"
+    "@nuxt/kit": "^3.16.1"
   },
   "devDependencies": {
-    "@antfu/eslint-config": "^4.8.1",
-    "@nuxt/devtools": "2.2.1",
+    "@antfu/eslint-config": "^4.11.0",
+    "@nuxt/devtools": "2.3.2",
     "@nuxt/eslint-config": "^1.2.0",
     "@nuxt/module-builder": "^0.8.4",
-    "@nuxt/schema": "^3.16.0",
+    "@nuxt/schema": "^3.16.1",
     "@nuxt/test-utils": "^3.17.2",
-    "@types/node": "^22.13.10",
+    "@types/node": "^22.13.14",
     "@vitejs/plugin-legacy": "^6.0.2",
     "changelogen": "^0.6.1",
-    "eslint": "^9.22.0",
+    "eslint": "^9.23.0",
     "node-html-parser": "^7.0.1",
-    "nuxt": "^3.16.0",
+    "nuxt": "^3.16.1",
     "typescript": "~5.8.2",
-    "vitest": "^3.0.8",
+    "vitest": "^3.0.9",
     "vue-tsc": "^2.2.8"
   },
   "publishConfig": {

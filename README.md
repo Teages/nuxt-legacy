@@ -66,6 +66,7 @@ Check the results for current module version:
 | Nuxt Version | @vitejs/plugin-legacy | Chrome 49 | Chrome 61 | Chrome 91 |
 | ------------ | --------------------- | --------- | --------- | --------- |
 | 3.15.0       | 6.0.0                 | ✅        | ✅        | ✅        |
+| 3.16.0       | 6.0.2                 | ✅        | ✅        | ✅        |
 
 ### Browser support
 

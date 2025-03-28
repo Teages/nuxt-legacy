@@ -98,6 +98,8 @@ import { cspHashes } from '@teages/nuxt-legacy'
 
 - [IlyaSemenov/nuxt-vite-legacy](https://github.com/IlyaSemenov/nuxt-vite-legacy): module by [@IlyaSemenov](https://github.com/IlyaSemenov) with [his idea](https://github.com/nuxt/nuxt/issues/15464#issuecomment-1539790246)
 
+- [BrowserStack](https://www.browserstack.com/open-source). This project is tested with BrowserStack.
+
 ## Contribution
 
 <details>

@@ -1,5 +1,5 @@
 import type { NitroAppPlugin } from 'nitropack'
-import type { ModuleOptions } from '../../../../src/types'
+import type { ModuleOptions } from '../../../../src/module'
 import {
   detectModernBrowserCode,
   dynamicFallbackInlineCode,

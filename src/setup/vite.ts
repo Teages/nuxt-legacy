@@ -1,7 +1,9 @@
 import type { createResolver } from '@nuxt/kit'
 import type { Nuxt } from '@nuxt/schema'
-import type { ViteLegacyOptions } from '../types'
+import type { Options as ViteLegacyOptions } from '@vitejs/plugin-legacy'
 import { addServerPlugin } from '@nuxt/kit'
+
+export type { ViteLegacyOptions }
 
 export async function setupVite(options: ViteLegacyOptions, nuxt: Nuxt, moduleResolver: ReturnType<typeof createResolver>) {
   const legacy = await import('@vitejs/plugin-legacy')

@@ -8,6 +8,10 @@ export type { ViteLegacyOptions }
 export async function setupVite(options: ViteLegacyOptions, nuxt: Nuxt, moduleResolver: ReturnType<typeof createResolver>) {
   const legacy = await import('@vitejs/plugin-legacy')
     .then(m => m.default || m)
+    .catch(() => null)
+  if (!legacy) {
+    throw new Error('[@teages/nuxt-legacy] @vitejs/plugin-legacy is not installed')
+  }
 
   nuxt.options.vite = nuxt.options.vite || {}
   nuxt.options.vite.plugins = nuxt.options.vite.plugins || []

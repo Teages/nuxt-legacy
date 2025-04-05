@@ -3,7 +3,7 @@
   "type": "module",
   "version": "1.0.0",
   "packageManager": "pnpm@10.17.0",
-  "description": "",
+  "description": "A Nuxt module for supporting legacy browsers.",
   "license": "MIT",
   "repository": "teages/nuxt-legacy",
   "exports": {

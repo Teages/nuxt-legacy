@@ -1,6 +1,35 @@
 # Changelog
 
 
+## v0.0.8
+
+[compare changes](https://github.com/teages/nuxt-legacy/compare/v0.0.7...v0.0.8)
+
+### 🚀 Enhancements
+
+- Throw if @vitejs/plugin-legacy is not installed ([09ea4c7](https://github.com/teages/nuxt-legacy/commit/09ea4c7))
+- Enable vite legacy only if nuxt using vite as builder ([d406f95](https://github.com/teages/nuxt-legacy/commit/d406f95))
+
+### 🩹 Fixes
+
+- Clean up type exports ([9056547](https://github.com/teages/nuxt-legacy/commit/9056547))
+
+### 📖 Documentation
+
+- Update nuxt version test result ([bf4a4f6](https://github.com/teages/nuxt-legacy/commit/bf4a4f6))
+- Add credit for browserstack ([0b3aa0a](https://github.com/teages/nuxt-legacy/commit/0b3aa0a))
+
+### 🏡 Chore
+
+- Add LICENSE ([42288d9](https://github.com/teages/nuxt-legacy/commit/42288d9))
+- **lint:** Disable tooling rule from nuxt eslint ([7925e2d](https://github.com/teages/nuxt-legacy/commit/7925e2d))
+- Drop cjs build and restore to starter dir structure ([7005869](https://github.com/teages/nuxt-legacy/commit/7005869))
+- Update icon ([a695a44](https://github.com/teages/nuxt-legacy/commit/a695a44))
+
+### ❤️ Contributors
+
+- Teages ([@Teages](https://github.com/Teages))
+
 ## v0.0.7
 
 [compare changes](https://github.com/teages/nuxt-legacy/compare/v0.0.6...v0.0.7)

@@ -22,7 +22,7 @@ export default defineNuxtModule<ModuleOptions>({
       getContents: () => `export const options = ${JSON.stringify(options)}`,
     })
 
-    if (options.vite) {
+    if (options.vite && nuxt.options.builder === '@nuxt/vite-builder') {
       setupVite(options.vite, nuxt, moduleResolver)
     }
   },

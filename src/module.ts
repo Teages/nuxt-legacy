@@ -1,9 +1,15 @@
-import type { ModuleOptions } from './types'
+import type { Options as ViteLegacyOptions } from '@vitejs/plugin-legacy'
 import { addServerTemplate, createResolver, defineNuxtModule } from '@nuxt/kit'
+
 import { setupVite } from './setup/vite'
 
 export { cspHashes } from './csp'
-export * from './types'
+
+export interface ModuleOptions {
+  vite?: ViteLegacyOptions
+}
+
+export type { ViteLegacyOptions }
 
 export default defineNuxtModule<ModuleOptions>({
   meta: {

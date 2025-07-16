@@ -12,12 +12,7 @@ export default defineNuxtModule<ModuleOptions>({
   meta: {
     name: '@teages/nuxt-legacy',
     configKey: 'legacy',
-    compatibility: {
-      nuxt: '^3.0.0',
-      builder: {
-        vite: '^6.0.0',
-      },
-    },
+    compatibility: { nuxt: '^3.0.0' },
   },
   defaults: {},
   setup(options, nuxt) {

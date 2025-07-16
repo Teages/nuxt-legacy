@@ -1,6 +1,26 @@
 # Changelog
 
 
+## v0.0.9
+
+[compare changes](https://github.com/teages/nuxt-legacy/compare/v0.0.8...v0.0.9)
+
+### 🚀 Enhancements
+
+- Add support nuxt version range ([#44](https://github.com/teages/nuxt-legacy/pull/44))
+
+### 📖 Documentation
+
+- Update test result for nuxt 3.17 ([fc512c2](https://github.com/teages/nuxt-legacy/commit/fc512c2))
+
+### 🏡 Chore
+
+- Update compatible ([d08123a](https://github.com/teages/nuxt-legacy/commit/d08123a))
+
+### ❤️ Contributors
+
+- Teages ([@Teages](https://github.com/Teages))
+
 ## v0.0.8
 
 [compare changes](https://github.com/teages/nuxt-legacy/compare/v0.0.7...v0.0.8)

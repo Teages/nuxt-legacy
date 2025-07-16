@@ -1,6 +1,22 @@
 # Changelog
 
 
+## v1.0.0
+
+[compare changes](https://github.com/teages/nuxt-legacy/compare/v0.0.9...v1.0.0)
+
+### 🚀 Enhancements
+
+- ⚠️  Nuxt 4 & vite 7 ([#38](https://github.com/teages/nuxt-legacy/pull/38))
+
+#### ⚠️ Breaking Changes
+
+- ⚠️  Nuxt 4 & vite 7 ([#38](https://github.com/teages/nuxt-legacy/pull/38))
+
+### ❤️ Contributors
+
+- Teages ([@Teages](https://github.com/Teages))
+
 ## v0.0.9
 
 [compare changes](https://github.com/teages/nuxt-legacy/compare/v0.0.8...v0.0.9)

@@ -36,8 +36,8 @@
     "test:types": "vue-tsc --noEmit && cd playground && vue-tsc --noEmit"
   },
   "peerDependencies": {
-    "@vitejs/plugin-legacy": "^6.0.1",
-    "nuxt": "^3.15.4"
+    "@vitejs/plugin-legacy": "^7.0.0",
+    "nuxt": ">=4.0.0"
   },
   "peerDependenciesMeta": {
     "@vitejs/plugin-legacy": {
@@ -45,21 +45,21 @@
     }
   },
   "dependencies": {
-    "@nuxt/kit": "^3.17.7"
+    "@nuxt/kit": "^4.0.0"
   },
   "devDependencies": {
     "@antfu/eslint-config": "^4.17.0",
     "@nuxt/devtools": "2.6.2",
     "@nuxt/eslint-config": "^1.5.2",
     "@nuxt/module-builder": "^1.0.1",
-    "@nuxt/schema": "^3.17.7",
+    "@nuxt/schema": "^4.0.0",
     "@nuxt/test-utils": "^3.19.2",
     "@types/node": "^22.16.4",
-    "@vitejs/plugin-legacy": "^6.1.1",
+    "@vitejs/plugin-legacy": "^7.0.0",
     "changelogen": "^0.6.2",
     "eslint": "^9.31.0",
     "node-html-parser": "^7.0.1",
-    "nuxt": "^3.17.7",
+    "nuxt": "^4.0.0",
     "typescript": "~5.8.3",
     "vitest": "^3.2.4",
     "vue-tsc": "^3.0.1"

@@ -12,7 +12,7 @@ describe('max-compatibility', async () => {
     const document = parse(await $fetch('/'))
 
     const decadeIsModern = document.querySelectorAll('script')
-      .filter(el => el.innerHTML === `import.meta.url;import("_").catch(()=>1);(async function*(){})().next();if(location.protocol!="file:"){window.__vite_is_modern_browser=true}`)
+      .filter(el => el.innerHTML === `import.meta.url;import("_").catch(()=>1);(async function*(){})().next();window.__vite_is_modern_browser=true`)
     expect(decadeIsModern.length).toBe(1)
 
     const notModernWarning = document.querySelectorAll('script')

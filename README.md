@@ -67,7 +67,7 @@ Check the results for current module version:
 | ------------ | --------------------- | --------- | --------- | --------- |
 | 4.0.0        | 7.0.0                 | ✅ PASS   | ✅ PASS   | ✅ PASS   |
 
-> If you still using Nuxt 3, you should use [v0.0.9](https://www.npmjs.com/package/@teages/nuxt-legacy/v/0.0.9)
+> If you are still using Nuxt 3, you should use [v0.0.9](https://www.npmjs.com/package/@teages/nuxt-legacy/v/0.0.9)
 
 ### Browser support
 

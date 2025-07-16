@@ -58,7 +58,7 @@ export default defineNuxtConfig({
 
 ### Nuxt & @vitejs/plugin-legacy
 
-The module is compatible with Nuxt `>=3.15.0` and @vitejs/plugin-legacy `^6.0.0`.
+The module is compatible with Nuxt `^3.15.0` and @vitejs/plugin-legacy `^6.0.0` with this version.
 
 Since the module does not depend on any implicit behavior, it should works with any later Nuxt version. But I will recheck compatibility after Nuxt release minor or major versions.
 

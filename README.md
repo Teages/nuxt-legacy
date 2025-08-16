@@ -58,16 +58,15 @@ export default defineNuxtConfig({
 
 ### Nuxt & @vitejs/plugin-legacy
 
-The module is compatible with Nuxt `^4.0.0` and @vitejs/plugin-legacy `^7.0.0` with this version.
+The module is compatible with Nuxt `>=3.18.0` and @vitejs/plugin-legacy `^7.0.0` with this version.
 
 Since the module does not depend on any implicit behavior, it should works with any later Nuxt version. But I will recheck compatibility after Nuxt release minor or major versions.
 
 Check the results for current module version:
 | Nuxt Version | @vitejs/plugin-legacy | Chrome 49 | Chrome 61 | Chrome 91 |
 | ------------ | --------------------- | --------- | --------- | --------- |
+| 3.18.0       | 7.0.0                 | ✅ PASS   | ✅ PASS   | ✅ PASS   |
 | 4.0.0        | 7.0.0                 | ✅ PASS   | ✅ PASS   | ✅ PASS   |
-
-> If you are still using Nuxt 3, you should use [v0.0.9](https://www.npmjs.com/package/@teages/nuxt-legacy/v/0.0.9)
 
 ### Browser support
 

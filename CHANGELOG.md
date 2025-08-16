@@ -1,6 +1,21 @@
 # Changelog
 
 
+## v1.0.1
+
+### 🚀 Enhancements
+
+- Add support for Nuxt 3.18 alongside existing Nuxt 4+ support
+
+### 📖 Documentation
+
+- Update compatibility matrix to reflect Nuxt 3.18+ support
+- Remove outdated notice about using v0.0.9 for Nuxt 3
+
+### ❤️ Contributors
+
+- Teages ([@Teages](https://github.com/Teages))
+
 ## v1.0.0
 
 [compare changes](https://github.com/teages/nuxt-legacy/compare/v0.0.9...v1.0.0)

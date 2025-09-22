@@ -57,6 +57,7 @@
     "@types/node": "^22.18.6",
     "@vitejs/plugin-legacy": "^7.2.1",
     "changelogen": "^0.6.2",
+    "changelogithub": "^13.16.0",
     "eslint": "^9.36.0",
     "node-html-parser": "^7.0.1",
     "nuxt": "^4.1.2",

@@ -1,16 +1,12 @@
 name: Publish Package
 
-permissions:
-  contents: write
-
 on:
   push:
     tags:
       - 'v*'
 
 permissions:
-  id-token: write # Required for OIDC
-  contents: read
+  contents: write
 
 jobs:
   publish:

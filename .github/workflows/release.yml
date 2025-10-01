@@ -1,16 +1,23 @@
 name: Publish Package
 
 on:
-  push:
-    tags:
-      - 'v*'
-
-permissions:
-  contents: write
+  workflow_call:
+    inputs:
+      publish:
+        required: false
+        type: boolean
+        default: false
+      build:
+        required: false
+        type: string
+        default: ''
 
 jobs:
   publish:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
     steps:
       - uses: actions/checkout@v5
         with:
@@ -29,6 +36,20 @@ jobs:
       - name: Install dependencies
         run: pnpm i
 
-      - run: pnpm changelogithub
+      - name: Playground prepare
+        run: pnpm dev:prepare
+
+      - name: Test
+        run: pnpm test
+
+      - name: Build
+        run: pnpm build
+
+      - name: Generate GitHub Changelog
+        run: pnpm changelogithub
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish to NPM
+        run: pnpm publish --access public --no-git-checks
+        if: ${{ inputs.publish }}

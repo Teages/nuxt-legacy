@@ -1,16 +1,9 @@
 name: Publish Package
 
 on:
-  workflow_call:
-    inputs:
-      publish:
-        required: false
-        type: boolean
-        default: false
-      build:
-        required: false
-        type: string
-        default: ''
+  push:
+    tags:
+      - 'v*'
 
 jobs:
   publish:
@@ -52,4 +45,3 @@ jobs:
 
       - name: Publish to NPM
         run: pnpm publish --access public --no-git-checks
-        if: ${{ inputs.publish }}

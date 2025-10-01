@@ -27,26 +27,38 @@ export default <NitroAppPlugin>((nitro) => {
 
     for (const index in html.head) {
       // get all src="*-legacy.js"
-      const matchLegacy = html.head[index].matchAll(
+      const matchLegacy = html.head[index]!.matchAll(
         /<script [^>]*src="([^"]+-legacy\.js)"[^>]*><\/script>\s*/g,
       );
       [...matchLegacy].forEach((match) => {
         if (match) {
           const [full, src] = match
-          legacyScripts.push(src)
-          todo.push(() => html.head[index] = html.head[index].replace(full, ''))
+          if (src) {
+            legacyScripts.push(src)
+          }
+          todo.push(() => {
+            if (html.head[index]) {
+              html.head[index] = html.head[index].replace(full, '')
+            }
+          })
         }
       })
 
       // get all src="*-legacy.js#polyfills"
-      const matchPolyfill = html.head[index].matchAll(
+      const matchPolyfill = html.head[index]!.matchAll(
         /<script[^>]*src="([^"]+-legacy\.js#polyfills)"[^>]*><\/script>\s*/g,
       );
       [...matchPolyfill].forEach((match) => {
         if (match) {
           const [full, src] = match
-          polyfillScripts.push(src.replace(/#polyfills$/, ''))
-          todo.push(() => html.head[index] = html.head[index].replace(full, ''))
+          if (src) {
+            polyfillScripts.push(src.replace(/#polyfills$/, ''))
+          }
+          todo.push(() => {
+            if (html.head[index]) {
+              html.head[index] = html.head[index].replace(full, '')
+            }
+          })
         }
       })
     }

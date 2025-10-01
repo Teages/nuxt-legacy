@@ -1,6 +1,32 @@
 # Changelog
 
 
+## v1.0.1
+
+[compare changes](https://github.com/Teages/nuxt-legacy/compare/v1.0.1...v1.0.1)
+
+### 🩹 Fixes
+
+- Set contents permission to write for changelogithub ([9c77c00](https://github.com/Teages/nuxt-legacy/commit/9c77c00))
+- Set contents permission to write for changelogithub ([050d0a2](https://github.com/Teages/nuxt-legacy/commit/050d0a2))
+- **ci:** Use currect build command ([c041900](https://github.com/Teages/nuxt-legacy/commit/c041900))
+- **ci:** Try to use latest npm to publish ([420b9da](https://github.com/Teages/nuxt-legacy/commit/420b9da))
+- **ci:** Setup git user before commit changelog ([50e0974](https://github.com/Teages/nuxt-legacy/commit/50e0974))
+
+### 💅 Refactors
+
+- Update release workflow ([3bb5ebe](https://github.com/Teages/nuxt-legacy/commit/3bb5ebe))
+- Update release workflow ([a5e3d59](https://github.com/Teages/nuxt-legacy/commit/a5e3d59))
+
+### 🏡 Chore
+
+- **lint:** Apply automatic fix ([b51f72f](https://github.com/Teages/nuxt-legacy/commit/b51f72f))
+- Update repo link and remove unused command ([c4f7fa1](https://github.com/Teages/nuxt-legacy/commit/c4f7fa1))
+
+### ❤️ Contributors
+
+- Teages ([@Teages](https://github.com/Teages))
+
 ## v1.0.0
 
 [compare changes](https://github.com/teages/nuxt-legacy/compare/v0.0.9...v1.0.0)

@@ -18,10 +18,7 @@ jobs:
       - run: corepack enable
       - uses: actions/setup-node@v5
         with:
-          node-version: 22.20.0
-
-      - name: Update npm
-        run: npm install -g npm@latest
+          node-version-file: '.nvmrc'
 
       - name: Upgrade corepack
         run: npm i -g corepack@latest
@@ -39,9 +36,11 @@ jobs:
         run: pnpm prepack
 
       - name: Generate GitHub Changelog
-        run: pnpm changelogithub
+        run: pnpm changelogen --release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Update NPM version
+        run: npm install -g npm@latest && npm --version
       - name: Publish to NPM
-        run: pnpm publish --access public --no-git-checks
+        run: npm publish --access public --no-git-checks

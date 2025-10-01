@@ -5,7 +5,10 @@
   "packageManager": "pnpm@10.17.1",
   "description": "A Nuxt module for supporting legacy browsers.",
   "license": "MIT",
-  "repository": "teages/nuxt-legacy",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Teages/nuxt-legacy.git"
+  },
   "exports": {
     ".": {
       "types": "./dist/types.d.mts",
@@ -28,7 +31,6 @@
     "dev": "nuxi dev playground",
     "dev:build": "nuxi generate playground",
     "dev:prepare": "nuxt-module-build build --stub && nuxt-module-build prepare && nuxi prepare playground",
-    "release": "npm run lint && npm run test && npm run prepack && changelogen --release && npm publish && git push --follow-tags",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "test": "vitest run",

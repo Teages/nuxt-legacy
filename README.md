@@ -67,6 +67,7 @@ Check the results for current module version:
 | ------------ | --------------------- | --------- | --------- | --------- |
 | 3.18.0       | 7.0.0                 | ✅ PASS   | ✅ PASS   | ✅ PASS   |
 | 4.0.3        | 7.0.0                 | ✅ PASS   | ✅ PASS   | ✅ PASS   |
+| 4.2.0        | 7.0.0                 | ❌ FAIL   | ❌ FAIL   | ✅ PASS   |
 
 ### Browser support
 

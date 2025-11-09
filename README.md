@@ -65,9 +65,8 @@ Since the module does not depend on any implicit behavior, it should works with 
 Check the results for current module version:
 | Nuxt Version | @vitejs/plugin-legacy | Chrome 49 | Chrome 61 | Chrome 91 |
 | ------------ | --------------------- | --------- | --------- | --------- |
-| 3.18.0       | 7.0.0                 | ✅ PASS   | ✅ PASS   | ✅ PASS   |
-| 4.0.3        | 7.0.0                 | ✅ PASS   | ✅ PASS   | ✅ PASS   |
-| 4.2.0        | 7.0.0                 | ❌ FAIL   | ❌ FAIL   | ✅ PASS   |
+| 3.20.1       | 7.0.0                 | ✅ PASS   | ✅ PASS   | ✅ PASS   |
+| 4.2.1        | 7.0.0                 | ✅ PASS   | ✅ PASS   | ✅ PASS   |
 
 ### Browser support
 

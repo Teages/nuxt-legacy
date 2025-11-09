@@ -3,11 +3,13 @@
   "type": "module",
   "private": true,
   "scripts": {
+    "dev:prepare": "nuxi prepare",
     "dev": "nuxi dev",
     "build": "nuxi build",
     "generate": "nuxi generate"
   },
   "dependencies": {
+    "@teages/nuxt-legacy": "workspace:*",
     "nuxt": "^4.2.0"
   }
 }

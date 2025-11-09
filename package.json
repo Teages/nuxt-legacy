@@ -28,9 +28,9 @@
   ],
   "scripts": {
     "prepack": "nuxt-module-build build",
-    "dev": "nuxi dev playground",
+    "dev": "pnpm -C playgrounds/v4 dev",
     "dev:build": "nuxi generate playground",
-    "dev:prepare": "nuxt-module-build build --stub && nuxt-module-build prepare && nuxi prepare playground",
+    "dev:prepare": "nuxt-module-build build --stub && nuxt-module-build prepare && pnpm --filter \"./playgrounds/*\" dev:prepare",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "test": "vitest run",

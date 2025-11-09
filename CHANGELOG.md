@@ -1,6 +1,22 @@
 # Changelog
 
 
+## v1.1.1
+
+[compare changes](https://github.com/Teages/nuxt-legacy/compare/v1.0.2...v1.1.1)
+
+### 🩹 Fixes
+
+- **ci:** Push changelog to remote in release ci ([6d6e0e1](https://github.com/Teages/nuxt-legacy/commit/6d6e0e1))
+
+### 🏡 Chore
+
+- Update CHANGELOG.md ([df3cc7b](https://github.com/Teages/nuxt-legacy/commit/df3cc7b))
+
+### ❤️ Contributors
+
+- Teages ([@Teages](https://github.com/Teages))
+
 ## v1.0.1...v1.1.0
 
 [compare changes](https://github.com/Teages/nuxt-legacy/compare/v1.0.1...v1.1.0)

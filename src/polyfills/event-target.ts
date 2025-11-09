@@ -2,7 +2,22 @@ import { definePolyfill } from '../utils/define-polyfill'
 
 export default definePolyfill({
   name: 'EventTarget',
-  browserlist: ['chrome >= 64', 'firefox >= 59', 'safari >= 14'],
+  // https://caniuse.com/mdn-api_eventtarget_eventtarget
+  browserlist: [
+    'chrome >= 64',
+    'edge >= 79',
+    'safari >= 14',
+    'firefox >= 59',
+    'opera >= 51',
+    'android >= 64',
+    'ios_saf >= 14',
+    'samsung >= 9.2',
+    'opera_mini >= 80',
+    'and_uc >= 15.5',
+    'and_ff >= 143',
+    'and_qq >= 14.9',
+    'kaios >= 3.1',
+  ],
   setup: (self) => {
     let isPolyfillNeeded = false
     try {

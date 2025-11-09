@@ -1,5 +1,5 @@
 import type { PolyfillOption } from '../utils/define-polyfill'
-import { addPluginTemplate, addTemplate, useNuxt } from '@nuxt/kit'
+import { addPluginTemplate, addTemplate } from '@nuxt/kit'
 import browserlist from 'browserslist'
 import AbortControllerPolyfill from '../polyfills/abort-controller'
 import AbortSignalPolyfill from '../polyfills/abort-signal'
@@ -29,7 +29,7 @@ export async function setupCustomPolyfills(options: CustomPolyfillsOptions) {
   // only inject polyfills for targets that need them
   const polyfills = sortPolyfillsByDependency(filterPolyfills(availablePolyfills, targets))
 
-  const template = addTemplate({
+  addTemplate({
     filename: 'nuxt-legacy/custom-polyfills.mjs',
     getContents: () => [
       `export function setup() {`,
@@ -52,8 +52,6 @@ export async function setupCustomPolyfills(options: CustomPolyfillsOptions) {
       `})`,
     ].join('\n'),
   })
-
-  console.log(template.filename)
 }
 
 /**

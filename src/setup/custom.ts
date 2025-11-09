@@ -3,24 +3,16 @@ import { addPluginTemplate, addTemplate } from '@nuxt/kit'
 import browserlist from 'browserslist'
 import AbortControllerPolyfill from '../polyfills/abort-controller'
 import AbortSignalPolyfill from '../polyfills/abort-signal'
-// import AbortSignalAbortPolyfill from '../polyfills/abort-signal/abort'
-// import AbortSignalAbortReasonPolyfill from '../polyfills/abort-signal/abort-reason'
-// import AbortSignalAnyPolyfill from '../polyfills/abort-signal/any'
-// import AbortSignalThrowIfAbortedPolyfill from '../polyfills/abort-signal/throw-if-aborted'
-// import AbortSignalTimeoutPolyfill from '../polyfills/abort-signal/timeout'
+import EventTargetPolyfill from '../polyfills/event-target'
 
 export interface CustomPolyfillsOptions {
   targets?: string | string[] | Record<string, string> | null
 }
 
 const availablePolyfills = [
+  EventTargetPolyfill,
   AbortSignalPolyfill,
   AbortControllerPolyfill,
-  // AbortSignalAbortPolyfill,
-  // AbortSignalAbortReasonPolyfill,
-  // AbortSignalAnyPolyfill,
-  // AbortSignalThrowIfAbortedPolyfill,
-  // AbortSignalTimeoutPolyfill,
 ]
 
 export async function setupCustomPolyfills(options: CustomPolyfillsOptions) {
@@ -42,12 +34,10 @@ export async function setupCustomPolyfills(options: CustomPolyfillsOptions) {
     getContents: () => [
       `import { defineNuxtPlugin } from '#app/nuxt'`,
       `import { setup } from '#build/nuxt-legacy/custom-polyfills.mjs'`,
-      '',
+      'if (import.meta.client) setup();',
       `export default defineNuxtPlugin({`,
       `  name: 'custom-polyfills-plugin',`,
       `  setup (nuxtApp) {`,
-      `    if (!import.meta.client) return;`,
-      `    setup()`,
       `  }`,
       `})`,
     ].join('\n'),

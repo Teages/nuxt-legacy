@@ -1,6 +1,32 @@
 # Changelog
 
 
+## v1.0.1...v1.1.0
+
+[compare changes](https://github.com/Teages/nuxt-legacy/compare/v1.0.1...v1.1.0)
+
+### 🚀 Enhancements
+
+- Add build-in `AbortController` polyfill ([#78](https://github.com/Teages/nuxt-legacy/pull/78))
+
+### 🩹 Fixes
+
+- **type:** Type error on legacy script handling ([0fc13a7](https://github.com/Teages/nuxt-legacy/commit/0fc13a7))
+- **type:** Type error on legacy script handling ([#65](https://github.com/Teages/nuxt-legacy/pull/65))
+- Update tsconfig for v3 playground ([9430a2d](https://github.com/Teages/nuxt-legacy/commit/9430a2d))
+
+### 🏡 Chore
+
+- Change release trigger to manual workflow dispatch ([9b56dd2](https://github.com/Teages/nuxt-legacy/commit/9b56dd2))
+- Update README with Nuxt 4.2.0 browser support ([d1583ef](https://github.com/Teages/nuxt-legacy/commit/d1583ef))
+- Add v3 playground ([#79](https://github.com/Teages/nuxt-legacy/pull/79))
+- Disable automerge for Nuxt in playgrounds ([884a320](https://github.com/Teages/nuxt-legacy/commit/884a320))
+- Update test result ([#82](https://github.com/Teages/nuxt-legacy/pull/82))
+
+### ❤️ Contributors
+
+- Teages ([@Teages](https://github.com/Teages))
+
 ## v1.0.1
 
 [compare changes](https://github.com/Teages/nuxt-legacy/compare/v1.0.1...v1.0.1)

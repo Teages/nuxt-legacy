@@ -1,5 +1,6 @@
 import type { ViteLegacyOptions } from './setup/vite'
 import { addServerTemplate, createResolver, defineNuxtModule } from '@nuxt/kit'
+import { setupCustomPolyfills } from './setup/custom'
 import { setupVite } from './setup/vite'
 
 export { cspHashes } from './csp'
@@ -25,6 +26,7 @@ export default defineNuxtModule<ModuleOptions>({
 
     if (options.vite && nuxt.options.builder === '@nuxt/vite-builder') {
       setupVite(options.vite, nuxt, moduleResolver)
+      setupCustomPolyfills({ targets: options.vite.targets })
     }
   },
 })

@@ -39,7 +39,7 @@ jobs:
         run: pnpm prepack
 
       - name: Generate GitHub changelog
-        run: pnpm changelogen --release
+        run: pnpm changelogen --release --push
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 

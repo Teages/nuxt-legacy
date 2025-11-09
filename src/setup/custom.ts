@@ -20,6 +20,9 @@ export async function setupCustomPolyfills(options: CustomPolyfillsOptions) {
 
   // only inject polyfills for targets that need them
   const polyfills = sortPolyfillsByDependency(filterPolyfills(availablePolyfills, targets))
+  if (polyfills.length === 0) {
+    return
+  }
 
   addTemplate({
     filename: 'nuxt-legacy/custom-polyfills.mjs',

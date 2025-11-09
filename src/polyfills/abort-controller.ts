@@ -3,7 +3,7 @@ import { definePolyfill } from '../../src/utils/define-polyfill'
 export default definePolyfill({
   name: 'AbortController',
   browserlist: ['partially supports abortcontroller'],
-  relyOn: 'AbortSignal',
+  relyOn: ['AbortSignal', 'EventTarget'],
   setup: (self) => {
     const isPolyfillNeeded = !('AbortController' in self && typeof self.AbortController === 'function')
     if (!isPolyfillNeeded) {

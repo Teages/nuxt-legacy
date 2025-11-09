@@ -1,9 +1,9 @@
-import { definePolyfill } from '../../src/utils/define-polyfill'
+import { definePolyfill } from '../utils/define-polyfill'
 
 export default definePolyfill({
   name: 'EventTarget',
   browserlist: ['chrome >= 64', 'firefox >= 59', 'safari >= 14'],
-  setup: async (self) => {
+  setup: (self) => {
     let isPolyfillNeeded = false
     try {
       // eslint-disable-next-line no-new
@@ -211,7 +211,7 @@ export default definePolyfill({
       }
     }
 
-    // Ensure `eventTarget instanceof window.EventTarget` is `true` for functions runned before polyfill
+    // Ensure `eventTarget instanceof window.EventTarget` is `true` for functions run before polyfill
     if (self.EventTarget) {
       Object.setPrototypeOf(EventTarget.prototype, self.EventTarget.prototype)
     }

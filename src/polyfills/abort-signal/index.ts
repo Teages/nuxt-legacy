@@ -1,4 +1,4 @@
-import { definePolyfill } from '../../../src/utils/define-polyfill'
+import { definePolyfill } from '../../utils/define-polyfill'
 
 export default definePolyfill({
   name: 'AbortSignal',

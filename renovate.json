@@ -33,6 +33,15 @@
       "matchDepTypes": [
         "peerDependencies"
       ]
+    },
+    {
+      "enabled": false,
+      "matchPackageNames": [
+        "nuxt"
+      ],
+      "matchPaths": [
+        "playgrounds/**"
+      ]
     }
   ]
 }

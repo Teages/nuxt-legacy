@@ -52,12 +52,15 @@ export async function setupCustomPolyfills(options: CustomPolyfillsOptions) {
  */
 function filterPolyfills(
   polyfills: PolyfillOption[],
-  targets: string | string[] | null,
+  targets: string[] | null,
 ) {
   if (!targets) {
     // if no targets specified, include all polyfills
     return polyfills
   }
+
+  // get target browsers
+  const targetBrowsers = browserlist([...targets, 'not dead'])
 
   return polyfills.filter((polyfill) => {
     // if polyfill doesn't specify browserlist, always include it
@@ -67,14 +70,12 @@ function filterPolyfills(
 
     try {
       // get browsers that DON'T need this polyfill
-      const browsersWithoutPolyfill = browserlist(polyfill.browserlist)
-      // get target browsers
-      const targetBrowsers = browserlist(targets)
+      const browsersWithoutPolyfill = new Set(browserlist(polyfill.browserlist))
 
       // check if any target browser needs the polyfill
       // (i.e., not in the browsersWithoutPolyfill list)
       const needsPolyfill = targetBrowsers.some((target) => {
-        return !browsersWithoutPolyfill.includes(target)
+        return !browsersWithoutPolyfill.has(target)
       })
 
       return needsPolyfill
@@ -133,7 +134,10 @@ function sortPolyfillsByDependency(polyfills: PolyfillOption[]) {
 }
 
 function resolveTargets(input: CustomPolyfillsOptions['targets']) {
-  if (typeof input === 'string' || Array.isArray(input)) {
+  if (typeof input === 'string') {
+    return [input]
+  }
+  if (Array.isArray(input)) {
     return input
   }
   if (typeof input === 'object' && input !== null) {

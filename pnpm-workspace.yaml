@@ -4,6 +4,8 @@ cleanupUnusedCatalogs: true
 shellEmulator: true
 trustPolicy: no-downgrade
 
+trustPolicyExclude:
+  - chokidar@4.0.3
 packages:
   - ./
   - playgrounds/*
@@ -25,6 +27,9 @@ catalogs:
     typescript: ~5.9.3
     vitest: ^4.0.15
     vue-tsc: ^3.1.6
+  dev:nuxt-v3:
+    # eslint-disable-next-line pnpm/yaml-no-duplicate-catalog-item
+    nuxt: ^3.20.1
   prod:
     '@nuxt/kit': ^4.2.1
     browserslist: ^4.28.1

@@ -1,3 +1,7 @@
+/**
+ * IMPORTANT: Do not use it in production. This polyfill is for dev purposes only.
+ */
+
 setup(window)
 
 function setup(self: typeof window) {

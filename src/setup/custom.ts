@@ -2,7 +2,16 @@ import type { Nuxt } from '@nuxt/schema'
 import { addPluginTemplate, resolveFiles } from '@nuxt/kit'
 
 export interface CustomPolyfillsOptions {
+  /**
+   * Array of polyfill file paths to be imported
+   */
   polyfills?: string[]
+  /**
+   * Directories to scan for polyfill files
+   *
+   * This dir is relative to the project `srcDir`.
+   * @default ['polyfills']
+   */
   scanDirs?: string[]
 }
 

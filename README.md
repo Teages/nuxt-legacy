@@ -63,6 +63,9 @@ The module is compatible with Nuxt `^3.18.0 || >=4.0.3` and @vitejs/plugin-legac
 Since the module does not depend on any implicit behavior, it should works with any later Nuxt version. But I will recheck compatibility after Nuxt release minor or major versions.
 
 Check the results for current module version:
+
+> The test result runs with custom `AbortController` polyfill, which is not included in this module and you need to add it by yourself, see [Custom Polyfills](#custom-polyfills).
+
 | Nuxt Version | @vitejs/plugin-legacy | Chrome 49 | Chrome 61 | Chrome 91 |
 | ------------ | --------------------- | --------- | --------- | --------- |
 | 3.20.1       | 7.0.0                 | ✅ PASS   | ✅ PASS   | ✅ PASS   |
@@ -92,6 +95,72 @@ It injects some inline scripts to [fix legacy browser compatibility](https://git
 
 ```ts
 import { cspHashes } from '@teages/nuxt-legacy'
+```
+
+## Custom Polyfills
+
+The module supports custom polyfills to provide additional compatibility for legacy browsers.
+
+This allows you to add polyfills for specific APIs that may not be covered by the Vite legacy plugin (it uses `babel` and `core-js`).
+
+> Since Nuxt 4.2 and Nuxt 3.20, you need to add `AbortController` polyfill because it will be used in `useFetch` and `useAsyncData` and its polyfill is not included in `core-js`.
+
+### Configuration
+
+You can customize the polyfill behavior in your `nuxt.config.ts`:
+
+```ts
+export default defineNuxtConfig({
+  modules: ['@teages/nuxt-legacy'],
+
+  legacy: {
+    vite: {
+      targets: ['fully supports proxy'],
+    },
+
+    // Custom polyfills configuration
+    customPolyfills: {
+      // Specify custom scan directories
+      scanDirs: ['polyfills', 'other-polyfills'],
+
+      // Or manually specify polyfill files
+      polyfills: [
+        './compat/event-target.ts',
+        './compat/abort-controller.ts'
+      ]
+    }
+  }
+})
+```
+
+### Writing Polyfills
+
+Polyfill is a script that runs before your application code.
+
+Here's an example:
+```ts
+// polyfills/event-target.ts
+import { EventTarget } from 'event-target-shim'
+
+setup(window)
+
+function setup(self: typeof window) {
+  // Check if polyfill is needed
+  let isPolyfillNeeded = false
+  try {
+    const _ = new self.EventTarget()
+  }
+  catch {
+    isPolyfillNeeded = true
+  }
+
+  if (!isPolyfillNeeded) {
+    return
+  }
+
+  // Apply polyfill
+  self.EventTarget = EventTarget
+}
 ```
 
 ## Credits

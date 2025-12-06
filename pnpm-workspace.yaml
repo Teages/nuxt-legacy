@@ -33,7 +33,7 @@ catalogs:
     vue-tsc: ^3.1.6
   dev:nuxt-v3:
     # eslint-disable-next-line pnpm/yaml-no-duplicate-catalog-item
-    nuxt: ^3.20.1
+    nuxt: ^4.2.1
   polyfills:
     event-target-shim: ^6.0.2
   prod:

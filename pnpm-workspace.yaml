@@ -1,3 +1,6 @@
+# PNPM Workspace Configuration
+# catalogMode: prefer - Use catalog versions when available, fallback to specified versions
+# cleanupUnusedCatalogs: true - Automatically remove unused catalog entries
 catalogMode: prefer
 cleanupUnusedCatalogs: true
 

@@ -1,14 +1,18 @@
 catalogMode: prefer
 cleanupUnusedCatalogs: true
-
 shellEmulator: true
-trustPolicy: no-downgrade
 
+trustPolicy: no-downgrade
 trustPolicyExclude:
   - chokidar@4.0.3
+
 packages:
   - ./
   - playgrounds/*
+
+patchedDependencies:
+  event-target-shim@6.0.2: patches/event-target-shim@6.0.2.patch
+
 catalogs:
   dev:
     '@antfu/eslint-config': ^6.4.2
@@ -30,9 +34,11 @@ catalogs:
   dev:nuxt-v3:
     # eslint-disable-next-line pnpm/yaml-no-duplicate-catalog-item
     nuxt: ^3.20.1
+  polyfills:
+    event-target-shim: ^6.0.2
   prod:
     '@nuxt/kit': ^4.2.1
-    browserslist: ^4.28.1
+
 ignoredBuiltDependencies:
   - core-js
 onlyBuiltDependencies:

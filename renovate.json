@@ -41,6 +41,9 @@
       ],
       "matchPaths": [
         "playgrounds/**"
+      ],
+      "matchUpdateTypes": [
+        "major"
       ]
     }
   ]

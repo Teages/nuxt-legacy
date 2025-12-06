@@ -1,19 +1,14 @@
 import type { PolyfillOption } from '../utils/define-polyfill'
 import { addPluginTemplate, addTemplate } from '@nuxt/kit'
 import browserlist from 'browserslist'
-import AbortControllerPolyfill from '../polyfills/abort-controller'
-import AbortSignalPolyfill from '../polyfills/abort-signal'
-import EventTargetPolyfill from '../polyfills/event-target'
+// Built-in polyfill implementations were removed. Keep the injection
+// logic so polyfills can be added back as an opt-in feature later.
 
 export interface CustomPolyfillsOptions {
   targets?: string | string[] | Record<string, string> | null
 }
 
-const availablePolyfills = [
-  EventTargetPolyfill,
-  AbortSignalPolyfill,
-  AbortControllerPolyfill,
-]
+const availablePolyfills: PolyfillOption[] = []
 
 export async function setupCustomPolyfills(options: CustomPolyfillsOptions) {
   const targets = resolveTargets(options.targets)

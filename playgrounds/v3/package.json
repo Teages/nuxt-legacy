@@ -10,6 +10,6 @@
   },
   "dependencies": {
     "@teages/nuxt-legacy": "workspace:*",
-    "nuxt": "^3.20.1"
+    "nuxt": "catalog:dev:nuxt-v3"
   }
 }

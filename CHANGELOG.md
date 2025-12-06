@@ -1,6 +1,26 @@
 # Changelog
 
 
+## v2.0.0
+
+[compare changes](https://github.com/Teages/nuxt-legacy/compare/v1.1.1...v2.0.0)
+
+### 🚀 Enhancements
+
+- ⚠️  Add custom polyfill support and remove build-in polyfill ([#91](https://github.com/Teages/nuxt-legacy/pull/91))
+
+### 🏡 Chore
+
+- Disable auto bump for nuxt major versions ([7e0d4de](https://github.com/Teages/nuxt-legacy/commit/7e0d4de))
+
+#### ⚠️ Breaking Changes
+
+- ⚠️  Add custom polyfill support and remove build-in polyfill ([#91](https://github.com/Teages/nuxt-legacy/pull/91))
+
+### ❤️ Contributors
+
+- Teages ([@Teages](https://github.com/Teages))
+
 ## v1.1.1
 
 [compare changes](https://github.com/Teages/nuxt-legacy/compare/v1.0.2...v1.1.1)

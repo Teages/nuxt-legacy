@@ -1,5 +1,5 @@
 import type { Nuxt } from '@nuxt/schema'
-import { addPluginTemplate, resolveFiles } from '@nuxt/kit'
+import { addPluginTemplate, resolveFiles, resolvePath } from '@nuxt/kit'
 
 export interface CustomPolyfillsOptions {
   /**
@@ -16,17 +16,19 @@ export interface CustomPolyfillsOptions {
 }
 
 export async function setupCustomPolyfills(nuxt: Nuxt, options: CustomPolyfillsOptions) {
-  // only inject polyfills for targets that need them
   const polyfills: string[] = []
 
   if (options.polyfills) {
-    polyfills.push(...options.polyfills)
+    for (const path of options.polyfills) {
+      polyfills.push(await resolvePath(path, { cwd: nuxt.options.srcDir }))
+    }
   }
 
   options.scanDirs ??= ['polyfills']
   if (options.scanDirs.length > 0) {
+    const jsExts = new Set(['.js', '.mjs', '.cjs', '.ts', '.mts', '.cts'])
     const found = (await resolveFiles(nuxt.options.srcDir, options.scanDirs))
-      .filter(p => ['.js', '.mjs', '.cjs', '.ts', '.mts', '.cts'].some(ext => p.endsWith(ext)))
+      .filter(p => jsExts.has(p.slice(p.lastIndexOf('.'))))
       .sort()
 
     polyfills.push(...found)

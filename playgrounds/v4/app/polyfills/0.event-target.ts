@@ -15,5 +15,5 @@ function setup(self: typeof window) {
     return
   }
 
-  self.EventTarget = EventTarget as any
+  Object.assign(self, { EventTarget })
 }

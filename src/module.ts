@@ -18,7 +18,7 @@ export default defineNuxtModule<ModuleOptions>({
     compatibility: { nuxt: '^3.18.0 || >=4.0.3' },
   },
   defaults: {},
-  setup(options, nuxt) {
+  async setup(options, nuxt) {
     const moduleResolver = createResolver(import.meta.url)
 
     addServerTemplate({
@@ -27,8 +27,8 @@ export default defineNuxtModule<ModuleOptions>({
     })
 
     if (options.vite && nuxt.options.builder === '@nuxt/vite-builder') {
-      setupVite(options.vite, nuxt, moduleResolver)
-      setupCustomPolyfills(nuxt, options.customPolyfills ?? {})
+      await setupVite(options.vite, nuxt, moduleResolver)
     }
+    await setupCustomPolyfills(nuxt, options.customPolyfills ?? {})
   },
 })

@@ -49,26 +49,26 @@
     }
   },
   "dependencies": {
-    "@nuxt/kit": "catalog:",
-    "browserslist": "catalog:"
+    "@nuxt/kit": "catalog:prod",
+    "browserslist": "catalog:prod"
   },
   "devDependencies": {
-    "@antfu/eslint-config": "catalog:",
-    "@nuxt/devtools": "catalog:",
-    "@nuxt/eslint-config": "catalog:",
-    "@nuxt/module-builder": "catalog:",
-    "@nuxt/schema": "catalog:",
-    "@nuxt/test-utils": "catalog:",
-    "@types/node": "catalog:",
-    "@vitejs/plugin-legacy": "catalog:",
-    "changelogen": "catalog:",
-    "changelogithub": "catalog:",
-    "eslint": "catalog:",
-    "node-html-parser": "catalog:",
-    "nuxt": "catalog:nuxt4",
-    "typescript": "catalog:",
-    "vitest": "catalog:",
-    "vue-tsc": "catalog:"
+    "@antfu/eslint-config": "catalog:dev",
+    "@nuxt/devtools": "catalog:dev",
+    "@nuxt/eslint-config": "catalog:dev",
+    "@nuxt/module-builder": "catalog:dev",
+    "@nuxt/schema": "catalog:dev",
+    "@nuxt/test-utils": "catalog:dev",
+    "@types/node": "catalog:dev",
+    "@vitejs/plugin-legacy": "catalog:dev",
+    "changelogen": "catalog:dev",
+    "changelogithub": "catalog:dev",
+    "eslint": "catalog:dev",
+    "node-html-parser": "catalog:dev",
+    "nuxt": "catalog:dev",
+    "typescript": "catalog:dev",
+    "vitest": "catalog:dev",
+    "vue-tsc": "catalog:dev"
   },
   "publishConfig": {
     "access": "public",

@@ -19,17 +19,3 @@ export default createConfigForNuxt({
       },
     }),
   )
-  .append({
-    // v3 playground uses different Nuxt version incompatible with main catalog
-    files: ['playgrounds/v3/package.json'],
-    rules: {
-      'pnpm/json-enforce-catalog': 'off',
-    },
-  })
-  .append({
-    // Disabled to avoid conflicts with trustPolicy settings that prevent installation
-    files: ['pnpm-workspace.yaml'],
-    rules: {
-      'pnpm/yaml-enforce-settings': 'off',
-    },
-  })

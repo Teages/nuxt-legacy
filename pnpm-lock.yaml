@@ -58,13 +58,19 @@ catalogs:
     nuxt:
       specifier: ^3.20.1
       version: 3.20.1
+  polyfills:
+    event-target-shim:
+      specifier: ^6.0.2
+      version: 6.0.2
   prod:
     '@nuxt/kit':
       specifier: ^4.2.1
       version: 4.2.1
-    browserslist:
-      specifier: ^4.28.1
-      version: 4.28.1
+
+patchedDependencies:
+  event-target-shim@6.0.2:
+    hash: 41489b261fb4a44f1664ffaea64e0a8fe7955ecf149b005da94a524b26b988bb
+    path: patches/event-target-shim@6.0.2.patch
 
 importers:
 
@@ -73,9 +79,6 @@ importers:
       '@nuxt/kit':
         specifier: catalog:prod
         version: 4.2.1(magicast@0.3.5)
-      browserslist:
-        specifier: catalog:prod
-        version: 4.28.1
     devDependencies:
       '@antfu/eslint-config':
         specifier: catalog:dev
@@ -131,18 +134,32 @@ importers:
       '@teages/nuxt-legacy':
         specifier: workspace:*
         version: link:../..
+      event-target-shim:
+        specifier: catalog:polyfills
+        version: 6.0.2(patch_hash=41489b261fb4a44f1664ffaea64e0a8fe7955ecf149b005da94a524b26b988bb)
       nuxt:
         specifier: catalog:dev:nuxt-v3
         version: 3.20.1(@netlify/blobs@9.1.2)(@parcel/watcher@2.5.1)(@types/node@24.10.1)(@vue/compiler-sfc@3.5.25)(db0@0.3.4)(eslint@9.39.1(jiti@2.6.1))(ioredis@5.8.2)(magicast@0.5.1)(meow@13.2.0)(optionator@0.9.4)(rollup@4.53.1)(terser@5.43.1)(typescript@5.9.3)(vite@7.2.2(@types/node@24.10.1)(jiti@2.6.1)(terser@5.43.1)(yaml@2.8.2))(vue-tsc@3.1.6(typescript@5.9.3))(yaml@2.8.2)
+    devDependencies:
+      '@vitejs/plugin-legacy':
+        specifier: catalog:dev
+        version: 7.2.1(terser@5.43.1)(vite@7.2.2(@types/node@24.10.1)(jiti@2.6.1)(terser@5.43.1)(yaml@2.8.2))
 
   playgrounds/v4:
     dependencies:
       '@teages/nuxt-legacy':
         specifier: workspace:*
         version: link:../..
+      event-target-shim:
+        specifier: catalog:polyfills
+        version: 6.0.2(patch_hash=41489b261fb4a44f1664ffaea64e0a8fe7955ecf149b005da94a524b26b988bb)
       nuxt:
         specifier: catalog:dev
         version: 4.2.1(@netlify/blobs@9.1.2)(@parcel/watcher@2.5.1)(@types/node@24.10.1)(@vue/compiler-sfc@3.5.25)(db0@0.3.4)(eslint@9.39.1(jiti@2.6.1))(ioredis@5.8.2)(magicast@0.5.1)(meow@13.2.0)(optionator@0.9.4)(rollup@4.53.1)(terser@5.43.1)(typescript@5.9.3)(vite@7.2.2(@types/node@24.10.1)(jiti@2.6.1)(terser@5.43.1)(yaml@2.8.2))(vue-tsc@3.1.6(typescript@5.9.3))(yaml@2.8.2)
+    devDependencies:
+      '@vitejs/plugin-legacy':
+        specifier: catalog:dev
+        version: 7.2.1(terser@5.43.1)(vite@7.2.2(@types/node@24.10.1)(jiti@2.6.1)(terser@5.43.1)(yaml@2.8.2))
 
 packages:
 
@@ -3102,6 +3119,10 @@ packages:
   event-target-shim@5.0.1:
     resolution: {integrity: sha512-i/2XbnSz/uxRCU6+NdVJgKWDTM427+MqYbkQzD321DuCQJUqOuJKIA0IM2+W2xtYHdKOmZ4dR6fExsd4SXL+WQ==}
     engines: {node: '>=6'}
+
+  event-target-shim@6.0.2:
+    resolution: {integrity: sha512-8q3LsZjRezbFZ2PN+uP+Q7pnHUMmAOziU2vA2OwoFaKIXxlxl38IylhSSgUorWu/rf4er67w0ikBqjBFk/pomA==}
+    engines: {node: '>=10.13.0'}
 
   events@3.3.0:
     resolution: {integrity: sha512-mQw+2fkQbALzQ7V0MY0IqdnXNOeTtP4r0lN9z7AAawCXgqea7bDii20AYrIBrFd/Hx0M2Ocz6S111CaFkUcb0Q==}
@@ -9181,6 +9202,8 @@ snapshots:
   etag@1.8.1: {}
 
   event-target-shim@5.0.1: {}
+
+  event-target-shim@6.0.2(patch_hash=41489b261fb4a44f1664ffaea64e0a8fe7955ecf149b005da94a524b26b988bb): {}
 
   events@3.3.0: {}
 

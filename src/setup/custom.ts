@@ -1,147 +1,54 @@
-import type { PolyfillOption } from '../utils/define-polyfill'
-import { addPluginTemplate, addTemplate } from '@nuxt/kit'
-import browserlist from 'browserslist'
-import AbortControllerPolyfill from '../polyfills/abort-controller'
-import AbortSignalPolyfill from '../polyfills/abort-signal'
-import EventTargetPolyfill from '../polyfills/event-target'
+import type { Nuxt } from '@nuxt/schema'
+import { addPluginTemplate, resolveFiles, resolvePath } from '@nuxt/kit'
 
 export interface CustomPolyfillsOptions {
-  targets?: string | string[] | Record<string, string> | null
+  /**
+   * Array of polyfill file paths to be imported
+   */
+  polyfills?: string[]
+  /**
+   * Directories to scan for polyfill files
+   *
+   * This dir is relative to the project `srcDir`.
+   * @default ['polyfills']
+   */
+  scanDirs?: string[]
 }
 
-const availablePolyfills = [
-  EventTargetPolyfill,
-  AbortSignalPolyfill,
-  AbortControllerPolyfill,
-]
+export async function setupCustomPolyfills(nuxt: Nuxt, options: CustomPolyfillsOptions) {
+  const polyfills: string[] = []
 
-export async function setupCustomPolyfills(options: CustomPolyfillsOptions) {
-  const targets = resolveTargets(options.targets)
+  if (options.polyfills) {
+    for (const path of options.polyfills) {
+      polyfills.push(await resolvePath(path, { cwd: nuxt.options.srcDir }))
+    }
+  }
 
-  // only inject polyfills for targets that need them
-  const polyfills = sortPolyfillsByDependency(filterPolyfills(availablePolyfills, targets))
+  options.scanDirs ??= ['polyfills']
+  if (options.scanDirs.length > 0) {
+    const jsExts = new Set(['.js', '.mjs', '.cjs', '.ts', '.mts', '.cts'])
+    const found = (await resolveFiles(nuxt.options.srcDir, options.scanDirs))
+      .filter(p => jsExts.has(p.slice(p.lastIndexOf('.'))))
+      .sort()
+
+    polyfills.push(...found)
+  }
+
   if (polyfills.length === 0) {
     return
   }
-
-  addTemplate({
-    filename: 'nuxt-legacy/custom-polyfills.mjs',
-    getContents: () => [
-      `export function setup() {`,
-      ...polyfills.map(p => `  (${p.setup.toString()})(window);`),
-      `}`,
-    ].join('\n'),
-  })
   addPluginTemplate({
-    filename: 'custom-polyfills-plugin.mjs',
-    getContents: () => [
-      `import { defineNuxtPlugin } from '#app/nuxt'`,
-      `import { setup } from '#build/nuxt-legacy/custom-polyfills.mjs'`,
-      'if (import.meta.client) setup();',
-      `export default defineNuxtPlugin({`,
-      `  name: 'custom-polyfills-plugin',`,
-      `  setup (nuxtApp) {`,
-      `  }`,
-      `})`,
-    ].join('\n'),
+    filename: 'custom-polyfills-plugin.client.mjs',
+    mode: 'client',
+    order: -999, // should run before any other plugin
+    getContents: () => `
+import { defineNuxtPlugin } from '#app/nuxt'
+${polyfills.map(p => `import '${p}'`).join('\n')}
+
+export default defineNuxtPlugin({
+  name: 'nuxt-legacy:custom-polyfills-plugin',
+  setup () {}
+})
+    `.trim(),
   })
-}
-
-/**
- * Filter polyfills based on target browsers
- */
-function filterPolyfills(
-  polyfills: PolyfillOption[],
-  targets: string[] | null,
-) {
-  if (!targets) {
-    // if no targets specified, include all polyfills
-    return polyfills
-  }
-
-  // get target browsers
-  const targetBrowsers = browserlist([...targets, 'not dead'])
-
-  return polyfills.filter((polyfill) => {
-    // if polyfill doesn't specify browserlist, always include it
-    if (!polyfill.browserlist) {
-      return true
-    }
-
-    try {
-      // get browsers that DON'T need this polyfill
-      const browsersWithoutPolyfill = new Set(browserlist(polyfill.browserlist))
-
-      // check if any target browser needs the polyfill
-      // (i.e., not in the browsersWithoutPolyfill list)
-      const needsPolyfill = targetBrowsers.some((target) => {
-        return !browsersWithoutPolyfill.has(target)
-      })
-
-      return needsPolyfill
-    }
-    catch {
-      // if browserlist parsing fails, include the polyfill to be safe
-      return true
-    }
-  })
-}
-
-/**
- * Sort polyfills by dependency order (dependencies first)
- */
-function sortPolyfillsByDependency(polyfills: PolyfillOption[]) {
-  const polyfillMap = new Map(polyfills.map(p => [p.name, p]))
-  const sorted: PolyfillOption[] = []
-  const visiting = new Set<string>()
-  const visited = new Set<string>()
-
-  function visit(polyfill: PolyfillOption) {
-    if (visited.has(polyfill.name)) {
-      return
-    }
-
-    if (visiting.has(polyfill.name)) {
-      throw new Error(`Circular dependency detected: ${polyfill.name}`)
-    }
-
-    visiting.add(polyfill.name)
-
-    // process dependencies first
-    const dependencies = polyfill.relyOn
-      ? Array.isArray(polyfill.relyOn)
-        ? polyfill.relyOn
-        : [polyfill.relyOn]
-      : []
-
-    for (const depName of dependencies) {
-      const dep = polyfillMap.get(depName)
-      if (dep) {
-        visit(dep)
-      }
-    }
-
-    visiting.delete(polyfill.name)
-    visited.add(polyfill.name)
-    sorted.push(polyfill)
-  }
-
-  for (const polyfill of polyfills) {
-    visit(polyfill)
-  }
-
-  return sorted
-}
-
-function resolveTargets(input: CustomPolyfillsOptions['targets']) {
-  if (typeof input === 'string') {
-    return [input]
-  }
-  if (Array.isArray(input)) {
-    return input
-  }
-  if (typeof input === 'object' && input !== null) {
-    return Object.entries(input).map(([key, value]) => `${key} ${value}`)
-  }
-  return null
 }

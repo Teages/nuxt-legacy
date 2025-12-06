@@ -39,9 +39,6 @@
       "matchPackageNames": [
         "nuxt"
       ],
-      "matchPaths": [
-        "playgrounds/**"
-      ],
       "matchUpdateTypes": [
         "major"
       ]

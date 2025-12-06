@@ -1,8 +1,8 @@
-ignoredBuiltDependencies:
-  - core-js
-onlyBuiltDependencies:
-  - '@parcel/watcher'
-  - esbuild
+catalogMode: prefer
+cleanupUnusedCatalogs: true
+
+shellEmulator: true
+
 packages:
   - ./
   - playgrounds/*
@@ -21,7 +21,14 @@ catalog:
   changelogithub: ^14.0.0
   eslint: ^9.39.1
   node-html-parser: ^7.0.1
-  nuxt: ^4.2.1
   typescript: ~5.9.3
   vitest: ^4.0.15
   vue-tsc: ^3.1.6
+catalogs:
+  nuxt4:
+    nuxt: ^4.2.1
+ignoredBuiltDependencies:
+  - core-js
+onlyBuiltDependencies:
+  - '@parcel/watcher'
+  - esbuild

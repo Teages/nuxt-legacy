@@ -19,3 +19,15 @@ export default createConfigForNuxt({
       },
     }),
   )
+  .append({
+    files: ['playgrounds/v3/package.json'],
+    rules: {
+      'pnpm/json-enforce-catalog': 'off',
+    },
+  })
+  .append({
+    files: ['pnpm-workspace.yaml'],
+    rules: {
+      'pnpm/yaml-enforce-settings': 'off',
+    },
+  })

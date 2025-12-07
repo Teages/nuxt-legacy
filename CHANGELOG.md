@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v2.0.1
+
+[compare changes](https://github.com/Teages/nuxt-legacy/compare/v2.0.0...v2.0.1)
+
+### 🩹 Fixes
+
+- **ci:** Use `pnpm publish` to replace catalog ([dcc041c](https://github.com/Teages/nuxt-legacy/commit/dcc041c))
+
+### ❤️ Contributors
+
+- Teages ([@Teages](https://github.com/Teages))
+
 ## v2.0.0
 
 [compare changes](https://github.com/Teages/nuxt-legacy/compare/v1.1.1...v2.0.0)

@@ -46,4 +46,4 @@ jobs:
       - name: Update NPM version
         run: npm install -g npm@latest && npm --version
       - name: Publish to NPM
-        run: npm publish --access public --no-git-checks
+        run: pnpm publish --access public --no-git-checks

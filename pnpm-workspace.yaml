@@ -30,7 +30,7 @@ catalogs:
     node-html-parser: ^7.0.1
     nuxt: ^4.2.2
     typescript: ~5.9.3
-    vitest: ^4.0.15
+    vitest: ^4.0.16
     vue-tsc: ^3.1.8
   dev:nuxt-v3:
     # eslint-disable-next-line pnpm/yaml-no-duplicate-catalog-item

@@ -22,7 +22,7 @@ catalogs:
     '@nuxt/module-builder': ^1.0.2
     '@nuxt/schema': ^4.2.2
     '@nuxt/test-utils': ^3.23.0
-    '@types/node': ^24.10.4
+    '@types/node': ^24.10.9
     '@vitejs/plugin-legacy': ^7.2.1
     changelogen: ^0.6.2
     changelogithub: ^14.0.0
@@ -30,7 +30,7 @@ catalogs:
     node-html-parser: ^7.0.2
     nuxt: ^4.2.2
     typescript: ~5.9.3
-    vitest: ^4.0.16
+    vitest: ^4.0.17
     vue-tsc: ^3.2.2
   dev:nuxt-v3:
     # eslint-disable-next-line pnpm/yaml-no-duplicate-catalog-item

@@ -16,9 +16,9 @@ patchedDependencies:
 
 catalogs:
   dev:
-    '@antfu/eslint-config': ^7.4.3
-    '@nuxt/devtools': 3.2.1
-    '@nuxt/eslint-config': ^1.15.1
+    '@antfu/eslint-config': ^7.6.0
+    '@nuxt/devtools': 3.2.2
+    '@nuxt/eslint-config': ^1.15.2
     '@nuxt/module-builder': ^1.0.2
     '@nuxt/schema': ^4.3.1
     '@nuxt/test-utils': ^4.0.0
@@ -26,12 +26,12 @@ catalogs:
     '@vitejs/plugin-legacy': ^7.2.1
     changelogen: ^0.6.2
     changelogithub: ^14.0.0
-    eslint: ^10.0.0
+    eslint: ^10.0.2
     node-html-parser: ^7.0.2
     nuxt: ^4.3.1
     typescript: ~5.9.3
     vitest: ^4.0.18
-    vue-tsc: ^3.2.4
+    vue-tsc: ^3.2.5
   dev:nuxt-v3:
     # eslint-disable-next-line pnpm/yaml-no-duplicate-catalog-item
     nuxt: ^3.21.1

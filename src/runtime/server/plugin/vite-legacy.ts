@@ -8,6 +8,10 @@ import {
   safari10NoModuleFix,
 } from '../../snippets'
 
+const LEGACY_SCRIPT_REGEX = /<script [^>]*src="([^"]+-legacy\.js)"[^>]*><\/script>\s*/g
+const LEGACY_POLYFILL_SCRIPT_REGEX = /<script[^>]*src="([^"]+-legacy\.js#polyfills)"[^>]*><\/script>\s*/g
+const POLYFILL_END_MATCH_REGEX = /#polyfills$/
+
 export default <NitroAppPlugin>((nitro) => {
   nitro.hooks.hook('render:html', async (html) => {
     // @ts-expect-error nitro virtual template
@@ -27,9 +31,7 @@ export default <NitroAppPlugin>((nitro) => {
 
     for (const index in html.head) {
       // get all src="*-legacy.js"
-      const matchLegacy = html.head[index]!.matchAll(
-        /<script [^>]*src="([^"]+-legacy\.js)"[^>]*><\/script>\s*/g,
-      );
+      const matchLegacy = html.head[index]!.matchAll(LEGACY_SCRIPT_REGEX);
       [...matchLegacy].forEach((match) => {
         if (match) {
           const [full, src] = match
@@ -45,14 +47,12 @@ export default <NitroAppPlugin>((nitro) => {
       })
 
       // get all src="*-legacy.js#polyfills"
-      const matchPolyfill = html.head[index]!.matchAll(
-        /<script[^>]*src="([^"]+-legacy\.js#polyfills)"[^>]*><\/script>\s*/g,
-      );
+      const matchPolyfill = html.head[index]!.matchAll(LEGACY_POLYFILL_SCRIPT_REGEX);
       [...matchPolyfill].forEach((match) => {
         if (match) {
           const [full, src] = match
           if (src) {
-            polyfillScripts.push(src.replace(/#polyfills$/, ''))
+            polyfillScripts.push(src.replace(POLYFILL_END_MATCH_REGEX, ''))
           }
           todo.push(() => {
             if (html.head[index]) {

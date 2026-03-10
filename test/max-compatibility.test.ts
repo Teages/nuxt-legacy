@@ -3,6 +3,8 @@ import { $fetch, setup } from '@nuxt/test-utils/e2e'
 import { parse } from 'node-html-parser'
 import { describe, expect, it } from 'vitest'
 
+const LEGACY_SCRIPT_REGEX = /\/_nuxt\/.+-legacy.js/
+
 describe('max-compatibility', async () => {
   await setup({
     rootDir: fileURLToPath(new URL('./fixtures/max-compatibility', import.meta.url)),
@@ -26,7 +28,7 @@ describe('max-compatibility', async () => {
     const legacyPolyfillScript = document.querySelector('#vite-legacy-polyfill')
     expect(
       legacyPolyfillScript?.getAttribute('src'),
-    ).toMatch(/\/_nuxt\/.+-legacy.js/)
+    ).toMatch(LEGACY_SCRIPT_REGEX)
     expect(
       legacyPolyfillScript?.getAttribute('nomodule'),
     ).toMatch('')
@@ -34,7 +36,7 @@ describe('max-compatibility', async () => {
     const legacyEntryScript = document.querySelector('#vite-legacy-entry')
     expect(
       legacyEntryScript?.getAttribute('data-src'),
-    ).toMatch(/\/_nuxt\/.+-legacy.js/)
+    ).toMatch(LEGACY_SCRIPT_REGEX)
     expect(
       legacyEntryScript?.getAttribute('nomodule'),
     ).toMatch('')

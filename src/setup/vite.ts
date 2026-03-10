@@ -3,6 +3,8 @@ import type { Nuxt } from '@nuxt/schema'
 import type { Options as ViteLegacyOptions } from '@vitejs/plugin-legacy'
 import { addServerPlugin } from '@nuxt/kit'
 
+const LEGACY_SCRIPT_REGEX = /-legacy\.js$/
+
 export type { ViteLegacyOptions }
 
 export async function setupVite(options: ViteLegacyOptions, nuxt: Nuxt, moduleResolver: ReturnType<typeof createResolver>) {
@@ -13,9 +15,9 @@ export async function setupVite(options: ViteLegacyOptions, nuxt: Nuxt, moduleRe
     throw new Error('[@teages/nuxt-legacy] @vitejs/plugin-legacy is not installed')
   }
 
-  nuxt.options.vite = nuxt.options.vite || {}
-  nuxt.options.vite.plugins = nuxt.options.vite.plugins || []
-  nuxt.options.vite.plugins.unshift(legacy(options))
+  nuxt.options.vite ??= {}
+  nuxt.options.vite.plugins ??= []
+  nuxt.options.vite.plugins.unshift(legacy(options) as any)
 
   nuxt.hook('build:manifest', (manifest) => {
     const manifestEntities = Object.entries(manifest)
@@ -34,7 +36,7 @@ export async function setupVite(options: ViteLegacyOptions, nuxt: Nuxt, moduleRe
         } satisfies Partial<typeof manifest[string]>)
 
         if (meta.name === 'polyfills') {
-          meta.file = meta.file.replace(/-legacy\.js$/, '-legacy.js#polyfills')
+          meta.file = meta.file.replace(LEGACY_SCRIPT_REGEX, '-legacy.js#polyfills')
         }
       })
 

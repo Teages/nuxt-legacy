@@ -10,9 +10,7 @@ trustPolicyExclude:
 packages:
   - ./
   - playgrounds/*
-
-patchedDependencies:
-  event-target-shim@6.0.2: patches/event-target-shim@6.0.2.patch
+sharedWorkspaceLockfile: false
 
 catalogs:
   dev:

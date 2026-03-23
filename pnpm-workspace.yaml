@@ -29,7 +29,7 @@ catalogs:
     eslint: ^10.0.3
     node-html-parser: ^7.1.0
     nuxt: ^4.4.2
-    typescript: ~5.9.3
+    typescript: ~6.0.2
     vitest: ^4.1.0
     vue-tsc: ^3.2.5
   dev:nuxt-v3:

@@ -20,25 +20,25 @@ catalogs:
     '@nuxt/devtools': 3.2.4
     '@nuxt/eslint-config': ^1.15.2
     '@nuxt/module-builder': ^1.0.2
-    '@nuxt/schema': ^4.4.2
-    '@nuxt/test-utils': ^4.0.2
+    '@nuxt/schema': ^4.4.4
+    '@nuxt/test-utils': ^4.0.3
     '@types/node': ^24.12.2
     '@vitejs/plugin-legacy': ^7.2.1
     changelogen: ^0.6.2
     changelogithub: ^14.0.0
     eslint: ^10.2.1
     node-html-parser: ^7.1.0
-    nuxt: ^4.4.2
+    nuxt: ^4.4.4
     typescript: ~6.0.3
     vitest: ^4.1.5
     vue-tsc: ^3.2.7
   dev:nuxt-v3:
     # eslint-disable-next-line pnpm/yaml-no-duplicate-catalog-item
-    nuxt: ^3.21.2
+    nuxt: ^3.21.4
   polyfills:
     event-target-shim: ^6.0.2
   prod:
-    '@nuxt/kit': ^4.4.2
+    '@nuxt/kit': ^4.4.4
 
 ignoredBuiltDependencies:
   - core-js

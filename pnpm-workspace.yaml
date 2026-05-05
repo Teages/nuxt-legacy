@@ -26,12 +26,12 @@ catalogs:
     '@vitejs/plugin-legacy': ^7.2.1
     changelogen: ^0.6.2
     changelogithub: ^14.0.0
-    eslint: ^10.2.1
+    eslint: ^10.3.0
     node-html-parser: ^7.1.0
     nuxt: ^4.4.4
     typescript: ~6.0.3
     vitest: ^4.1.5
-    vue-tsc: ^3.2.7
+    vue-tsc: ^3.2.8
   dev:nuxt-v3:
     # eslint-disable-next-line pnpm/yaml-no-duplicate-catalog-item
     nuxt: ^3.21.4

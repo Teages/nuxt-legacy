@@ -22,7 +22,7 @@ catalogs:
     '@nuxt/module-builder': ^1.0.2
     '@nuxt/schema': ^4.4.4
     '@nuxt/test-utils': ^4.0.3
-    '@types/node': ^24.12.2
+    '@types/node': ^24.12.3
     '@vitejs/plugin-legacy': ^7.2.1
     changelogen: ^0.6.2
     changelogithub: ^14.0.0

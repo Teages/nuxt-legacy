@@ -2,19 +2,23 @@ name: browserstack
 
 # Real-browser E2E via BrowserStack Automate (Selenium). Verifies that the
 # legacy chunks + polyfills actually hydrate the playground in Chrome 49/61/91.
-# Kept separate from ci.yml because it depends on an external service and
-# consumes limited parallel sessions; continue-on-error means it never blocks
-# merge.
+# Runs on PRs (so regressions are caught before merge) and on main.
+#
+# Forked PRs are skipped: they can't access the BROWSERSTACK_* secrets, so
+# maintainers verify those manually. Requires repo secrets BROWSERSTACK_USERNAME
+# and BROWSERSTACK_ACCESS_KEY.
 on:
   push:
     branches:
       - main
+  pull_request:
   workflow_dispatch:
 
 jobs:
   legacy-e2e:
     runs-on: ubuntu-latest
-    continue-on-error: true
+    # Fork PRs lack access to repo secrets; skip them rather than fail.
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork != true
     timeout-minutes: 30
 
     steps:

@@ -15,6 +15,12 @@ packages:
 patchedDependencies:
   event-target-shim@6.0.2: patches/event-target-shim@6.0.2.patch
 
+strictPeerDependencies: false
+allowBuilds:
+  '@parcel/watcher': true
+  core-js: false
+  esbuild: true
+  unrs-resolver: true
 catalogs:
   dev:
     '@antfu/eslint-config': ^9.0.0
@@ -23,16 +29,16 @@ catalogs:
     '@nuxt/module-builder': ^1.0.2
     '@nuxt/schema': ^4.4.8
     '@nuxt/test-utils': ^4.0.3
-    '@types/node': ^24.13.1
+    '@types/node': ^24.13.2
     '@vitejs/plugin-legacy': ^7.2.1
     changelogen: ^0.6.2
     changelogithub: ^14.0.0
-    eslint: ^10.4.1
+    eslint: ^10.5.0
     node-html-parser: ^7.1.0
-    nuxt: ^4.4.4
+    nuxt: ^4.4.8
     typescript: ~6.0.3
-    vitest: ^4.1.8
-    vue-tsc: ^3.3.4
+    vitest: ^4.1.9
+    vue-tsc: ^3.3.5
   dev:nuxt-v3:
     # eslint-disable-next-line pnpm/yaml-no-duplicate-catalog-item
     nuxt: ^3.21.4
@@ -40,9 +46,3 @@ catalogs:
     event-target-shim: ^6.0.2
   prod:
     '@nuxt/kit': ^4.4.8
-strictPeerDependencies: false
-allowBuilds:
-  '@parcel/watcher': true
-  core-js: false
-  esbuild: true
-  unrs-resolver: true

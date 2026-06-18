@@ -169,7 +169,7 @@ function setup(self: typeof window) {
 
 - [IlyaSemenov/nuxt-vite-legacy](https://github.com/IlyaSemenov/nuxt-vite-legacy): module by [@IlyaSemenov](https://github.com/IlyaSemenov) with [his idea](https://github.com/nuxt/nuxt/issues/15464#issuecomment-1539790246)
 
-- [BrowserStack Automate](https://www.browserstack.com/automate) (open-source). This project's legacy-browser hydration is verified with BrowserStack Automate (Selenium WebDriver).
+- [BrowserStack](https://www.browserstack.com/open-source). This project is tested with BrowserStack.
 
 ## Contribution
 

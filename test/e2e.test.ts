@@ -200,19 +200,14 @@ async function assertHydrated(driver: any, chromeVersion: string) {
   // core-js polyfill loaded and the legacy entry executed.
   await waitForText(driver, chromeVersion, OBJECT_HAS_OWN_DONE)
 
-  // Tertiary: DecideIsLegacy only fills its message in onMounted, which proves
-  // the component mounted. We accept either marker (the modern/legacy decision
-  // depends on timing of the vite detection script, not on the Chrome version).
-  const deadline = Date.now() + 30000
-  while (Date.now() < deadline) {
-    const text = await pageText(driver)
-    if (text.includes(LEGACY_BROWSER_MARKER) || text.includes(MODERN_BROWSER_MARKER)) {
-      return
-    }
-    await new Promise(r => setTimeout(r, 500))
-  }
-  await dumpDiagnostics(driver, chromeVersion, 'wait-timeout:is-legacy')
-  throw new Error(`Chrome ${chromeVersion}: DecideIsLegacy never rendered a marker`)
+  // Tertiary: DecideIsLegacy reports which build the browser loaded, via the
+  // compile-time `import.meta.env.LEGACY` flag. Whether a Chrome version loads
+  // the modern or legacy chunk depends on whether it supports the modern ESM
+  // features the detection script probes (import.meta, dynamic import, async
+  // iterators). Empirically: 49/61 fall back to legacy; 91/latest run modern.
+  const isLegacy = chromeVersion === '49.0' || chromeVersion === '61.0'
+  const expected = isLegacy ? LEGACY_BROWSER_MARKER : MODERN_BROWSER_MARKER
+  await waitForText(driver, chromeVersion, expected)
 }
 
 // ---------------------------------------------------------------------------

@@ -68,9 +68,7 @@ catalogs:
       version: 4.4.8
 
 patchedDependencies:
-  event-target-shim@6.0.2:
-    hash: 41489b261fb4a44f1664ffaea64e0a8fe7955ecf149b005da94a524b26b988bb
-    path: patches/event-target-shim@6.0.2.patch
+  event-target-shim@6.0.2: 41489b261fb4a44f1664ffaea64e0a8fe7955ecf149b005da94a524b26b988bb
 
 importers:
 

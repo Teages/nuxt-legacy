@@ -1,5 +1,6 @@
 catalogMode: prefer
 cleanupUnusedCatalogs: true
+shamefullyHoist: true
 shellEmulator: true
 
 trustPolicy: no-downgrade
@@ -39,9 +40,8 @@ catalogs:
     event-target-shim: ^6.0.2
   prod:
     '@nuxt/kit': ^4.4.8
-
-ignoredBuiltDependencies:
-  - core-js
-onlyBuiltDependencies:
-  - '@parcel/watcher'
-  - esbuild
+strictPeerDependencies: false
+allowBuilds:
+  '@parcel/watcher': true
+  core-js: false
+  esbuild: true

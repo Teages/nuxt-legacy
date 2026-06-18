@@ -80,6 +80,8 @@ The module is tested with the following browsers:
 - Chrome 91: not support `Object.hasOwn` but can be polyfilled
 - latest Chrome
 
+Hydration in these browsers is verified automatically via [BrowserStack Automate](https://www.browserstack.com/automate) (Selenium WebDriver), which is the only BrowserStack integration that covers Chrome 49 — the Cypress/Playwright adapters require Chrome 83+. See [`test/browserstack/`](./test/browserstack) and run `pnpm test:e2e` with your BrowserStack credentials.
+
 You can test by yourself by visiting the [playground](https://nuxt-legacy.pages.dev/) with your target browsers.
 
 ### Content Security Policy
@@ -167,7 +169,7 @@ function setup(self: typeof window) {
 
 - [IlyaSemenov/nuxt-vite-legacy](https://github.com/IlyaSemenov/nuxt-vite-legacy): module by [@IlyaSemenov](https://github.com/IlyaSemenov) with [his idea](https://github.com/nuxt/nuxt/issues/15464#issuecomment-1539790246)
 
-- [BrowserStack](https://www.browserstack.com/open-source). This project is tested with BrowserStack.
+- [BrowserStack Automate](https://www.browserstack.com/automate) (open-source). This project's legacy-browser hydration is verified with BrowserStack Automate (Selenium WebDriver).
 
 ## Contribution
 

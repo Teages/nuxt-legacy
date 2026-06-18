@@ -1,3 +1,4 @@
+import type { WebDriver } from 'selenium-webdriver'
 import { createRequire } from 'node:module'
 import process from 'node:process'
 /**
@@ -57,10 +58,9 @@ const CHROME_VERSIONS = ['49.0', '61.0', '91.0', 'latest'] as const
 const DYNAMIC_IMPORT_DONE = '1 + 2 = 3'
 const OBJECT_HAS_OWN_DONE = 'true'
 
-// DecideIsLegacy fills one of these in onMounted, depending on whether
-// `__vite_is_modern_browser` is set when it runs. We only assert that *some*
-// decision was rendered (the component mounted) — not which one, since it
-// depends on timing of the vite legacy detection script vs the mount.
+// DecideIsLegacy reports which build the browser loaded, via the compile-time
+// `import.meta.env.LEGACY` flag (true in the legacy build, false in the modern
+// build). The assertion picks the exact marker per Chrome version below.
 const LEGACY_BROWSER_MARKER = 'You are using a legacy browser'
 const MODERN_BROWSER_MARKER = 'You are using a modern browser'
 
@@ -144,7 +144,7 @@ function buildCapabilities(chromeVersion: string) {
 // Poll the page's rendered text rather than XPath `contains(text(), ...)`,
 // because the target strings span multiple DOM nodes (e.g. `1 + 2 = ` in a
 // <div> and `3` in a child <span>); XPath text() matches single text nodes.
-async function pageText(driver: any): Promise<string> {
+async function pageText(driver: WebDriver): Promise<string> {
   try {
     const el = await driver.findElement(By.tagName('body'))
     return await el.getAttribute('innerText')
@@ -163,7 +163,7 @@ async function safe<T>(fn: () => Promise<T>, fallback: T): Promise<T> {
   }
 }
 
-async function dumpDiagnostics(driver: any, chromeVersion: string, label: string) {
+async function dumpDiagnostics(driver: WebDriver, chromeVersion: string, label: string) {
   const currentUrl = await safe(() => driver.getCurrentUrl(), '?')
   const title = await safe(() => driver.getTitle(), '?')
   const bodyText = await safe(() => pageText(driver), '(unreadable)')
@@ -174,7 +174,7 @@ async function dumpDiagnostics(driver: any, chromeVersion: string, label: string
   )
 }
 
-async function waitForText(driver: any, chromeVersion: string, needle: string, { timeoutMs = 30000 } = {}) {
+async function waitForText(driver: WebDriver, chromeVersion: string, needle: string, { timeoutMs = 30000 } = {}) {
   const deadline = Date.now() + timeoutMs
   while (Date.now() < deadline) {
     const text = await pageText(driver)
@@ -187,7 +187,7 @@ async function waitForText(driver: any, chromeVersion: string, needle: string, {
   throw new Error(`Chrome ${chromeVersion}: never saw "${needle}" within ${timeoutMs}ms`)
 }
 
-async function assertHydrated(driver: any, chromeVersion: string) {
+async function assertHydrated(driver: WebDriver, chromeVersion: string) {
   if (DEBUG) {
     await dumpDiagnostics(driver, chromeVersion, 'after-load')
   }
@@ -261,7 +261,7 @@ describe('e2e', () => {
 
   for (const chromeVersion of CHROME_VERSIONS) {
     describe(`e2e: Chrome ${chromeVersion}`, () => {
-      let driver: any
+      let driver: WebDriver
 
       beforeAll(async () => {
         driver = await new Builder()

@@ -1,6 +1,3 @@
-import type { WebDriver } from 'selenium-webdriver'
-import { createRequire } from 'node:module'
-import process from 'node:process'
 /**
  * BrowserStack Automate (Selenium WebDriver) E2E tests.
  *
@@ -17,6 +14,9 @@ import process from 'node:process'
  * vitest.config.ts); run it via `pnpm test:e2e`. Requires BrowserStack
  * credentials in the environment.
  */
+import type { WebDriver } from 'selenium-webdriver'
+import { createRequire } from 'node:module'
+import process from 'node:process'
 import { fileURLToPath } from 'node:url'
 import { setup } from '@nuxt/test-utils/e2e'
 import { getPort } from 'get-port-please'
@@ -25,8 +25,6 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 
 const require = createRequire(import.meta.url)
 const { Local: BsLocal } = require('browserstack-local')
-
-const __dirname = fileURLToPath(new URL('.', import.meta.url))
 
 // Load .env from the repo root before reading env vars. `process.loadEnvFile`
 // is the built-in way (Node 20.6+); it throws when the file is missing, so we
@@ -42,7 +40,6 @@ catch {
 const BS_USERNAME = process.env.BROWSERSTACK_USERNAME
 const BS_ACCESS_KEY = process.env.BROWSERSTACK_ACCESS_KEY
 const LOCAL_IDENTIFIER = 'nuxt-legacy'
-
 const DEBUG = process.env.E2E_DEBUG === '1'
 
 // Chrome versions mapped to the module's compatibility claims (see README):
@@ -50,7 +47,16 @@ const DEBUG = process.env.E2E_DEBUG === '1'
 // 61  = ESM but pre "widely-available features"
 // 91  = no Object.hasOwn, needs core-js polyfill
 // latest = regression guard
-const CHROME_VERSIONS = ['49.0', '61.0', '91.0', 'latest'] as const
+//
+// `isLegacy` records which chunk each version loads: old Chrome falls back to
+// the legacy (nomodule) build, recent Chrome runs the modern build. Used by the
+// DecideIsLegacy assertion below.
+const CHROME_VERSIONS = [
+  { version: '49.0', isLegacy: true },
+  { version: '61.0', isLegacy: true },
+  { version: '91.0', isLegacy: false },
+  { version: 'latest', isLegacy: false },
+] as const
 
 // Text that only appears after client-side hydration succeeds: SSR renders
 // `Loading...`; the value lands only once the legacy chunk has executed the
@@ -64,22 +70,110 @@ const OBJECT_HAS_OWN_DONE = 'true'
 const LEGACY_BROWSER_MARKER = 'You are using a legacy browser'
 const MODERN_BROWSER_MARKER = 'You are using a modern browser'
 
-let bsLocal: InstanceType<typeof BsLocal> | undefined
-let targetUrl = ''
-
 // ---------------------------------------------------------------------------
-// BrowserStack Local tunnel
+// suite
 // ---------------------------------------------------------------------------
 
-async function startTunnel(): Promise<void> {
-  if (!BS_ACCESS_KEY) {
-    return
+// Only run when BrowserStack credentials are available (set via .env or the
+// environment). When absent the whole suite is skipped — no server build, no
+// tunnel, no remote sessions — so `pnpm test:e2e` is a harmless no-op on
+// machines without setup (e.g. a forked PR's CI, where repo secrets are
+// unavailable).
+const hasCredentials = Boolean(BS_USERNAME && BS_ACCESS_KEY)
+
+describe.runIf(hasCredentials)('e2e', async () => {
+  // `setup()` must run before any beforeAll: it registers the build + start
+  // hooks that the server-readiness probe below depends on. Making the
+  // describe callback async lets us `await` it during the (synchronous) suite
+  // registration phase, so those hooks are in place before vitest collects
+  // them — without leaving the describe scope.
+  const port = await getPort({ ports: [10000, 10001, 10002] })
+  await setup({
+    rootDir: fileURLToPath(new URL('../playgrounds/v4', import.meta.url)),
+    port,
+  })
+
+  // Build the absolute URL ourselves rather than reading ctx.url, which can
+  // resolve to "/" before `startServer` populates it. @nuxt/test-utils binds
+  // the server to 127.0.0.1 on the port we requested.
+  const targetUrl = `http://127.0.0.1:${port}/`
+  let bsLocal: InstanceType<typeof BsLocal> | undefined
+
+  beforeAll(async () => {
+    console.warn('[e2e] targetUrl =', JSON.stringify(targetUrl))
+
+    // Sanity probe: the server must be reachable locally before we open a
+    // tunnel to it. setup()'s beforeAll (registered above) has run by now.
+    try {
+      const res = await fetch(targetUrl)
+      console.warn(`[e2e] local probe ${targetUrl} -> HTTP ${res.status}`)
+    }
+    catch (e) {
+      throw new Error(`[e2e] local server not reachable at ${targetUrl}: ${(e as Error).message}`)
+    }
+
+    bsLocal = await startTunnel(BS_ACCESS_KEY!)
+    // let the hub register the local identifier before sessions connect
+    await new Promise(r => setTimeout(r, 2000))
+  }, 300000)
+
+  afterAll(async () => {
+    await stopTunnel(bsLocal)
+  })
+
+  for (const { version, isLegacy } of CHROME_VERSIONS) {
+    describe(`e2e: Chrome ${version}`, () => {
+      let driver: WebDriver
+
+      beforeAll(async () => {
+        driver = await new Builder()
+          .usingServer('https://hub.browserstack.com/wd/hub')
+          .withCapabilities(buildCapabilities(version))
+          .build()
+      }, 120000)
+
+      afterAll(async () => {
+        if (driver) {
+          try {
+            await driver.executeScript(
+              `browserstack_executor: ${JSON.stringify({ action: 'setSessionStatus', arguments: { status: 'passed' } })}`,
+            )
+          }
+          catch {
+            // ignore — don't mask the real test result
+          }
+          await driver.quit()
+        }
+      })
+
+      it('hydrates the legacy chunks and runs polyfills', async () => {
+        await driver.get(targetUrl)
+        // Wait for the SSR-rendered <h1> first — it needs no JS, so reaching it
+        // proves the page loaded (vs. tunnel / DNS failure).
+        await driver.wait(
+          until.elementLocated(By.css('h1')),
+          30000,
+          `Chrome ${version}: page never rendered <h1> (did it load at all?)`,
+        )
+        await assertHydrated(driver, version, isLegacy)
+        expect(true).toBe(true)
+      }, 180000)
+    })
   }
-  bsLocal = new BsLocal()
+})
+
+// ---------------------------------------------------------------------------
+// helpers (kept below the suite so the test reads top-to-bottom)
+// ---------------------------------------------------------------------------
+
+// --- BrowserStack Local tunnel --------------------------------------------
+
+async function startTunnel(accessKey: string): Promise<InstanceType<typeof BsLocal>> {
+  const local = new BsLocal()
   await new Promise<void>((resolve, reject) => {
-    bsLocal!.start(
+    local.start(
       {
-        key: BS_ACCESS_KEY!,
+        key: accessKey,
         localIdentifier: LOCAL_IDENTIFIER,
         daemonized: true,
       },
@@ -88,7 +182,7 @@ async function startTunnel(): Promise<void> {
           reject(new Error(`BrowserStackLocal failed to start: ${error}`))
           return
         }
-        if (!bsLocal!.isRunning()) {
+        if (!local.isRunning()) {
           reject(new Error('BrowserStackLocal reported not running after start'))
           return
         }
@@ -97,15 +191,16 @@ async function startTunnel(): Promise<void> {
       },
     )
   })
+  return local
 }
 
-async function stopTunnel(): Promise<void> {
-  if (!bsLocal) {
+async function stopTunnel(local?: InstanceType<typeof BsLocal>): Promise<void> {
+  if (!local) {
     return
   }
   await new Promise<void>((resolve) => {
     try {
-      bsLocal!.stop((error: unknown) => {
+      local.stop((error: unknown) => {
         if (error) {
           console.error('[tunnel stop]', error)
         }
@@ -117,12 +212,9 @@ async function stopTunnel(): Promise<void> {
       resolve()
     }
   })
-  bsLocal = undefined
 }
 
-// ---------------------------------------------------------------------------
-// Selenium helpers
-// ---------------------------------------------------------------------------
+// --- Selenium --------------------------------------------------------------
 
 function buildCapabilities(chromeVersion: string) {
   return {
@@ -163,18 +255,18 @@ async function safe<T>(fn: () => Promise<T>, fallback: T): Promise<T> {
   }
 }
 
-async function dumpDiagnostics(driver: WebDriver, chromeVersion: string, label: string) {
+async function dumpDiagnostics(driver: WebDriver, label: string) {
   const currentUrl = await safe(() => driver.getCurrentUrl(), '?')
   const title = await safe(() => driver.getTitle(), '?')
   const bodyText = await safe(() => pageText(driver), '(unreadable)')
   console.error(
-    `\n[diag ${chromeVersion} ${label}] url=${currentUrl}\n`
-    + `[diag ${chromeVersion} ${label}] title=${title}\n`
-    + `[diag ${chromeVersion} ${label}] body:\n${bodyText.slice(0, 1500)}\n`,
+    `\n[diag ${label}] url=${currentUrl}\n`
+    + `[diag ${label}] title=${title}\n`
+    + `[diag ${label}] body:\n${bodyText.slice(0, 1500)}\n`,
   )
 }
 
-async function waitForText(driver: WebDriver, chromeVersion: string, needle: string, { timeoutMs = 30000 } = {}) {
+async function waitForText(driver: WebDriver, label: string, needle: string, { timeoutMs = 30000 } = {}) {
   const deadline = Date.now() + timeoutMs
   while (Date.now() < deadline) {
     const text = await pageText(driver)
@@ -183,119 +275,29 @@ async function waitForText(driver: WebDriver, chromeVersion: string, needle: str
     }
     await new Promise(r => setTimeout(r, 500))
   }
-  await dumpDiagnostics(driver, chromeVersion, `wait-timeout:${needle}`)
-  throw new Error(`Chrome ${chromeVersion}: never saw "${needle}" within ${timeoutMs}ms`)
+  await dumpDiagnostics(driver, `${label}:wait-timeout:${needle}`)
+  throw new Error(`${label}: never saw "${needle}" within ${timeoutMs}ms`)
 }
 
-async function assertHydrated(driver: WebDriver, chromeVersion: string) {
+async function assertHydrated(driver: WebDriver, chromeVersion: string, isLegacy: boolean) {
+  const label = `Chrome ${chromeVersion}`
+
   if (DEBUG) {
-    await dumpDiagnostics(driver, chromeVersion, 'after-load')
+    await dumpDiagnostics(driver, `${label}:after-load`)
   }
 
   // Primary: DynamicImport.vue SSR-renders `Loading...`, resolves to `3` only
   // once the legacy chunk executes the dynamic import on the client.
-  await waitForText(driver, chromeVersion, DYNAMIC_IMPORT_DONE)
+  await waitForText(driver, label, DYNAMIC_IMPORT_DONE)
 
   // Secondary: Object.hasOwn is absent in Chrome < 93 — only reachable if the
   // core-js polyfill loaded and the legacy entry executed.
-  await waitForText(driver, chromeVersion, OBJECT_HAS_OWN_DONE)
+  await waitForText(driver, label, OBJECT_HAS_OWN_DONE)
 
   // Tertiary: DecideIsLegacy reports which build the browser loaded, via the
   // compile-time `import.meta.env.LEGACY` flag. Whether a Chrome version loads
   // the modern or legacy chunk depends on whether it supports the modern ESM
   // features the detection script probes (import.meta, dynamic import, async
   // iterators). Empirically: 49/61 fall back to legacy; 91/latest run modern.
-  const isLegacy = chromeVersion === '49.0' || chromeVersion === '61.0'
-  const expected = isLegacy ? LEGACY_BROWSER_MARKER : MODERN_BROWSER_MARKER
-  await waitForText(driver, chromeVersion, expected)
+  await waitForText(driver, label, isLegacy ? LEGACY_BROWSER_MARKER : MODERN_BROWSER_MARKER)
 }
-
-// ---------------------------------------------------------------------------
-// suite
-// ---------------------------------------------------------------------------
-
-// Only run when BrowserStack credentials are available (set via .env or the
-// environment). When absent the whole suite is skipped — no server build, no
-// tunnel, no remote sessions — so `pnpm test:e2e` is a harmless no-op on
-// machines without setup (e.g. a forked PR's CI, where repo secrets are
-// unavailable).
-const hasCredentials = Boolean(BS_USERNAME && BS_ACCESS_KEY)
-
-describe.runIf(hasCredentials)('e2e', async () => {
-  // `setup()` must run before any beforeAll: it registers the build + start
-  // hooks that the server-readiness probe below depends on. Making the
-  // describe callback async lets us `await` it during the (synchronous) suite
-  // registration phase, so those hooks are in place before vitest collects
-  // them — without leaving the describe scope.
-  const port = await getPort({ ports: [10000, 10001, 10002] })
-  await setup({
-    rootDir: fileURLToPath(new URL('../playgrounds/v4', import.meta.url)),
-    port,
-  })
-
-  beforeAll(async () => {
-    // Build the absolute URL ourselves rather than reading ctx.url, which can
-    // resolve to "/" before `startServer` populates it. @nuxt/test-utils binds
-    // the server to 127.0.0.1 on the port we requested.
-    targetUrl = `http://127.0.0.1:${port}/`
-    console.warn('[e2e] targetUrl =', JSON.stringify(targetUrl))
-
-    // Sanity probe: the server must be reachable locally before we open a
-    // tunnel to it. setup()'s beforeAll (registered above) has run by now.
-    try {
-      const res = await fetch(targetUrl)
-      console.warn(`[e2e] local probe ${targetUrl} -> HTTP ${res.status}`)
-    }
-    catch (e) {
-      throw new Error(`[e2e] local server not reachable at ${targetUrl}: ${(e as Error).message}`)
-    }
-
-    await startTunnel()
-    // let the hub register the local identifier before sessions connect
-    await new Promise(r => setTimeout(r, 2000))
-  }, 300000)
-
-  afterAll(async () => {
-    await stopTunnel()
-  })
-
-  for (const chromeVersion of CHROME_VERSIONS) {
-    describe(`e2e: Chrome ${chromeVersion}`, () => {
-      let driver: WebDriver
-
-      beforeAll(async () => {
-        driver = await new Builder()
-          .usingServer('https://hub.browserstack.com/wd/hub')
-          .withCapabilities(buildCapabilities(chromeVersion))
-          .build()
-      }, 120000)
-
-      afterAll(async () => {
-        if (driver) {
-          try {
-            await driver.executeScript(
-              `browserstack_executor: ${JSON.stringify({ action: 'setSessionStatus', arguments: { status: 'passed' } })}`,
-            )
-          }
-          catch {
-            // ignore — don't mask the real test result
-          }
-          await driver.quit()
-        }
-      })
-
-      it('hydrates the legacy chunks and runs polyfills', async () => {
-        await driver.get(targetUrl)
-        // Wait for the SSR-rendered <h1> first — it needs no JS, so reaching it
-        // proves the page loaded (vs. tunnel / DNS failure).
-        await driver.wait(
-          until.elementLocated(By.css('h1')),
-          30000,
-          `Chrome ${chromeVersion}: page never rendered <h1> (did it load at all?)`,
-        )
-        await assertHydrated(driver, chromeVersion)
-        expect(true).toBe(true)
-      }, 180000)
-    })
-  }
-})

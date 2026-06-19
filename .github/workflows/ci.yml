@@ -47,3 +47,16 @@ jobs:
 
       - name: Test
         run: npm run test
+
+      # Real-browser E2E via BrowserStack Automate (Selenium). Verifies that the
+      # legacy chunks + polyfills actually hydrate the playground in Chrome
+      # 49/61/91. Forked PRs need maintainer approval before CI runs, so the
+      # secrets are available by the time this executes. Requires repo secrets
+      # BROWSERSTACK_USERNAME and BROWSERSTACK_ACCESS_KEY.
+      - name: Run BrowserStack Automate E2E
+        timeout-minutes: 20
+        env:
+          BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
+          BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
+          GITHUB_REF_NAME: ${{ github.ref_name }}
+        run: npm run test:e2e

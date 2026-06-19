@@ -35,8 +35,9 @@
     "dev:prepare": "nuxt-module-build build --stub && nuxt-module-build prepare && pnpm --filter \"./playgrounds/*\" dev:prepare",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "test": "vitest run",
-    "test:watch": "vitest watch",
+    "test": "vitest run --project unit",
+    "test:watch": "vitest watch --project unit",
+    "test:e2e": "vitest run --project e2e",
     "test:types": "vue-tsc --noEmit && cd playground && vue-tsc --noEmit"
   },
   "peerDependencies": {
@@ -59,12 +60,16 @@
     "@nuxt/schema": "catalog:dev",
     "@nuxt/test-utils": "catalog:dev",
     "@types/node": "catalog:dev",
+    "@types/selenium-webdriver": "catalog:dev",
     "@vitejs/plugin-legacy": "catalog:dev",
+    "browserstack-local": "catalog:dev",
     "changelogen": "catalog:dev",
     "changelogithub": "catalog:dev",
     "eslint": "catalog:dev",
+    "get-port-please": "catalog:dev",
     "node-html-parser": "catalog:dev",
     "nuxt": "catalog:dev",
+    "selenium-webdriver": "catalog:dev",
     "typescript": "catalog:dev",
     "vitest": "catalog:dev",
     "vue-tsc": "catalog:dev"

@@ -35,9 +35,9 @@
     "dev:prepare": "nuxt-module-build build --stub && nuxt-module-build prepare && pnpm --filter \"./playgrounds/*\" dev:prepare",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "test": "vitest run",
-    "test:watch": "vitest watch",
-    "test:e2e": "vitest run --config test/e2e.vitest.config.ts",
+    "test": "vitest run --project unit",
+    "test:watch": "vitest watch --project unit",
+    "test:e2e": "vitest run --project e2e",
     "test:types": "vue-tsc --noEmit && cd playground && vue-tsc --noEmit"
   },
   "peerDependencies": {

@@ -26,19 +26,18 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 const require = createRequire(import.meta.url)
 const { Local: BsLocal } = require('browserstack-local')
 
-// Load .env from the repo root before reading env vars. `process.loadEnvFile`
-// is the built-in way (Node 20.6+); it throws when the file is missing, so we
-// only load it if it exists. Credentials may already be in the environment
-// (e.g. CI secrets), in which case .env is a no-op.
-try {
-  process.loadEnvFile()
-}
-catch {
-  // no .env present (or unreadable) — rely on whatever is already in process.env
-}
-
+// Credentials are loaded from .env (or the live env) by vitest.config.ts before
+// this file is evaluated. This file is only collected by the `e2e` test project,
+// so loading it implies the user asked to run E2E — missing credentials are a
+// hard error, not a skip.
 const BS_USERNAME = process.env.BROWSERSTACK_USERNAME
 const BS_ACCESS_KEY = process.env.BROWSERSTACK_ACCESS_KEY
+if (!BS_USERNAME || !BS_ACCESS_KEY) {
+  throw new Error(
+    'BrowserStack E2E selected but BROWSERSTACK_USERNAME / BROWSERSTACK_ACCESS_KEY '
+    + 'are not set. Put them in a .env file at the repo root or export them.',
+  )
+}
 const LOCAL_IDENTIFIER = 'nuxt-legacy'
 const DEBUG = process.env.E2E_DEBUG === '1'
 
@@ -74,14 +73,7 @@ const MODERN_BROWSER_MARKER = 'You are using a modern browser'
 // suite
 // ---------------------------------------------------------------------------
 
-// Only run when BrowserStack credentials are available (set via .env or the
-// environment). When absent the whole suite is skipped — no server build, no
-// tunnel, no remote sessions — so `pnpm test:e2e` is a harmless no-op on
-// machines without setup (e.g. a forked PR's CI, where repo secrets are
-// unavailable).
-const hasCredentials = Boolean(BS_USERNAME && BS_ACCESS_KEY)
-
-describe.runIf(hasCredentials)('e2e', async () => {
+describe('e2e', async () => {
   // `setup()` must run before any beforeAll: it registers the build + start
   // hooks that the server-readiness probe below depends on. Making the
   // describe callback async lets us `await` it during the (synchronous) suite
@@ -239,7 +231,7 @@ function buildCapabilities(chromeVersion: string) {
 async function pageText(driver: WebDriver): Promise<string> {
   try {
     const el = await driver.findElement(By.tagName('body'))
-    return await el.getAttribute('innerText')
+    return (await el.getAttribute('innerText')) ?? ''
   }
   catch {
     return ''

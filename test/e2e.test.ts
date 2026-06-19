@@ -214,26 +214,26 @@ async function assertHydrated(driver: WebDriver, chromeVersion: string) {
 // suite
 // ---------------------------------------------------------------------------
 
-// `setup()` must be called at module top level (the standard Nuxt test-utils
-// pattern) so its beforeAll (build + startServer) registers and runs before
-// any describe-level beforeAll, and its afterAll (stopServer) runs last.
-// Calling it inside a beforeAll registers hooks that don't execute until the
-// test phase — too late for code that depends on the running server.
-const port = await getPort({ ports: [10000, 10001, 10002] })
-await setup({
-  rootDir: fileURLToPath(new URL('../playgrounds/v4', import.meta.url)),
-  port,
-})
+// Only run when BrowserStack credentials are available (set via .env or the
+// environment). When absent the whole suite is skipped — no server build, no
+// tunnel, no remote sessions — so `pnpm test:e2e` is a harmless no-op on
+// machines without setup (e.g. a forked PR's CI, where repo secrets are
+// unavailable).
+const hasCredentials = Boolean(BS_USERNAME && BS_ACCESS_KEY)
 
-describe('e2e', () => {
+describe.runIf(hasCredentials)('e2e', async () => {
+  // `setup()` must run before any beforeAll: it registers the build + start
+  // hooks that the server-readiness probe below depends on. Making the
+  // describe callback async lets us `await` it during the (synchronous) suite
+  // registration phase, so those hooks are in place before vitest collects
+  // them — without leaving the describe scope.
+  const port = await getPort({ ports: [10000, 10001, 10002] })
+  await setup({
+    rootDir: fileURLToPath(new URL('../playgrounds/v4', import.meta.url)),
+    port,
+  })
+
   beforeAll(async () => {
-    if (!BS_USERNAME || !BS_ACCESS_KEY) {
-      throw new Error(
-        'BROWSERSTACK_USERNAME / BROWSERSTACK_ACCESS_KEY must be set. '
-        + 'Put them in a .env file at the repo root or provide them in the '
-        + 'environment, then run `pnpm test:e2e`.',
-      )
-    }
     // Build the absolute URL ourselves rather than reading ctx.url, which can
     // resolve to "/" before `startServer` populates it. @nuxt/test-utils binds
     // the server to 127.0.0.1 on the port we requested.

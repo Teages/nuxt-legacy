@@ -27,6 +27,9 @@ catalogs:
     '@types/node':
       specifier: ^24.13.2
       version: 24.13.2
+    '@types/selenium-webdriver':
+      specifier: ^4.35.6
+      version: 4.35.6
     '@vitejs/plugin-legacy':
       specifier: ^7.2.1
       version: 7.2.1
@@ -108,6 +111,9 @@ importers:
       '@types/node':
         specifier: catalog:dev
         version: 24.13.2
+      '@types/selenium-webdriver':
+        specifier: catalog:dev
+        version: 4.35.6
       '@vitejs/plugin-legacy':
         specifier: catalog:dev
         version: 7.2.1(terser@5.48.0)(vite@7.3.5(@types/node@24.13.2)(jiti@2.7.0)(terser@5.48.0)(yaml@2.9.0))
@@ -3440,8 +3446,14 @@ packages:
   '@types/resolve@1.20.2':
     resolution: {integrity: sha512-60BCwRFOZCQhDncwQdxxeOEEkbc5dIMccYLwbxsS4TUNeVECQ/pBJ0j09mrHOl/JJvpRPGwO9SvE4nR2Nb/a4Q==}
 
+  '@types/selenium-webdriver@4.35.6':
+    resolution: {integrity: sha512-8nfyMRi4VvkY9QrQGyY/zkleAhnjnmE8YtdEeoCrWe3izp1P9vo9f5VTNRYF0up+l+kn+VuZah+je+bLddNV+g==}
+
   '@types/unist@3.0.3':
     resolution: {integrity: sha512-ko/gIFJRv177XgZsZcBwnqJN5x/Gien8qNOn0D5bQU/zAzVf9Zt3BlcUiLqhV9y4ARk0GbT3tnUiPNgnTXzc/Q==}
+
+  '@types/ws@8.18.1':
+    resolution: {integrity: sha512-ThVF6DCVhA8kUGy+aazFQ4kXQ7E1Ty7A3ypFOe0IcJV8O/M511G99AW24irKrW56Wt44yG9+ij8FaqoBGkuBXg==}
 
   '@typescript-eslint/eslint-plugin@8.59.2':
     resolution: {integrity: sha512-j/bwmkBvHUtPNxzuWe5z6BEk3q54YRyGlBXkSsmfoih7zNrBvl5A9A98anlp/7JbyZcWIJ8KXo/3Tq/DjFLtuQ==}
@@ -11217,7 +11229,16 @@ snapshots:
 
   '@types/resolve@1.20.2': {}
 
+  '@types/selenium-webdriver@4.35.6':
+    dependencies:
+      '@types/node': 24.13.2
+      '@types/ws': 8.18.1
+
   '@types/unist@3.0.3': {}
+
+  '@types/ws@8.18.1':
+    dependencies:
+      '@types/node': 24.13.2
 
   '@typescript-eslint/eslint-plugin@8.59.2(@typescript-eslint/parser@8.59.2(eslint@10.5.0(jiti@2.7.0))(typescript@6.0.3))(eslint@10.5.0(jiti@2.7.0))(typescript@6.0.3)':
     dependencies:

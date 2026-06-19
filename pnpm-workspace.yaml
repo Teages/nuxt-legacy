@@ -30,6 +30,7 @@ catalogs:
     '@nuxt/schema': ^4.4.8
     '@nuxt/test-utils': ^4.0.3
     '@types/node': ^24.13.2
+    '@types/selenium-webdriver': ^4.35.6
     '@vitejs/plugin-legacy': ^7.2.1
     browserstack-local: ^1.5.13
     changelogen: ^0.6.2

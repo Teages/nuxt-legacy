@@ -60,6 +60,7 @@
     "@nuxt/schema": "catalog:dev",
     "@nuxt/test-utils": "catalog:dev",
     "@types/node": "catalog:dev",
+    "@types/selenium-webdriver": "catalog:dev",
     "@vitejs/plugin-legacy": "catalog:dev",
     "browserstack-local": "catalog:dev",
     "changelogen": "catalog:dev",

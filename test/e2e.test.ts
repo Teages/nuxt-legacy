@@ -21,7 +21,7 @@ import { fileURLToPath } from 'node:url'
 import { setup } from '@nuxt/test-utils/e2e'
 import { getPort } from 'get-port-please'
 import { Builder, By, until } from 'selenium-webdriver'
-import { afterAll, beforeAll, describe, expect, it } from 'vitest'
+import { afterAll, beforeAll, describe, it } from 'vitest'
 
 const require = createRequire(import.meta.url)
 const { Local: BsLocal } = require('browserstack-local')
@@ -124,11 +124,16 @@ describe('e2e', async () => {
           .build()
       }, 120000)
 
+      let testPassed = false
+
       afterAll(async () => {
         if (driver) {
+          // Reflect the real test outcome in the BrowserStack dashboard, not a
+          // blanket "passed" — otherwise failed sessions show green there.
+          const status = testPassed ? 'passed' : 'failed'
           try {
             await driver.executeScript(
-              `browserstack_executor: ${JSON.stringify({ action: 'setSessionStatus', arguments: { status: 'passed' } })}`,
+              `browserstack_executor: ${JSON.stringify({ action: 'setSessionStatus', arguments: { status } })}`,
             )
           }
           catch {
@@ -148,7 +153,7 @@ describe('e2e', async () => {
           `Chrome ${version}: page never rendered <h1> (did it load at all?)`,
         )
         await assertHydrated(driver, version, isLegacy)
-        expect(true).toBe(true)
+        testPassed = true
       }, 180000)
     })
   }

@@ -31,6 +31,10 @@ export default <NitroAppPlugin>((nitro) => {
     const todo: (() => void)[] = []
 
     for (const index in html.head) {
+      if (typeof html.head[index] !== 'string') {
+        continue
+      }
+
       // get all src="*-legacy.js"
       const matchLegacy = html.head[index]!.matchAll(LEGACY_SCRIPT_REGEX);
       [...matchLegacy].forEach((match) => {

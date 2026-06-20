@@ -12,6 +12,64 @@ const LEGACY_SCRIPT_REGEX = /<script [^>]*src="([^"]+-legacy\.js)"[^>]*><\/scrip
 const LEGACY_POLYFILL_SCRIPT_REGEX = /<script[^>]*src="([^"]+-legacy\.js#polyfills)"[^>]*><\/script>\s*/g
 const POLYFILL_END_MATCH_REGEX = /#polyfills$/
 
+interface LegacyHtml {
+  head: unknown[]
+}
+
+export function extractLegacyScripts(html: LegacyHtml) {
+  const legacyScripts: string[] = []
+  const polyfillScripts: string[] = []
+  const todo: (() => void)[] = []
+
+  for (const index in html.head) {
+    const headEntry = html.head[index]
+
+    if (typeof headEntry !== 'string') {
+      continue
+    }
+
+    // get all src="*-legacy.js"
+    const matchLegacy = headEntry.matchAll(LEGACY_SCRIPT_REGEX)
+    Array.from(matchLegacy).forEach((match) => {
+      if (match) {
+        const [full, src] = match
+        if (src) {
+          legacyScripts.push(src)
+        }
+        todo.push(() => {
+          const current = html.head[index]
+          if (typeof current === 'string') {
+            html.head[index] = current.replace(full, '')
+          }
+        })
+      }
+    })
+
+    // get all src="*-legacy.js#polyfills"
+    const matchPolyfill = headEntry.matchAll(LEGACY_POLYFILL_SCRIPT_REGEX)
+    Array.from(matchPolyfill).forEach((match) => {
+      if (match) {
+        const [full, src] = match
+        if (src) {
+          polyfillScripts.push(src.replace(POLYFILL_END_MATCH_REGEX, ''))
+        }
+        todo.push(() => {
+          const current = html.head[index]
+          if (typeof current === 'string') {
+            html.head[index] = current.replace(full, '')
+          }
+        })
+      }
+    })
+  }
+
+  return {
+    legacyScripts,
+    polyfillScripts,
+    removeMatchedScripts: () => todo.forEach(fn => fn()),
+  }
+}
+
 export default <NitroAppPlugin>((nitro) => {
   nitro.hooks.hook('render:html', async (html) => {
     // @ts-expect-error nitro virtual template
@@ -25,43 +83,8 @@ export default <NitroAppPlugin>((nitro) => {
       return
     }
 
-    const legacyScripts: string[] = []
-    const polyfillScripts: string[] = []
-    const todo: (() => void)[] = []
-
-    for (const index in html.head) {
-      // get all src="*-legacy.js"
-      const matchLegacy = html.head[index]!.matchAll(LEGACY_SCRIPT_REGEX);
-      [...matchLegacy].forEach((match) => {
-        if (match) {
-          const [full, src] = match
-          if (src) {
-            legacyScripts.push(src)
-          }
-          todo.push(() => {
-            if (html.head[index]) {
-              html.head[index] = html.head[index].replace(full, '')
-            }
-          })
-        }
-      })
-
-      // get all src="*-legacy.js#polyfills"
-      const matchPolyfill = html.head[index]!.matchAll(LEGACY_POLYFILL_SCRIPT_REGEX);
-      [...matchPolyfill].forEach((match) => {
-        if (match) {
-          const [full, src] = match
-          if (src) {
-            polyfillScripts.push(src.replace(POLYFILL_END_MATCH_REGEX, ''))
-          }
-          todo.push(() => {
-            if (html.head[index]) {
-              html.head[index] = html.head[index].replace(full, '')
-            }
-          })
-        }
-      })
-    }
+    const { legacyScripts, polyfillScripts, removeMatchedScripts }
+      = extractLegacyScripts(html)
 
     // normally there should be only one legacy script and one polyfill script
     if (polyfillScripts.length === 1 && legacyScripts.length === 1) {
@@ -85,7 +108,7 @@ export default <NitroAppPlugin>((nitro) => {
         `<${legacyScripType} crossorigin id="${legacyEntryId}" data-src="${legacySrc}">System.import(document.getElementById('${legacyEntryId}').getAttribute('data-src'))</script>`,
       )
 
-      todo.forEach(fn => fn())
+      removeMatchedScripts()
     }
   })
 })

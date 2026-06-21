@@ -2,15 +2,21 @@ import type { createResolver } from '@nuxt/kit'
 import type { Nuxt } from '@nuxt/schema'
 import type { Options as ViteLegacyOptions } from '@vitejs/plugin-legacy'
 import type { Plugin } from 'vite'
-import { addServerPlugin } from '@nuxt/kit'
+import { pathToFileURL } from 'node:url'
+import { addServerPlugin, resolvePath } from '@nuxt/kit'
 
 const LEGACY_SCRIPT_REGEX = /-legacy\.js$/
 
 export type { ViteLegacyOptions }
 
+function getNuxtMajorVersion(nuxt: Nuxt): number {
+  const match = String((nuxt as any)._version ?? '').match(/^\d+/)
+  return match ? Number.parseInt(match[0]!, 10) : 0
+}
+
 /**
- * Patches `@vitejs/plugin-legacy` plugins to be compatible with Nuxt's experimental
- * `viteEnvironmentApi` mode.
+ * Patches `@vitejs/plugin-legacy` plugins to be compatible with Nuxt's Vite
+ * Environment API mode.
  *
  * plugin-legacy stores the resolved config in a module-level shared variable shared
  * across its three plugins. In env-API mode, `configResolved` runs once per environment
@@ -23,8 +29,9 @@ export type { ViteLegacyOptions }
  * client config as the last write — matching plugin-legacy's single-environment assumption.
  */
 function patchForEnvironmentApi(nuxt: Nuxt, plugins: Plugin[]): Plugin[] {
-  // Only patch when the Environment API is in use.
-  if (!nuxt.options.experimental.viteEnvironmentApi) {
+  const usesEnvironmentApi = nuxt.options.experimental.viteEnvironmentApi || getNuxtMajorVersion(nuxt) >= 5
+
+  if (!usesEnvironmentApi) {
     return plugins
   }
 
@@ -35,27 +42,37 @@ function patchForEnvironmentApi(nuxt: Nuxt, plugins: Plugin[]): Plugin[] {
       return plugin
     }
     const handler = typeof userConfigResolved === 'function' ? userConfigResolved : userConfigResolved.handler
+    function configResolved(this: unknown, config: any) {
+      // Let plugin-legacy skip the ssr environment entirely, so it never overwrites
+      // the shared `config` variable captured by the client environment.
+      if (config?.build?.ssr) {
+        return
+      }
+      return handler.call(this, config)
+    }
 
     return {
       ...plugin,
-      configResolved(config: any) {
-        // Let plugin-legacy skip the ssr environment entirely, so it never overwrites
-        // the shared `config` variable captured by the client environment.
-        if (config?.build?.ssr) {
-          return
-        }
-        return handler.call(this, config)
-      },
+      configResolved: typeof userConfigResolved === 'function'
+        ? configResolved
+        : { ...userConfigResolved, handler: configResolved },
     } as Plugin
   })
 }
 
 export async function setupVite(options: ViteLegacyOptions, nuxt: Nuxt, moduleResolver: ReturnType<typeof createResolver>) {
-  const legacy = await import('@vitejs/plugin-legacy')
-    .then(m => m.default || m)
-    .catch(() => null)
-  if (!legacy) {
-    throw new Error('[@teages/nuxt-legacy] @vitejs/plugin-legacy is not installed')
+  // Resolve from the consuming project (nuxt.options.rootDir) instead of this
+  // module's own location, so each project picks up its own plugin-legacy
+  // version (e.g. v7 for Vite 7, v8 for Vite 8). The resolved path is loaded
+  // via a file URL so the native ESM loader handles it, bypassing jiti which
+  // would otherwise try to transpile the already-compiled package.
+  let legacy
+  try {
+    const resolved = await resolvePath('@vitejs/plugin-legacy')
+    legacy = await import(pathToFileURL(resolved).href).then(m => m.default || m)
+  }
+  catch (cause) {
+    throw new Error('[@teages/nuxt-legacy] failed to load @vitejs/plugin-legacy', { cause })
   }
 
   nuxt.options.vite ??= {}

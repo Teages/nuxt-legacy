@@ -48,11 +48,34 @@ jobs:
       - name: Test
         run: npm run test
 
-      # Real-browser E2E via BrowserStack Automate (Selenium). Verifies that the
-      # legacy chunks + polyfills actually hydrate the playground in Chrome
-      # 49/61/91. Forked PRs need maintainer approval before CI runs, so the
-      # secrets are available by the time this executes. Requires repo secrets
-      # BROWSERSTACK_USERNAME and BROWSERSTACK_ACCESS_KEY.
+  # Real-browser E2E via BrowserStack Automate (Selenium). Verifies that the
+  # legacy chunks + polyfills actually hydrate the playground in Chrome
+  # 49/61/91. Requires repo secrets BROWSERSTACK_USERNAME and
+  # BROWSERSTACK_ACCESS_KEY.
+  #
+  # GitHub does not expose repo secrets to `pull_request` runs triggered from a
+  # fork (secrets stay empty even after a maintainer approves the run), so this
+  # job is skipped on cross-repo PRs. Fork PRs are covered by the `test` job;
+  # E2E runs on same-repo PRs and on every push to main.
+  test_e2e:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
+
+    steps:
+      - uses: actions/checkout@v7.0.0
+      - run: corepack enable
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24.16.0
+      - name: Upgrade corepack
+        run: npm i -g corepack@latest
+
+      - name: Install dependencies
+        run: npx nypm@latest i
+
+      - name: Playground prepare
+        run: npm run dev:prepare
+
       - name: Run BrowserStack Automate E2E
         timeout-minutes: 20
         env:

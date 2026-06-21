@@ -63,8 +63,6 @@
     "@types/selenium-webdriver": "catalog:dev",
     "@vitejs/plugin-legacy": "catalog:dev",
     "browserstack-local": "catalog:dev",
-    "changelogen": "catalog:dev",
-    "changelogithub": "catalog:dev",
     "eslint": "catalog:dev",
     "get-port-please": "catalog:dev",
     "node-html-parser": "catalog:dev",

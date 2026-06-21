@@ -7,7 +7,7 @@
 
 A Nuxt module for supporting legacy browsers.
 
-- [✨ &nbsp;Release Notes](/CHANGELOG.md)
+- [✨ &nbsp;Release Notes](https://github.com/Teages/nuxt-legacy/releases)
 
 ## Setup
 

@@ -1,5 +1,5 @@
 {
-  "name": "@teages/nuxt-legacy-playground-env",
+  "name": "@teages/nuxt-legacy-playground-v4-env",
   "type": "module",
   "private": true,
   "scripts": {

@@ -1,7 +1,8 @@
 export default defineNuxtConfig({
   modules: ['../../src/module'],
 
-  // https://nuxt.com/docs/4.x/guide/going-further/experimental-features#viteenvironmentapi
+  // Enable Vite's Environment API (the build path Nuxt 5 uses by default) to
+  // isolate its effect on @vitejs/plugin-legacy in a Nuxt 4 + Vite 7 setup.
   experimental: {
     viteEnvironmentApi: true,
   },

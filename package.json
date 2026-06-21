@@ -38,7 +38,7 @@
     "test": "vitest run --project unit",
     "test:watch": "vitest watch --project unit",
     "test:e2e": "vitest run --project e2e",
-    "test:types": "vue-tsc --noEmit && cd playground && vue-tsc --noEmit"
+    "test:types": "vue-tsc --noEmit && pnpm --filter \"./playgrounds/*\" exec vue-tsc --noEmit"
   },
   "peerDependencies": {
     "@vitejs/plugin-legacy": "^7.0.0",

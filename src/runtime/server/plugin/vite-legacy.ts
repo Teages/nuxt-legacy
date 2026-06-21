@@ -1,3 +1,4 @@
+import type {} from '@nuxt/nitro-server'
 import type { NitroAppPlugin } from 'nitropack'
 import type { ModuleOptions } from '../../../../src/module'
 import {

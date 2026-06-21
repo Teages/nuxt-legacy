@@ -9,8 +9,9 @@ const LEGACY_SCRIPT_REGEX = /-legacy\.js$/
 
 export type { ViteLegacyOptions }
 
-function isEnvironmentApiConfig(config: any): boolean {
-  return !!config?.environments?.client && !!config.environments.ssr
+function getNuxtMajorVersion(nuxt: Nuxt): number {
+  const match = String((nuxt as any)._version ?? '').match(/^\d+/)
+  return match ? Number.parseInt(match[0]!, 10) : 0
 }
 
 /**
@@ -27,7 +28,13 @@ function isEnvironmentApiConfig(config: any): boolean {
  * The fix wraps `configResolved` so the ssr environment's config is ignored, leaving the
  * client config as the last write — matching plugin-legacy's single-environment assumption.
  */
-function patchForEnvironmentApi(plugins: Plugin[]): Plugin[] {
+function patchForEnvironmentApi(nuxt: Nuxt, plugins: Plugin[]): Plugin[] {
+  const usesEnvironmentApi = nuxt.options.experimental.viteEnvironmentApi || getNuxtMajorVersion(nuxt) >= 5
+
+  if (!usesEnvironmentApi) {
+    return plugins
+  }
+
   return plugins.map((plugin) => {
     // `configResolved` may be a plain function or `{ handler, order }`.
     const userConfigResolved = (plugin as any).configResolved
@@ -38,7 +45,7 @@ function patchForEnvironmentApi(plugins: Plugin[]): Plugin[] {
     function configResolved(this: unknown, config: any) {
       // Let plugin-legacy skip the ssr environment entirely, so it never overwrites
       // the shared `config` variable captured by the client environment.
-      if (isEnvironmentApiConfig(config) && config?.build?.ssr) {
+      if (config?.build?.ssr) {
         return
       }
       return handler.call(this, config)
@@ -72,7 +79,7 @@ export async function setupVite(options: ViteLegacyOptions, nuxt: Nuxt, moduleRe
   nuxt.options.vite.plugins ??= []
   const resolvedLegacy = legacy(options)
   const legacyPlugins = (Array.isArray(resolvedLegacy) ? resolvedLegacy : [resolvedLegacy]) as Plugin[]
-  nuxt.options.vite.plugins.unshift(...patchForEnvironmentApi(legacyPlugins))
+  nuxt.options.vite.plugins.unshift(...patchForEnvironmentApi(nuxt, legacyPlugins))
 
   nuxt.hook('build:manifest', (manifest) => {
     const manifestEntities = Object.entries(manifest)

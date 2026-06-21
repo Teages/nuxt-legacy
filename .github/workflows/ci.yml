@@ -57,7 +57,7 @@ jobs:
   # fork (secrets stay empty even after a maintainer approves the run), so this
   # job is skipped on cross-repo PRs. Fork PRs are covered by the `test` job;
   # E2E runs on same-repo PRs and on every push to main.
-  test:e2e:
+  test_e2e:
     runs-on: ubuntu-latest
     if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
 

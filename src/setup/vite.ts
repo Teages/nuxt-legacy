@@ -60,7 +60,8 @@ export async function setupVite(options: ViteLegacyOptions, nuxt: Nuxt, moduleRe
 
   nuxt.options.vite ??= {}
   nuxt.options.vite.plugins ??= []
-  const legacyPlugins = (Array.isArray(legacy(options)) ? legacy(options) : [legacy(options)]) as Plugin[]
+  const resolvedLegacy = legacy(options)
+  const legacyPlugins = (Array.isArray(resolvedLegacy) ? resolvedLegacy : [resolvedLegacy]) as Plugin[]
   nuxt.options.vite.plugins.unshift(...patchForEnvironmentApi(nuxt, legacyPlugins))
 
   nuxt.hook('build:manifest', (manifest) => {

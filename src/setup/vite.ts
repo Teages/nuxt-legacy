@@ -9,9 +9,14 @@ const LEGACY_SCRIPT_REGEX = /-legacy\.js$/
 
 export type { ViteLegacyOptions }
 
+function getNuxtMajorVersion(nuxt: Nuxt): number {
+  const match = String((nuxt as any)._version ?? '').match(/^\d+/)
+  return match ? Number.parseInt(match[0]!, 10) : 0
+}
+
 /**
- * Patches `@vitejs/plugin-legacy` plugins to be compatible with Nuxt's experimental
- * `viteEnvironmentApi` mode.
+ * Patches `@vitejs/plugin-legacy` plugins to be compatible with Nuxt's Vite
+ * Environment API mode.
  *
  * plugin-legacy stores the resolved config in a module-level shared variable shared
  * across its three plugins. In env-API mode, `configResolved` runs once per environment
@@ -24,8 +29,9 @@ export type { ViteLegacyOptions }
  * client config as the last write — matching plugin-legacy's single-environment assumption.
  */
 function patchForEnvironmentApi(nuxt: Nuxt, plugins: Plugin[]): Plugin[] {
-  // Only patch when the Environment API is in use.
-  if (!nuxt.options.experimental.viteEnvironmentApi) {
+  const usesEnvironmentApi = nuxt.options.experimental.viteEnvironmentApi || getNuxtMajorVersion(nuxt) >= 5
+
+  if (!usesEnvironmentApi) {
     return plugins
   }
 

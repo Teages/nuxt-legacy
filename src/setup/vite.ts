@@ -42,17 +42,20 @@ function patchForEnvironmentApi(nuxt: Nuxt, plugins: Plugin[]): Plugin[] {
       return plugin
     }
     const handler = typeof userConfigResolved === 'function' ? userConfigResolved : userConfigResolved.handler
+    function configResolved(this: unknown, config: any) {
+      // Let plugin-legacy skip the ssr environment entirely, so it never overwrites
+      // the shared `config` variable captured by the client environment.
+      if (config?.build?.ssr) {
+        return
+      }
+      return handler.call(this, config)
+    }
 
     return {
       ...plugin,
-      configResolved(config: any) {
-        // Let plugin-legacy skip the ssr environment entirely, so it never overwrites
-        // the shared `config` variable captured by the client environment.
-        if (config?.build?.ssr) {
-          return
-        }
-        return handler.call(this, config)
-      },
+      configResolved: typeof userConfigResolved === 'function'
+        ? configResolved
+        : { ...userConfigResolved, handler: configResolved },
     } as Plugin
   })
 }
@@ -63,11 +66,13 @@ export async function setupVite(options: ViteLegacyOptions, nuxt: Nuxt, moduleRe
   // version (e.g. v7 for Vite 7, v8 for Vite 8). The resolved path is loaded
   // via a file URL so the native ESM loader handles it, bypassing jiti which
   // would otherwise try to transpile the already-compiled package.
-  const legacy = await resolvePath('@vitejs/plugin-legacy')
-    .then(resolved => import(pathToFileURL(resolved).href).then(m => m.default || m))
-    .catch(() => null)
-  if (!legacy) {
-    throw new Error('[@teages/nuxt-legacy] @vitejs/plugin-legacy is not installed')
+  let legacy
+  try {
+    const resolved = await resolvePath('@vitejs/plugin-legacy')
+    legacy = await import(pathToFileURL(resolved).href).then(m => m.default || m)
+  }
+  catch (cause) {
+    throw new Error('[@teages/nuxt-legacy] failed to load @vitejs/plugin-legacy', { cause })
   }
 
   nuxt.options.vite ??= {}

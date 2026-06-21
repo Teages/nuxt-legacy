@@ -2,7 +2,8 @@ import type { createResolver } from '@nuxt/kit'
 import type { Nuxt } from '@nuxt/schema'
 import type { Options as ViteLegacyOptions } from '@vitejs/plugin-legacy'
 import type { Plugin } from 'vite'
-import { addServerPlugin } from '@nuxt/kit'
+import { pathToFileURL } from 'node:url'
+import { addServerPlugin, resolvePath } from '@nuxt/kit'
 
 const LEGACY_SCRIPT_REGEX = /-legacy\.js$/
 
@@ -51,8 +52,13 @@ function patchForEnvironmentApi(nuxt: Nuxt, plugins: Plugin[]): Plugin[] {
 }
 
 export async function setupVite(options: ViteLegacyOptions, nuxt: Nuxt, moduleResolver: ReturnType<typeof createResolver>) {
-  const legacy = await import('@vitejs/plugin-legacy')
-    .then(m => m.default || m)
+  // Resolve from the consuming project (nuxt.options.rootDir) instead of this
+  // module's own location, so each project picks up its own plugin-legacy
+  // version (e.g. v7 for Vite 7, v8 for Vite 8). The resolved path is loaded
+  // via a file URL so the native ESM loader handles it, bypassing jiti which
+  // would otherwise try to transpile the already-compiled package.
+  const legacy = await resolvePath('@vitejs/plugin-legacy')
+    .then(resolved => import(pathToFileURL(resolved).href).then(m => m.default || m))
     .catch(() => null)
   if (!legacy) {
     throw new Error('[@teages/nuxt-legacy] @vitejs/plugin-legacy is not installed')

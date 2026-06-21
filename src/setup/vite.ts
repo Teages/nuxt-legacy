@@ -1,11 +1,54 @@
 import type { createResolver } from '@nuxt/kit'
 import type { Nuxt } from '@nuxt/schema'
 import type { Options as ViteLegacyOptions } from '@vitejs/plugin-legacy'
+import type { Plugin } from 'vite'
 import { addServerPlugin } from '@nuxt/kit'
 
 const LEGACY_SCRIPT_REGEX = /-legacy\.js$/
 
 export type { ViteLegacyOptions }
+
+/**
+ * Patches `@vitejs/plugin-legacy` plugins to be compatible with Nuxt's experimental
+ * `viteEnvironmentApi` mode.
+ *
+ * plugin-legacy stores the resolved config in a module-level shared variable shared
+ * across its three plugins. In env-API mode, `configResolved` runs once per environment
+ * (client + ssr), and the ssr environment (where `config.build.ssr === true`) is resolved
+ * last, overwriting the shared config. The client environment's `generateBundle` /
+ * `renderChunk` then read the stale `config.build.ssr === true` and bail out early
+ * (`if (config.build.ssr) return;`), so the legacy polyfill chunk is never emitted.
+ *
+ * The fix wraps `configResolved` so the ssr environment's config is ignored, leaving the
+ * client config as the last write — matching plugin-legacy's single-environment assumption.
+ */
+function patchForEnvironmentApi(nuxt: Nuxt, plugins: Plugin[]): Plugin[] {
+  // Only patch when the Environment API is in use.
+  if (!nuxt.options.experimental.viteEnvironmentApi) {
+    return plugins
+  }
+
+  return plugins.map((plugin) => {
+    // `configResolved` may be a plain function or `{ handler, order }`.
+    const userConfigResolved = (plugin as any).configResolved
+    if (typeof userConfigResolved !== 'function' && typeof userConfigResolved?.handler !== 'function') {
+      return plugin
+    }
+    const handler = typeof userConfigResolved === 'function' ? userConfigResolved : userConfigResolved.handler
+
+    return {
+      ...plugin,
+      configResolved(config: any) {
+        // Let plugin-legacy skip the ssr environment entirely, so it never overwrites
+        // the shared `config` variable captured by the client environment.
+        if (config?.build?.ssr) {
+          return
+        }
+        return handler.call(this, config)
+      },
+    } as Plugin
+  })
+}
 
 export async function setupVite(options: ViteLegacyOptions, nuxt: Nuxt, moduleResolver: ReturnType<typeof createResolver>) {
   const legacy = await import('@vitejs/plugin-legacy')
@@ -17,7 +60,9 @@ export async function setupVite(options: ViteLegacyOptions, nuxt: Nuxt, moduleRe
 
   nuxt.options.vite ??= {}
   nuxt.options.vite.plugins ??= []
-  nuxt.options.vite.plugins.unshift(legacy(options) as any)
+  const resolvedLegacy = legacy(options)
+  const legacyPlugins = (Array.isArray(resolvedLegacy) ? resolvedLegacy : [resolvedLegacy]) as Plugin[]
+  nuxt.options.vite.plugins.unshift(...patchForEnvironmentApi(nuxt, legacyPlugins))
 
   nuxt.hook('build:manifest', (manifest) => {
     const manifestEntities = Object.entries(manifest)

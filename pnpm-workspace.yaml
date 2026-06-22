@@ -1,11 +1,12 @@
 catalogMode: prefer
 cleanupUnusedCatalogs: true
+minimumReleaseAge: 360 # 6 hours
 minimumReleaseAgeExclude:
-  - '@nuxt/kit-nightly@5.0.0-29699187.9208a469'
-  - '@nuxt/nitro-server-nightly@5.0.0-29699187.9208a469'
-  - '@nuxt/schema-nightly@5.0.0-29699187.9208a469'
-  - '@nuxt/vite-builder-nightly@5.0.0-29699187.9208a469'
-  - nuxt-nightly@5.0.0-29699187.9208a469
+  - '@nuxt/kit-nightly'
+  - '@nuxt/nitro-server-nightly'
+  - '@nuxt/schema-nightly'
+  - '@nuxt/vite-builder-nightly'
+  - nuxt-nightly
 shamefullyHoist: true
 shellEmulator: true
 

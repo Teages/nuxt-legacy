@@ -2,16 +2,65 @@ import type { createResolver } from '@nuxt/kit'
 import type { Nuxt } from '@nuxt/schema'
 import type { Options as ViteLegacyOptions } from '@vitejs/plugin-legacy'
 import type { Plugin } from 'vite'
+import { readFile } from 'node:fs/promises'
+import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
-import { addServerPlugin, resolvePath } from '@nuxt/kit'
+import { addServerPlugin, resolvePath, useLogger } from '@nuxt/kit'
+import { parseNodeModulePath } from '../utils/node-module'
+import { getNuxtMajorVersion } from '../utils/nuxt'
 
 const LEGACY_SCRIPT_REGEX = /-legacy\.js$/
 
 export type { ViteLegacyOptions }
 
-function getNuxtMajorVersion(nuxt: Nuxt): number {
-  const match = String((nuxt as any)._version ?? '').match(/^\d+/)
-  return match ? Number.parseInt(match[0]!, 10) : 0
+/**
+ * Warns when the installed `@vitejs/plugin-legacy` major is out of range for
+ * the consumer's Nuxt version:
+ *
+ * - Nuxt 3 & 4 bundle Vite 7 → plugin-legacy v7. v8+ needs Vite 8 and is too new.
+ * - Nuxt 5 bundles Vite 8+ → plugin-legacy v8 or newer. v7 is too old.
+ *
+ * We deliberately do **not** pin an exact major for Nuxt 5 — it may adopt a
+ * newer Vite (and thus a newer plugin-legacy) in a minor release, so only the
+ * lower bound is enforced there. The package's own peer range
+ * (`^7.0.0 || ^8.0.0`) already guards the lower bound on Nuxt 3/4.
+ *
+ * The resolved entry path is `…/node_modules/@vitejs/plugin-legacy/dist/index.js`
+ * (subpath resolution of `/package.json` is not supported by `resolvePath`),
+ * so the package root is derived via `parseNodeModulePath`.
+ *
+ * Best-effort: any failure to read or parse the version is swallowed so it can
+ * never break the build — the warning is purely advisory.
+ */
+async function warnOnPluginLegacyMismatch(nuxt: Nuxt, resolvedEntry: string): Promise<void> {
+  try {
+    const { dir, name } = parseNodeModulePath(resolvedEntry)
+    if (!dir || !name) {
+      return
+    }
+
+    const pkg = JSON.parse(await readFile(join(dir, name, 'package.json'), 'utf8')) as { version?: string }
+    const actualMajor = Number.parseInt(String(pkg.version ?? '').match(/^\d+/)?.[0] ?? '', 10)
+    if (!Number.isInteger(actualMajor)) {
+      return
+    }
+
+    const nuxtMajor = getNuxtMajorVersion(nuxt)
+    const tooNew = nuxtMajor < 5 && actualMajor >= 8
+    const tooOld = nuxtMajor >= 5 && actualMajor < 8
+    if (!tooNew && !tooOld) {
+      return
+    }
+
+    const expectedRange = nuxtMajor >= 5 ? '^8.0.0' : '^7.0.0'
+    useLogger('@teages/nuxt-legacy').warn(
+      `Detected @vitejs/plugin-legacy@${pkg.version}, which is ${tooNew ? 'too new' : 'too old'} for Nuxt ${nuxtMajor}. `
+      + `Please install @vitejs/plugin-legacy@${expectedRange} to avoid compatibility issues.`,
+    )
+  }
+  catch {
+    // Version detection is best-effort — never fail the build over it.
+  }
 }
 
 /**
@@ -69,6 +118,7 @@ export async function setupVite(options: ViteLegacyOptions, nuxt: Nuxt, moduleRe
   let legacy
   try {
     const resolved = await resolvePath('@vitejs/plugin-legacy')
+    await warnOnPluginLegacyMismatch(nuxt, resolved)
     legacy = await import(pathToFileURL(resolved).href).then(m => m.default || m)
   }
   catch (cause) {

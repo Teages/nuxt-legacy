@@ -14,8 +14,23 @@ const LEGACY_SCRIPT_REGEX = /-legacy\.js$/
 export type { ViteLegacyOptions }
 
 /**
- * Warns when the installed `@vitejs/plugin-legacy` major is out of range for
- * the consumer's Nuxt version:
+ * Outcome of checking the installed `@vitejs/plugin-legacy` major against the
+ * consumer's Nuxt version.
+ *
+ * - `ok` — the version is in range.
+ * - `too-new` — the plugin major is newer than what this Nuxt's Vite supports
+ *   (Nuxt 3/4 with plugin v8+). Only warned about; the plugin is still wired up
+ *   since it may still work in some setups.
+ * - `too-old` — the plugin major is older than what this Nuxt needs (Nuxt 5
+ *   with plugin v7 or below). This combination cannot build (e.g. plugin v7
+ *   emits `system` format, which rolldown does not support), so the caller must
+ *   skip wiring up the plugin to avoid a hard build failure.
+ */
+type PluginLegacyCompatibility = 'ok' | 'too-new' | 'too-old'
+
+/**
+ * Checks the installed `@vitejs/plugin-legacy` major against the consumer's
+ * Nuxt version and warns on a mismatch:
  *
  * - Nuxt 3 & 4 bundle Vite 7 → plugin-legacy v7. v8+ needs Vite 8 and is too new.
  * - Nuxt 5 bundles Vite 8+ → plugin-legacy v8 or newer. v7 is too old.
@@ -29,37 +44,44 @@ export type { ViteLegacyOptions }
  * (subpath resolution of `/package.json` is not supported by `resolvePath`),
  * so the package root is derived via `parseNodeModulePath`.
  *
- * Best-effort: any failure to read or parse the version is swallowed so it can
- * never break the build — the warning is purely advisory.
+ * Best-effort: any failure to read or parse the version is swallowed (returns
+ * `ok`) so it can never break the build — the warning is purely advisory.
  */
-async function warnOnPluginLegacyMismatch(nuxt: Nuxt, resolvedEntry: string): Promise<void> {
+async function checkPluginLegacyCompatibility(nuxt: Nuxt, resolvedEntry: string): Promise<PluginLegacyCompatibility> {
   try {
     const { dir, name } = parseNodeModulePath(resolvedEntry)
     if (!dir || !name) {
-      return
+      return 'ok'
     }
 
     const pkg = JSON.parse(await readFile(join(dir, name, 'package.json'), 'utf8')) as { version?: string }
     const actualMajor = Number.parseInt(String(pkg.version ?? '').match(/^\d+/)?.[0] ?? '', 10)
     if (!Number.isInteger(actualMajor)) {
-      return
+      return 'ok'
     }
 
     const nuxtMajor = getNuxtMajorVersion(nuxt)
     const tooNew = nuxtMajor < 5 && actualMajor >= 8
     const tooOld = nuxtMajor >= 5 && actualMajor < 8
     if (!tooNew && !tooOld) {
-      return
+      return 'ok'
     }
 
+    const status = tooNew ? 'too-new' : 'too-old'
     const expectedRange = nuxtMajor >= 5 ? '^8.0.0' : '^7.0.0'
-    useLogger('@teages/nuxt-legacy').warn(
-      `Detected @vitejs/plugin-legacy@${pkg.version}, which is ${tooNew ? 'too new' : 'too old'} for Nuxt ${nuxtMajor}. `
-      + `Please install @vitejs/plugin-legacy@${expectedRange} to avoid compatibility issues.`,
-    )
+    const detail = tooOld
+      ? `It has been disabled to avoid a build failure — legacy browser support is unavailable until you upgrade.`
+      : ''
+    useLogger('@teages/nuxt-legacy').warn([
+      `Detected @vitejs/plugin-legacy@${pkg.version}, which is ${tooNew ? 'too new' : 'too old'} for Nuxt ${nuxtMajor}.`,
+      `Please install @vitejs/plugin-legacy@${expectedRange} to avoid compatibility issues.`,
+      detail,
+    ].filter(Boolean).join(' '))
+    return status
   }
   catch {
-    // Version detection is best-effort — never fail the build over it.
+    // Version detection is best-effort — treat as compatible, never break the build.
+    return 'ok'
   }
 }
 
@@ -115,10 +137,24 @@ export async function setupVite(options: ViteLegacyOptions, nuxt: Nuxt, moduleRe
   // version (e.g. v7 for Vite 7, v8 for Vite 8). The resolved path is loaded
   // via a file URL so the native ESM loader handles it, bypassing jiti which
   // would otherwise try to transpile the already-compiled package.
+  let resolved: string
+  try {
+    resolved = await resolvePath(packageName)
+  }
+  catch (cause) {
+    throw new Error(`[@teages/nuxt-legacy] failed to resolve ${packageName}`, { cause })
+  }
+
+  // `too-old` (e.g. Nuxt 5 + plugin v7) cannot build — plugin v7 emits `system`
+  // format which the bundler does not support. Bail out before importing or
+  // registering the plugin so the app still builds, just without legacy support.
+  // The check emits its own warning explaining the situation.
+  if (await checkPluginLegacyCompatibility(nuxt, resolved) === 'too-old') {
+    return
+  }
+
   let legacy
   try {
-    const resolved = await resolvePath(packageName)
-    await warnOnPluginLegacyMismatch(nuxt, resolved)
     legacy = await import(pathToFileURL(resolved).href).then(m => m.default || m)
   }
   catch (cause) {

@@ -109,7 +109,7 @@ function patchForEnvironmentApi(nuxt: Nuxt, plugins: Plugin[]): Plugin[] {
   })
 }
 
-export async function setupVite(options: ViteLegacyOptions, nuxt: Nuxt, moduleResolver: ReturnType<typeof createResolver>) {
+export async function setupVite(options: ViteLegacyOptions, nuxt: Nuxt, moduleResolver: ReturnType<typeof createResolver>, packageName = '@vitejs/plugin-legacy') {
   // Resolve from the consuming project (nuxt.options.rootDir) instead of this
   // module's own location, so each project picks up its own plugin-legacy
   // version (e.g. v7 for Vite 7, v8 for Vite 8). The resolved path is loaded
@@ -117,12 +117,12 @@ export async function setupVite(options: ViteLegacyOptions, nuxt: Nuxt, moduleRe
   // would otherwise try to transpile the already-compiled package.
   let legacy
   try {
-    const resolved = await resolvePath('@vitejs/plugin-legacy')
+    const resolved = await resolvePath(packageName)
     await warnOnPluginLegacyMismatch(nuxt, resolved)
     legacy = await import(pathToFileURL(resolved).href).then(m => m.default || m)
   }
   catch (cause) {
-    throw new Error('[@teages/nuxt-legacy] failed to load @vitejs/plugin-legacy', { cause })
+    throw new Error(`[@teages/nuxt-legacy] failed to load ${packageName}`, { cause })
   }
 
   nuxt.options.vite ??= {}

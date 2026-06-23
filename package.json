@@ -67,6 +67,8 @@
     "get-port-please": "catalog:dev",
     "node-html-parser": "catalog:dev",
     "nuxt": "catalog:dev",
+    "plugin-legacy-v7": "catalog:dev",
+    "plugin-legacy-v8": "catalog:dev",
     "selenium-webdriver": "catalog:dev",
     "typescript": "catalog:dev",
     "vitest": "catalog:dev",

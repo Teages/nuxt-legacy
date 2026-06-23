@@ -9,6 +9,13 @@ export { cspHashes } from './csp'
 export interface ModuleOptions {
   vite?: ViteLegacyOptions
   customPolyfills?: CustomPolyfillsOptions
+  /**
+   * The package name to resolve for `@vitejs/plugin-legacy`. Used by tests to
+   * redirect resolution to an aliased install (e.g. `plugin-legacy-v8`).
+   *
+   * @internal
+   */
+  viteLegacyPackageName?: string
 }
 
 export default defineNuxtModule<ModuleOptions>({
@@ -27,7 +34,7 @@ export default defineNuxtModule<ModuleOptions>({
     })
 
     if (options.vite && nuxt.options.builder === '@nuxt/vite-builder') {
-      await setupVite(options.vite, nuxt, moduleResolver)
+      await setupVite(options.vite, nuxt, moduleResolver, options.viteLegacyPackageName)
     }
     await setupCustomPolyfills(nuxt, options.customPolyfills ?? {})
   },

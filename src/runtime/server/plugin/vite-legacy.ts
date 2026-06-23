@@ -1,13 +1,8 @@
 import type {} from '@nuxt/nitro-server'
 import type { NitroAppPlugin } from 'nitropack'
 import type { ModuleOptions } from '../../../../src/module'
-import {
-  detectModernBrowserCode,
-  dynamicFallbackInlineCode,
-  legacyEntryId,
-  legacyPolyfillId,
-  safari10NoModuleFix,
-} from '../../snippets'
+// @ts-expect-error virtual module generated at build time by the module setup
+import { detectModernBrowserCode, dynamicFallbackInlineCode, legacyEntryId, legacyPolyfillId, safari10NoModuleFix } from '#nuxt-legacy/snippets.mjs'
 
 const LEGACY_SCRIPT_REGEX = /<script [^>]*src="([^"]+-legacy\.js)"[^>]*><\/script>\s*/g
 const LEGACY_POLYFILL_SCRIPT_REGEX = /<script[^>]*src="([^"]+-legacy\.js#polyfills)"[^>]*><\/script>\s*/g

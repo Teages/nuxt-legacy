@@ -88,18 +88,32 @@ You can test by yourself by visiting the [playground](https://nuxt-legacy.pages.
 
 ### Content Security Policy
 
-It injects some inline scripts to [fix legacy browser compatibility](https://github.com/vitejs/vite/tree/main/packages/plugin-legacy#content-security-policy). The hashes keep sync with the latest version of `@vitejs/plugin-legacy`, the current value is:
+It injects some inline scripts to [fix legacy browser compatibility](https://github.com/vitejs/vite/tree/main/packages/plugin-legacy#content-security-policy). The hashes keep sync with the installed version of `@vitejs/plugin-legacy` — v7 (Nuxt 3/4) and v8 (Nuxt 5) differ in one inline script, so both sets are listed:
+
+**plugin-legacy v7 (Nuxt 3 / 4)**
 
 - `sha256-MS6/3FCg4WjP9gwgaBGwLpRCY6fZBgwmhVCdrPrNf3E=`
 - `sha256-tQjf8gvb2ROOMapIxFvFAYBeUJ0v1HCbOcSmDNXGtDo=`
 - `sha256-ZxAi3a7m9Mzbc+Z1LGuCCK5Xee6reDkEPRas66H9KSo=`
 - `sha256-+5XkZFazzJo8n0iOP4ti/cLCMUudTf//Mzkb7xNPXIc=`
 
-`cspHashes` is also available in the module:
+**plugin-legacy v8 (Nuxt 5)**
+
+- `sha256-MS6/3FCg4WjP9gwgaBGwLpRCY6fZBgwmhVCdrPrNf3E=`
+- `sha256-tQjf8gvb2ROOMapIxFvFAYBeUJ0v1HCbOcSmDNXGtDo=`
+- `sha256-w36slEqa9euNKxfvkw+LLGsDIr++3rsZXpZxtmRh8Aw=`
+- `sha256-+5XkZFazzJo8n0iOP4ti/cLCMUudTf//Mzkb7xNPXIc=`
+
+`cspHashesFor(major)` returns the hash set for a given `@vitejs/plugin-legacy` major:
 
 ```ts
-import { cspHashes } from '@teages/nuxt-legacy'
+import { cspHashesFor } from '@teages/nuxt-legacy'
+
+// plugin-legacy v8 (Nuxt 5) — pass your installed major
+cspHashesFor(8)
 ```
+
+`cspHashes` (plugin-legacy v7) is also exported for backwards compatibility.
 
 ## Custom Polyfills
 

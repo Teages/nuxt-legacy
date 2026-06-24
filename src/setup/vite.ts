@@ -6,10 +6,11 @@ import type { LegacySnippets } from '../runtime/snippets/index'
 import { readFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
-import { addServerPlugin, resolvePath, useLogger } from '@nuxt/kit'
+import { addServerPlugin, addServerTemplate, resolvePath, useLogger } from '@nuxt/kit'
 import { selectSnippets } from '../runtime/snippets/index'
 import { parseNodeModulePath } from '../utils/node-module'
 import { getNuxtMajorVersion } from '../utils/nuxt'
+import { getViteMajor } from '../utils/vite'
 
 const LEGACY_SCRIPT_REGEX = /-legacy\.js$/
 
@@ -17,86 +18,85 @@ export type { ViteLegacyOptions }
 
 /**
  * Outcome of checking the installed `@vitejs/plugin-legacy` major against the
- * consumer's Nuxt version.
+ * consumer's Vite version.
  *
- * - `ok` — the version is in range.
- * - `too-new` — the plugin major is newer than what this Nuxt's Vite supports
- *   (Nuxt 3/4 with plugin v8+). Only warned about; the plugin is still wired up
- *   since it may still work in some setups.
- * - `too-old` — the plugin major is older than what this Nuxt needs (Nuxt 5
- *   with plugin v7 or below). This combination cannot build (e.g. plugin v7
- *   emits `system` format, which rolldown does not support), so the caller must
- *   skip wiring up the plugin to avoid a hard build failure.
+ * - `ok` — the majors match.
+ * - `too-new` — the plugin major is newer than the Vite major (e.g. plugin v8
+ *   on Vite 7). Only warned about; the plugin is still wired up since it may
+ *   still work in some setups.
+ * - `too-old` — the plugin major is older than the Vite major (e.g. plugin v7
+ *   on Vite 8). This combination cannot build (plugin v7 emits `system` format,
+ *   which rolldown does not support), so the caller must skip wiring up the
+ *   plugin to avoid a hard build failure.
  */
 type PluginLegacyCompatibility = 'ok' | 'too-new' | 'too-old'
 
 /**
- * Reads the installed `@vitejs/plugin-legacy` major version from its
- * `package.json`, derived from the resolved entry path via
- * `parseNodeModulePath`. Returns `0` when undeterminable.
+ * Reads the installed `@vitejs/plugin-legacy` major version and full version
+ * string from its `package.json`, derived from the resolved entry path via
+ * `parseNodeModulePath`. Returns `{ major: 0 }` when undeterminable.
  *
- * Best-effort: any failure is swallowed (returns `0`) so it never breaks the build.
+ * Both values come from a single `package.json` read: `major` drives the
+ * compatibility comparison, while `version` (e.g. `8.0.16`) is surfaced in the
+ * mismatch warning so the message is diagnostic without a second file read.
+ *
+ * Best-effort: any failure is swallowed (returns `{ major: 0 }`) so it never
+ * breaks the build.
  */
-async function detectPluginLegacyMajor(resolvedEntry: string): Promise<number> {
+async function detectPluginLegacyVersion(resolvedEntry: string): Promise<{ major: number, version?: string }> {
   try {
     const { dir, name } = parseNodeModulePath(resolvedEntry)
     if (!dir || !name) {
-      return 0
+      return { major: 0 }
     }
     const pkg = JSON.parse(await readFile(join(dir, name, 'package.json'), 'utf8')) as { version?: string }
     const major = Number.parseInt(String(pkg.version ?? '').match(/^\d+/)?.[0] ?? '', 10)
-    return Number.isInteger(major) ? major : 0
+    if (!Number.isInteger(major)) {
+      return { major: 0 }
+    }
+    return { major, version: pkg.version }
   }
   catch {
-    return 0
+    return { major: 0 }
   }
 }
 
 /**
  * Checks the installed `@vitejs/plugin-legacy` major against the consumer's
- * Nuxt version and warns on a mismatch:
+ * Vite major and warns on a mismatch:
  *
- * - Nuxt 3 & 4 bundle Vite 7 → plugin-legacy v7. v8+ needs Vite 8 and is too new.
- * - Nuxt 5 bundles Vite 8+ → plugin-legacy v8 or newer. v7 is too old.
+ * - plugin major newer than Vite major → `too-new` (e.g. plugin v8 on Vite 7).
+ * - plugin major older than Vite major → `too-old` (e.g. plugin v7 on Vite 8).
+ *   plugin v7 emits `system` format, which rolldown (Vite 8's bundler) cannot
+ *   build, so it is skipped.
  *
- * We deliberately do **not** pin an exact major for Nuxt 5 — it may adopt a
- * newer Vite (and thus a newer plugin-legacy) in a minor release, so only the
- * lower bound is enforced there. The package's own peer range
- * (`^7.0.0 || ^8.0.0`) already guards the lower bound on Nuxt 3/4.
+ * This compares against the actual Vite major resolved from the Nuxt Vite
+ * builder, rather than inferring it from the Nuxt major — Nuxt 3 and 4 both
+ * bundle Vite 7, and a future Nuxt minor could bump Vite, so reading Vite
+ * directly is more robust than keying off Nuxt.
  *
- * Best-effort: an undeterminable major (0) is treated as compatible (`ok`).
+ * Best-effort: an undeterminable plugin major (0) or Vite major (0) is
+ * treated as compatible (`ok`).
  */
-async function checkPluginLegacyCompatibility(nuxt: Nuxt, resolvedEntry: string, actualMajor: number): Promise<PluginLegacyCompatibility> {
-  if (!actualMajor) {
+async function checkPluginLegacyCompatibility(actualMajor: number, actualVersion: string | undefined, viteMajor: number): Promise<PluginLegacyCompatibility> {
+  if (!actualMajor || !viteMajor) {
     return 'ok'
   }
 
-  const nuxtMajor = getNuxtMajorVersion(nuxt)
-  const tooNew = nuxtMajor < 5 && actualMajor >= 8
-  const tooOld = nuxtMajor >= 5 && actualMajor < 8
+  const tooNew = actualMajor > viteMajor
+  const tooOld = actualMajor < viteMajor
   if (!tooNew && !tooOld) {
     return 'ok'
   }
 
-  let versionLabel = String(actualMajor)
-  try {
-    const { dir, name } = parseNodeModulePath(resolvedEntry)
-    if (dir && name) {
-      const pkg = JSON.parse(await readFile(join(dir, name, 'package.json'), 'utf8')) as { version?: string }
-      versionLabel = pkg.version ?? versionLabel
-    }
-  }
-  catch {
-    // fall back to the bare major
-  }
-
+  const versionLabel = actualVersion ?? String(actualMajor)
   const status = tooNew ? 'too-new' : 'too-old'
-  const expectedRange = nuxtMajor >= 5 ? '^8.0.0' : '^7.0.0'
+  const expectedRange = `^${viteMajor}.0.0`
   const detail = tooOld
     ? `It has been disabled to avoid a build failure — legacy browser support is unavailable until you upgrade.`
     : ''
   useLogger('@teages/nuxt-legacy').warn([
-    `Detected @vitejs/plugin-legacy@${versionLabel}, which is ${tooNew ? 'too new' : 'too old'} for Nuxt ${nuxtMajor}.`,
+    `Detected @vitejs/plugin-legacy@${versionLabel}, which is ${tooNew ? 'too new' : 'too old'} for Vite ${viteMajor}.`,
     `Please install @vitejs/plugin-legacy@${expectedRange} to avoid compatibility issues.`,
     detail,
   ].filter(Boolean).join(' '))
@@ -149,7 +149,7 @@ function patchForEnvironmentApi(nuxt: Nuxt, plugins: Plugin[]): Plugin[] {
   })
 }
 
-export async function setupVite(options: ViteLegacyOptions, nuxt: Nuxt, moduleResolver: ReturnType<typeof createResolver>, packageName = '@vitejs/plugin-legacy'): Promise<LegacySnippets> {
+export async function setupVite(options: ViteLegacyOptions, nuxt: Nuxt, moduleResolver: ReturnType<typeof createResolver>, packageName = '@vitejs/plugin-legacy') {
   // Resolve from the consuming project (nuxt.options.rootDir) instead of this
   // module's own location, so each project picks up its own plugin-legacy
   // version (e.g. v7 for Vite 7, v8 for Vite 8). The resolved path is loaded
@@ -163,15 +163,25 @@ export async function setupVite(options: ViteLegacyOptions, nuxt: Nuxt, moduleRe
     throw new Error(`[@teages/nuxt-legacy] failed to resolve ${packageName}`, { cause })
   }
 
-  const pluginMajor = await detectPluginLegacyMajor(resolved)
-  const snippets = selectSnippets(pluginMajor)
+  const { major: pluginMajor, version: pluginVersion } = await detectPluginLegacyVersion(resolved)
+  const viteMajor = await getViteMajor(nuxt)
+
+  // Emit the selected snippets as a virtual nitro module. The server plugin
+  // imports `#nuxt-legacy/snippets` and reads the version-correct inline
+  // scripts from it. We emit real source (with the `['import','meta','url'].join('.')`
+  // trick) rather than `JSON.stringify`-ing the strings, because nitro's
+  // bundler rewrites the literal `import.meta.url` even inside string values.
+  addServerTemplate({
+    filename: '#nuxt-legacy/snippets.mjs',
+    getContents: () => snippetsToSource(selectSnippets(pluginMajor)),
+  })
 
   // `too-old` (e.g. Nuxt 5 + plugin v7) cannot build — plugin v7 emits `system`
   // format which the bundler does not support. Bail out before importing or
   // registering the plugin so the app still builds, just without legacy support.
   // The check emits its own warning explaining the situation.
-  if (await checkPluginLegacyCompatibility(nuxt, resolved, pluginMajor) === 'too-old') {
-    return snippets
+  if (await checkPluginLegacyCompatibility(pluginMajor, pluginVersion, viteMajor) === 'too-old') {
+    return
   }
 
   let legacy
@@ -223,6 +233,34 @@ export async function setupVite(options: ViteLegacyOptions, nuxt: Nuxt, moduleRe
   if (options.renderLegacyChunks ?? true) {
     addServerPlugin(moduleResolver.resolve('./runtime/server/plugin/vite-legacy'))
   }
+}
 
-  return snippets
+/**
+ * Renders a `LegacySnippets` set as ES module source.
+ *
+ * `import.meta.url` is emitted as `${['import','meta','url'].join('.')}` (live
+ * code), matching the upstream plugin-legacy source, so nitro's bundler does
+ * not rewrite it inside a string literal — which would break the injected
+ * `detectModernBrowser` script at runtime.
+ */
+function snippetsToSource(snippets: LegacySnippets): string {
+  // The detector uses `import.meta.url`; rebuild the join trick so it stays
+  // as live code rather than a literal string.
+  // eslint-disable-next-line no-template-curly-in-string
+  const joinTrick = '${[\'import\', \'meta\', \'url\'].join(\'.\')}'
+  const detectorWithJoinTrick = snippets.detectModernBrowserDetector.replace(
+    'import.meta.url',
+    joinTrick,
+  )
+  return [
+    `// Generated by @teages/nuxt-legacy — do not edit.`,
+    `const detectModernBrowserVarName = '__vite_is_modern_browser';`,
+    `const detectModernBrowserDetector = \`${detectorWithJoinTrick}\`;`,
+    `export const safari10NoModuleFix = ${JSON.stringify(snippets.safari10NoModuleFix)};`,
+    `export const legacyPolyfillId = ${JSON.stringify(snippets.legacyPolyfillId)};`,
+    `export const legacyEntryId = ${JSON.stringify(snippets.legacyEntryId)};`,
+    `export const systemJSInlineCode = ${JSON.stringify(snippets.systemJSInlineCode)};`,
+    `export const detectModernBrowserCode = \`\${detectModernBrowserDetector};window.\${detectModernBrowserVarName}=true\`;`,
+    `export const dynamicFallbackInlineCode = ${JSON.stringify(snippets.dynamicFallbackInlineCode)};`,
+  ].join('\n')
 }

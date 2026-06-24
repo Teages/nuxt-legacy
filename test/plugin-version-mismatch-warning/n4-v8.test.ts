@@ -21,6 +21,6 @@ describe('nuxt 4 + plugin-legacy v8 (too new)', async () => {
     const match = findMismatchWarning(collectStderr(spyStderr))
     expect(match).not.toBeNull()
     expect(match![1]).toBe('new')
-    expect(match![2]).toBe('4')
+    expect(match![2]).toBe('7')
   })
 })

@@ -12,11 +12,11 @@ export const rootV4 = fileURLToPath(new URL('../../playgrounds/v4', import.meta.
 export const rootV5 = fileURLToPath(new URL('../../playgrounds/v5', import.meta.url))
 
 /**
- * Matches the "too new" / "too old" wording from `warnOnPluginLegacyMismatch`
- * in src/setup/vite.ts. Captures the direction (`new` | `old`) and the Nuxt
+ * Matches the "too new" / "too old" wording from `checkPluginLegacyCompatibility`
+ * in src/setup/vite.ts. Captures the direction (`new` | `old`) and the Vite
  * major.
  */
-export const MISMATCH_RE = /Detected @vitejs\/plugin-legacy@\d+\.\d+\.\d+, which is too (new|old) for Nuxt (\d)/
+export const MISMATCH_RE = /Detected @vitejs\/plugin-legacy@\d+\.\d+\.\d+, which is too (new|old) for Vite (\d+)/
 
 /** Strip ANSI escape codes so the regex matches raw stderr chunks. */
 // eslint-disable-next-line no-control-regex

@@ -17,28 +17,15 @@ const LEGACY_SCRIPT_REGEX = /-legacy\.js$/
 export type { ViteLegacyOptions }
 
 /**
- * Outcome of checking the installed `@vitejs/plugin-legacy` major against the
- * consumer's Vite version.
- *
- * - `ok` — the majors match.
- * - `too-new` — the plugin major is newer than the Vite major (e.g. plugin v8
- *   on Vite 7). Only warned about; the plugin is still wired up since it may
- *   still work in some setups.
- * - `too-old` — the plugin major is older than the Vite major (e.g. plugin v7
- *   on Vite 8). This combination cannot build (plugin v7 emits `system` format,
- *   which rolldown does not support), so the caller must skip wiring up the
- *   plugin to avoid a hard build failure.
+ * - `ok` — majors match.
+ * - `too-new` — plugin major newer than Vite; warned but still wired up.
+ * - `too-old` — plugin major older than Vite; cannot build, so skipped.
  */
 type PluginLegacyCompatibility = 'ok' | 'too-new' | 'too-old'
 
 /**
- * Reads the installed `@vitejs/plugin-legacy` major version and full version
- * string from its `package.json`, derived from the resolved entry path via
- * `parseNodeModulePath`. The full `version` is surfaced in the mismatch
- * warning; `major` drives the compatibility comparison.
- *
- * Best-effort: any failure is swallowed (returns `{ major: 0 }`) so it never
- * breaks the build.
+ * Reads the installed `@vitejs/plugin-legacy` major and full version from its
+ * `package.json`. Returns `{ major: 0 }` on failure (never throws).
  */
 async function detectPluginLegacyVersion(resolvedEntry: string): Promise<{ major: number, version?: string }> {
   try {
@@ -59,16 +46,8 @@ async function detectPluginLegacyVersion(resolvedEntry: string): Promise<{ major
 }
 
 /**
- * Checks the installed `@vitejs/plugin-legacy` major against the consumer's
- * Vite major and warns on a mismatch:
- *
- * - plugin major newer than Vite major → `too-new` (e.g. plugin v8 on Vite 7).
- * - plugin major older than Vite major → `too-old` (e.g. plugin v7 on Vite 8).
- *   plugin v7 emits `system` format, which rolldown (Vite 8's bundler) cannot
- *   build, so it is skipped.
- *
- * Best-effort: an undeterminable plugin major (0) or Vite major (0) is
- * treated as compatible (`ok`).
+ * Warns when the plugin-legacy major mismatches the Vite major. `too-old` is
+ * skipped because plugin v7's `system` format can't build on rolldown.
  */
 async function checkPluginLegacyCompatibility(actualMajor: number, actualVersion: string | undefined, viteMajor: number): Promise<PluginLegacyCompatibility> {
   if (!actualMajor || !viteMajor) {
@@ -96,18 +75,9 @@ async function checkPluginLegacyCompatibility(actualMajor: number, actualVersion
 }
 
 /**
- * Patches `@vitejs/plugin-legacy` plugins to be compatible with Nuxt's Vite
- * Environment API mode.
- *
- * plugin-legacy stores the resolved config in a module-level shared variable shared
- * across its three plugins. In env-API mode, `configResolved` runs once per environment
- * (client + ssr), and the ssr environment (where `config.build.ssr === true`) is resolved
- * last, overwriting the shared config. The client environment's `generateBundle` /
- * `renderChunk` then read the stale `config.build.ssr === true` and bail out early
- * (`if (config.build.ssr) return;`), so the legacy polyfill chunk is never emitted.
- *
- * The fix wraps `configResolved` so the ssr environment's config is ignored, leaving the
- * client config as the last write — matching plugin-legacy's single-environment assumption.
+ * In env-API mode, plugin-legacy's shared `config` gets overwritten by the ssr
+ * environment, dropping the client's legacy polyfill chunk. Skipping the ssr
+ * `configResolved` keeps the client config as the last write.
  */
 function patchForEnvironmentApi(nuxt: Nuxt, plugins: Plugin[]): Plugin[] {
   const usesEnvironmentApi = nuxt.options.experimental.viteEnvironmentApi || getNuxtMajorVersion(nuxt) >= 5
@@ -124,8 +94,6 @@ function patchForEnvironmentApi(nuxt: Nuxt, plugins: Plugin[]): Plugin[] {
     }
     const handler = typeof userConfigResolved === 'function' ? userConfigResolved : userConfigResolved.handler
     function configResolved(this: unknown, config: any) {
-      // Let plugin-legacy skip the ssr environment entirely, so it never overwrites
-      // the shared `config` variable captured by the client environment.
       if (config?.build?.ssr) {
         return
       }
@@ -142,11 +110,8 @@ function patchForEnvironmentApi(nuxt: Nuxt, plugins: Plugin[]): Plugin[] {
 }
 
 export async function setupVite(options: ViteLegacyOptions, nuxt: Nuxt, moduleResolver: ReturnType<typeof createResolver>, packageName = '@vitejs/plugin-legacy') {
-  // Resolve from the consuming project (nuxt.options.rootDir) instead of this
-  // module's own location, so each project picks up its own plugin-legacy
-  // version (e.g. v7 for Vite 7, v8 for Vite 8). The resolved path is loaded
-  // via a file URL so the native ESM loader handles it, bypassing jiti which
-  // would otherwise try to transpile the already-compiled package.
+  // Resolve from the consuming project so each picks up its own plugin-legacy,
+  // loaded via file URL to bypass jiti transpiling the already-compiled package.
   let resolved: string
   try {
     resolved = await resolvePath(packageName)
@@ -158,18 +123,13 @@ export async function setupVite(options: ViteLegacyOptions, nuxt: Nuxt, moduleRe
   const { major: pluginMajor, version: pluginVersion } = await detectPluginLegacyVersion(resolved)
   const viteMajor = await getViteMajor(nuxt)
 
-  // Emit the selected snippets as a virtual nitro module. The server plugin
-  // imports `#nuxt-legacy/snippets` and reads the version-correct inline
-  // scripts from it. We emit real source (with the `['import','meta','url'].join('.')`
-  // trick) rather than `JSON.stringify`-ing the strings, because nitro's
-  // bundler rewrites the literal `import.meta.url` even inside string values.
+  // Emit as real source, not JSON — nitro's bundler rewrites a literal
+  // `import.meta.url` even inside strings, which breaks the injected detector.
   addServerTemplate({
     filename: '#nuxt-legacy/snippets.mjs',
     getContents: () => snippetsToSource(selectSnippets(pluginMajor)),
   })
 
-  // `too-old` cannot build — skip wiring up the plugin so the app still builds
-  // without legacy support. The check emits its own warning.
   if (await checkPluginLegacyCompatibility(pluginMajor, pluginVersion, viteMajor) === 'too-old') {
     return
   }
@@ -225,17 +185,8 @@ export async function setupVite(options: ViteLegacyOptions, nuxt: Nuxt, moduleRe
   }
 }
 
-/**
- * Renders a `LegacySnippets` set as ES module source.
- *
- * `import.meta.url` is emitted as `${['import','meta','url'].join('.')}` (live
- * code), matching the upstream plugin-legacy source, so nitro's bundler does
- * not rewrite it inside a string literal — which would break the injected
- * `detectModernBrowser` script at runtime.
- */
+/** `import.meta.url` is rebuilt via the join trick so nitro's bundler leaves it as live code. */
 function snippetsToSource(snippets: LegacySnippets): string {
-  // The detector uses `import.meta.url`; rebuild the join trick so it stays
-  // as live code rather than a literal string.
   // eslint-disable-next-line no-template-curly-in-string
   const joinTrick = '${[\'import\', \'meta\', \'url\'].join(\'.\')}'
   const detectorWithJoinTrick = snippets.detectModernBrowserDetector.replace(

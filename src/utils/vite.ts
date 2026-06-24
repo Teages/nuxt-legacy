@@ -4,16 +4,9 @@ import { createRequire } from 'node:module'
 import { resolvePath } from '@nuxt/kit'
 
 /**
- * Resolves the Vite major bundled with the consumer's Nuxt Vite builder, by
- * resolving `@nuxt/vite-builder` from the project root and reading the `vite`
- * package.json it actually depends on.
- *
- * This is more reliable than `import { version } from 'vite'`, which could
- * resolve to this module's own Vite (or fail under strict pnpm layouts). The
- * builder-relative lookup guarantees we read the same Vite that builds the app.
- *
- * Returns `0` when the builder is not `@nuxt/vite-builder` or the major cannot
- * be determined (matching `detectPluginLegacyVersion`'s sentinel).
+ * Resolves the Vite major from the consumer's Nuxt Vite builder, rather than
+ * `import { version } from 'vite'` which may resolve to this module's own Vite.
+ * Returns `0` when undeterminable.
  */
 export async function getViteMajor(nuxt: Nuxt): Promise<number> {
   if (nuxt.options.builder !== '@nuxt/vite-builder') {

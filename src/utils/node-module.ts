@@ -5,12 +5,17 @@
 import { normalize } from 'node:path'
 import { fileURLToPath as nodeFileURLToPath } from 'node:url'
 
+/** Normalizes backslashes to forward slashes, so path regexes work on Windows. */
+function normalizeSlash(path: string): string {
+  return path.replace(/\\/g, '/')
+}
+
 /** Normalizes a path or `file://` URL to a filesystem path (mlly-compatible). */
 function toFilePath(id: string): string {
   if (!id.startsWith('file://')) {
-    return normalize(id)
+    return normalizeSlash(normalize(id))
   }
-  return normalize(nodeFileURLToPath(id))
+  return normalizeSlash(nodeFileURLToPath(id))
 }
 
 // Adapted verbatim from mlly; the lazy `.*?` + optional quantifiers here are

@@ -12,12 +12,8 @@ import { resolvePath } from '@nuxt/kit'
  * resolve to this module's own Vite (or fail under strict pnpm layouts). The
  * builder-relative lookup guarantees we read the same Vite that builds the app.
  *
- * Only the major is needed for the plugin-legacy compatibility check, so it is
- * parsed out here and returned as a number — matching `detectPluginLegacyMajor`
- * (which uses `0` as the "undeterminable" sentinel).
- *
  * Returns `0` when the builder is not `@nuxt/vite-builder` or the major cannot
- * be determined.
+ * be determined (matching `detectPluginLegacyVersion`'s sentinel).
  */
 export async function getViteMajor(nuxt: Nuxt): Promise<number> {
   if (nuxt.options.builder !== '@nuxt/vite-builder') {

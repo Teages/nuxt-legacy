@@ -34,11 +34,8 @@ type PluginLegacyCompatibility = 'ok' | 'too-new' | 'too-old'
 /**
  * Reads the installed `@vitejs/plugin-legacy` major version and full version
  * string from its `package.json`, derived from the resolved entry path via
- * `parseNodeModulePath`. Returns `{ major: 0 }` when undeterminable.
- *
- * Both values come from a single `package.json` read: `major` drives the
- * compatibility comparison, while `version` (e.g. `8.0.16`) is surfaced in the
- * mismatch warning so the message is diagnostic without a second file read.
+ * `parseNodeModulePath`. The full `version` is surfaced in the mismatch
+ * warning; `major` drives the compatibility comparison.
  *
  * Best-effort: any failure is swallowed (returns `{ major: 0 }`) so it never
  * breaks the build.
@@ -69,11 +66,6 @@ async function detectPluginLegacyVersion(resolvedEntry: string): Promise<{ major
  * - plugin major older than Vite major → `too-old` (e.g. plugin v7 on Vite 8).
  *   plugin v7 emits `system` format, which rolldown (Vite 8's bundler) cannot
  *   build, so it is skipped.
- *
- * This compares against the actual Vite major resolved from the Nuxt Vite
- * builder, rather than inferring it from the Nuxt major — Nuxt 3 and 4 both
- * bundle Vite 7, and a future Nuxt minor could bump Vite, so reading Vite
- * directly is more robust than keying off Nuxt.
  *
  * Best-effort: an undeterminable plugin major (0) or Vite major (0) is
  * treated as compatible (`ok`).
@@ -176,10 +168,8 @@ export async function setupVite(options: ViteLegacyOptions, nuxt: Nuxt, moduleRe
     getContents: () => snippetsToSource(selectSnippets(pluginMajor)),
   })
 
-  // `too-old` (e.g. Nuxt 5 + plugin v7) cannot build — plugin v7 emits `system`
-  // format which the bundler does not support. Bail out before importing or
-  // registering the plugin so the app still builds, just without legacy support.
-  // The check emits its own warning explaining the situation.
+  // `too-old` cannot build — skip wiring up the plugin so the app still builds
+  // without legacy support. The check emits its own warning.
   if (await checkPluginLegacyCompatibility(pluginMajor, pluginVersion, viteMajor) === 'too-old') {
     return
   }

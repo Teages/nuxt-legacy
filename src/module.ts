@@ -4,7 +4,7 @@ import { addServerTemplate, createResolver, defineNuxtModule } from '@nuxt/kit'
 import { setupCustomPolyfills } from './setup/custom'
 import { setupVite } from './setup/vite'
 
-export { cspHashesFor } from './csp'
+export { cspHashes, cspHashesFor } from './csp'
 
 export interface ModuleOptions {
   vite?: ViteLegacyOptions

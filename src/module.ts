@@ -28,14 +28,15 @@ export default defineNuxtModule<ModuleOptions>({
   async setup(options, nuxt) {
     const moduleResolver = createResolver(import.meta.url)
 
+    let pluginLegacyMajor = 0
     if (options.vite && nuxt.options.builder === '@nuxt/vite-builder') {
-      await setupVite(options.vite, nuxt, moduleResolver, options.viteLegacyPackageName)
+      pluginLegacyMajor = (await setupVite(options.vite, nuxt, moduleResolver, options.viteLegacyPackageName)) ?? 0
     }
     await setupCustomPolyfills(nuxt, options.customPolyfills ?? {})
 
     addServerTemplate({
       filename: '#nuxt-legacy/options.mjs',
-      getContents: () => `export const options = ${JSON.stringify(options)}`,
+      getContents: () => `export const options = ${JSON.stringify(options)}\nexport const pluginLegacyMajor = ${pluginLegacyMajor}`,
     })
   },
 })

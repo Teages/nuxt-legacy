@@ -7,7 +7,6 @@ import { fileURLToPath } from 'node:url'
 // pieces (paths, the warning regex, ANSI stripping, the legacy config base)
 // so the four files stay tiny and consistent.
 
-/** Absolute paths to the playgrounds reused as build roots. */
 export const rootV4 = fileURLToPath(new URL('../../playgrounds/v4', import.meta.url))
 export const rootV5 = fileURLToPath(new URL('../../playgrounds/v5', import.meta.url))
 

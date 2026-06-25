@@ -10,8 +10,7 @@ export interface ModuleOptions {
   vite?: ViteLegacyOptions
   customPolyfills?: CustomPolyfillsOptions
   /**
-   * The package name to resolve for `@vitejs/plugin-legacy`. Used by tests to
-   * redirect resolution to an aliased install (e.g. `plugin-legacy-v8`).
+   * Overrides the resolved `@vitejs/plugin-legacy` package name (tests only).
    *
    * @internal
    */

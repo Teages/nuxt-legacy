@@ -27,7 +27,6 @@ export default <NitroAppPlugin>((nitro) => {
     const todo: (() => void)[] = []
 
     for (const index in html.head) {
-      // get all src="*-legacy.js"
       const matchLegacy = html.head[index]!.matchAll(LEGACY_SCRIPT_REGEX);
       [...matchLegacy].forEach((match) => {
         if (match) {
@@ -43,7 +42,6 @@ export default <NitroAppPlugin>((nitro) => {
         }
       })
 
-      // get all src="*-legacy.js#polyfills"
       const matchPolyfill = html.head[index]!.matchAll(LEGACY_POLYFILL_SCRIPT_REGEX);
       [...matchPolyfill].forEach((match) => {
         if (match) {
@@ -60,7 +58,7 @@ export default <NitroAppPlugin>((nitro) => {
       })
     }
 
-    // normally there should be only one legacy script and one polyfill script
+    // plugin-legacy emits exactly one of each; bail otherwise.
     if (polyfillScripts.length === 1 && legacyScripts.length === 1) {
       const [polyfillSrc] = polyfillScripts
       const [legacySrc] = legacyScripts

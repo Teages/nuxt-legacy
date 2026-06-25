@@ -8,7 +8,7 @@ const hash = crypto.hash ?? ((
   outputEncoding: crypto.BinaryToTextEncoding,
 ) => crypto.createHash(algorithm).update(data).digest(outputEncoding))
 
-/** Computes the four CSP `sha256-` hashes (base64) for a given snippet set. */
+// Four `sha256-` (base64) hashes for the inline scripts in a snippet set.
 export function computeCspHashes(snippets: LegacySnippets): string[] {
   return [
     snippets.safari10NoModuleFix,
@@ -18,16 +18,10 @@ export function computeCspHashes(snippets: LegacySnippets): string[] {
   ].map(i => hash('sha256', i, 'base64'))
 }
 
-/**
- * CSP hashes for the `@vitejs/plugin-legacy` major installed in the consuming
- * project. Defaults to v7 (Nuxt 3/4) when the major is unknown.
- */
+// CSP hashes for the installed plugin-legacy major; defaults to v7 when unknown.
 export function cspHashesFor(major: number): string[] {
   return computeCspHashes(selectSnippets(major))
 }
 
-/**
- * CSP hashes for plugin-legacy v7 (the Nuxt 3/4 default). Kept for backwards
- * compatibility with existing importers; prefer `cspHashesFor(major)`.
- */
+// Backwards-compat alias; prefer `cspHashesFor(major)`.
 export const cspHashes = cspHashesFor(7)

@@ -3,11 +3,7 @@ import { readFile } from 'node:fs/promises'
 import { createRequire } from 'node:module'
 import { resolvePath } from '@nuxt/kit'
 
-/**
- * Resolves the Vite major from the consumer's Nuxt Vite builder, rather than
- * `import { version } from 'vite'` which may resolve to this module's own Vite.
- * Returns `0` when undeterminable.
- */
+// Resolve from the consumer's vite-builder so we don't pick up this module's own Vite.
 export async function getViteMajor(nuxt: Nuxt): Promise<number> {
   if (nuxt.options.builder !== '@nuxt/vite-builder') {
     return 0

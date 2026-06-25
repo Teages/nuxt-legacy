@@ -14,17 +14,9 @@ const LEGACY_SCRIPT_REGEX = /-legacy\.js$/
 
 export type { ViteLegacyOptions }
 
-/**
- * - `ok` — majors match.
- * - `too-new` — plugin major newer than Vite; warned but still wired up.
- * - `too-old` — plugin major older than Vite; cannot build, so skipped.
- */
 type PluginLegacyCompatibility = 'ok' | 'too-new' | 'too-old'
 
-/**
- * Reads the installed `@vitejs/plugin-legacy` major and full version from its
- * `package.json`. Returns `{ major: 0 }` on failure (never throws).
- */
+// Reads plugin-legacy's `package.json`; `{ major: 0 }` on failure (never throws).
 async function detectPluginLegacyVersion(resolvedEntry: string): Promise<{ major: number, version?: string }> {
   try {
     const { dir, name } = parseNodeModulePath(resolvedEntry)
@@ -43,10 +35,6 @@ async function detectPluginLegacyVersion(resolvedEntry: string): Promise<{ major
   }
 }
 
-/**
- * Warns when the plugin-legacy major mismatches the Vite major. `too-old` is
- * skipped because plugin v7's `system` format can't build on rolldown.
- */
 async function checkPluginLegacyCompatibility(actualMajor: number, actualVersion: string | undefined, viteMajor: number): Promise<PluginLegacyCompatibility> {
   if (!actualMajor || !viteMajor) {
     return 'ok'
@@ -72,11 +60,8 @@ async function checkPluginLegacyCompatibility(actualMajor: number, actualVersion
   return status
 }
 
-/**
- * In env-API mode, plugin-legacy's shared `config` gets overwritten by the ssr
- * environment, dropping the client's legacy polyfill chunk. Skipping the ssr
- * `configResolved` keeps the client config as the last write.
- */
+// In env-API mode, plugin-legacy's shared `config` is overwritten by the ssr
+// environment, dropping the client's legacy polyfill chunk. Skip ssr configResolved.
 function patchForEnvironmentApi(nuxt: Nuxt, plugins: Plugin[]): Plugin[] {
   const usesEnvironmentApi = nuxt.options.experimental.viteEnvironmentApi || getNuxtMajorVersion(nuxt) >= 5
 
@@ -85,7 +70,7 @@ function patchForEnvironmentApi(nuxt: Nuxt, plugins: Plugin[]): Plugin[] {
   }
 
   return plugins.map((plugin) => {
-    // `configResolved` may be a plain function or `{ handler, order }`.
+    // `configResolved` is either a function or `{ handler, order }`.
     const userConfigResolved = (plugin as any).configResolved
     if (typeof userConfigResolved !== 'function' && typeof userConfigResolved?.handler !== 'function') {
       return plugin
@@ -108,8 +93,7 @@ function patchForEnvironmentApi(nuxt: Nuxt, plugins: Plugin[]): Plugin[] {
 }
 
 export async function setupVite(options: ViteLegacyOptions, nuxt: Nuxt, moduleResolver: ReturnType<typeof createResolver>, packageName = '@vitejs/plugin-legacy') {
-  // Resolve from the consuming project so each picks up its own plugin-legacy,
-  // loaded via file URL to bypass jiti transpiling the already-compiled package.
+  // File URL import bypasses jiti transpiling the already-compiled package.
   let resolved: string
   try {
     resolved = await resolvePath(packageName)
@@ -121,6 +105,7 @@ export async function setupVite(options: ViteLegacyOptions, nuxt: Nuxt, moduleRe
   const { major: pluginMajor, version: pluginVersion } = await detectPluginLegacyVersion(resolved)
   const viteMajor = await getViteMajor(nuxt)
 
+  // `too-old` is skipped because plugin v7's `system` format can't build on rolldown.
   if (await checkPluginLegacyCompatibility(pluginMajor, pluginVersion, viteMajor) === 'too-old') {
     return pluginMajor
   }
@@ -160,7 +145,6 @@ export async function setupVite(options: ViteLegacyOptions, nuxt: Nuxt, moduleRe
         }
       })
 
-    // Move polyfills to the top
     const polyfillEntities = manifestEntities
       .filter(([_key, meta]) => meta.name === 'polyfills')
     polyfillEntities.forEach(([key]) =>

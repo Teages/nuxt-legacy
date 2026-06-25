@@ -18,7 +18,7 @@ export function computeCspHashes(snippets: LegacySnippets): string[] {
   ].map(i => hash('sha256', i, 'base64'))
 }
 
-// CSP hashes for the installed plugin-legacy major; defaults to v7 when unknown.
+// CSP hashes for the installed plugin-legacy major; falls back to v7 or v8 via selectSnippets.
 export function cspHashesFor(major: number): string[] {
   return computeCspHashes(selectSnippets(major))
 }

@@ -1,13 +1,7 @@
 import type {} from '@nuxt/nitro-server'
 import type { NitroAppPlugin } from 'nitropack'
 import type { ModuleOptions } from '../../../../src/module'
-import {
-  detectModernBrowserCode,
-  dynamicFallbackInlineCode,
-  legacyEntryId,
-  legacyPolyfillId,
-  safari10NoModuleFix,
-} from '../../snippets'
+import { selectSnippets } from '../../snippets/index'
 
 const LEGACY_SCRIPT_REGEX = /<script [^>]*src="([^"]+-legacy\.js)"[^>]*><\/script>\s*/g
 const LEGACY_POLYFILL_SCRIPT_REGEX = /<script[^>]*src="([^"]+-legacy\.js#polyfills)"[^>]*><\/script>\s*/g
@@ -16,8 +10,8 @@ const POLYFILL_END_MATCH_REGEX = /#polyfills$/
 export default <NitroAppPlugin>((nitro) => {
   nitro.hooks.hook('render:html', async (html) => {
     // @ts-expect-error nitro virtual template
-    const options = await import('#nuxt-legacy/options.mjs')
-      .then(m => m.options as ModuleOptions)
+    const { options, pluginLegacyMajor } = await import('#nuxt-legacy/options.mjs')
+      .then(m => m as { options: ModuleOptions, pluginLegacyMajor: number })
 
     const genModern = options.vite?.renderModernChunks !== false
     const genLegacy = options.vite?.renderLegacyChunks !== false
@@ -25,6 +19,8 @@ export default <NitroAppPlugin>((nitro) => {
     if (!genLegacy) {
       return
     }
+
+    const { detectModernBrowserCode, dynamicFallbackInlineCode, legacyEntryId, legacyPolyfillId, safari10NoModuleFix } = selectSnippets(pluginLegacyMajor)
 
     const legacyScripts: string[] = []
     const polyfillScripts: string[] = []

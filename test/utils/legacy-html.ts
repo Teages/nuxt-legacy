@@ -1,9 +1,10 @@
 import { expect } from 'vitest'
+import { v7 } from '../../src/runtime/snippets/index'
 
 const LEGACY_SCRIPT_REGEX = /\/_nuxt\/.+-legacy\.js/
-const DETECT_MODERN_BROWSER_CODE = `import.meta.url;import("_").catch(()=>1);(async function*(){})().next();window.__vite_is_modern_browser=true`
-const DYNAMIC_FALLBACK_CODE = `!function(){if(window.__vite_is_modern_browser)return;console.warn("vite: loading legacy chunks, syntax error above and the same error below should be ignored");var e=document.getElementById("vite-legacy-polyfill"),n=document.createElement("script");n.src=e.src,n.onload=function(){System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))},document.body.appendChild(n)}();`
-const SAFARI_10_NOMODULE_FIX_CODE = `!function(){var e=document,t=e.createElement("script");if(!("noModule"in t)&&"onbeforeload"in t){var n=!1;e.addEventListener("beforeload",(function(e){if(e.target===t)n=!0;else if(!e.target.hasAttribute("nomodule")||!n)return;e.preventDefault()}),!0),t.type="module",t.src=".",e.head.appendChild(t),t.remove()}}();`
+const DETECT_MODERN_BROWSER_CODE = v7.detectModernBrowserCode
+const DYNAMIC_FALLBACK_CODE = v7.dynamicFallbackInlineCode
+const SAFARI_10_NOMODULE_FIX_CODE = v7.safari10NoModuleFix
 
 interface ParsedDocument {
   querySelector: (selector: string) => ParsedElement | null

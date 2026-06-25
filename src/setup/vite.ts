@@ -2,31 +2,80 @@ import type { createResolver } from '@nuxt/kit'
 import type { Nuxt } from '@nuxt/schema'
 import type { Options as ViteLegacyOptions } from '@vitejs/plugin-legacy'
 import type { Plugin } from 'vite'
+import { readFile } from 'node:fs/promises'
+import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
-import { addServerPlugin, resolvePath } from '@nuxt/kit'
+import { addServerPlugin, resolvePath, useLogger } from '@nuxt/kit'
+import { parseNodeModulePath } from '../utils/node-module'
+import { getNuxtMajorVersion } from '../utils/nuxt'
+import { getViteMajor } from '../utils/vite'
 
 const LEGACY_SCRIPT_REGEX = /-legacy\.js$/
 
 export type { ViteLegacyOptions }
 
-function getNuxtMajorVersion(nuxt: Nuxt): number {
-  const match = String((nuxt as any)._version ?? '').match(/^\d+/)
-  return match ? Number.parseInt(match[0]!, 10) : 0
+/**
+ * - `ok` — majors match.
+ * - `too-new` — plugin major newer than Vite; warned but still wired up.
+ * - `too-old` — plugin major older than Vite; cannot build, so skipped.
+ */
+type PluginLegacyCompatibility = 'ok' | 'too-new' | 'too-old'
+
+/**
+ * Reads the installed `@vitejs/plugin-legacy` major and full version from its
+ * `package.json`. Returns `{ major: 0 }` on failure (never throws).
+ */
+async function detectPluginLegacyVersion(resolvedEntry: string): Promise<{ major: number, version?: string }> {
+  try {
+    const { dir, name } = parseNodeModulePath(resolvedEntry)
+    if (!dir || !name) {
+      return { major: 0 }
+    }
+    const pkg = JSON.parse(await readFile(join(dir, name, 'package.json'), 'utf8')) as { version?: string }
+    const major = Number.parseInt(String(pkg.version ?? '').match(/^\d+/)?.[0] ?? '', 10)
+    if (!Number.isInteger(major)) {
+      return { major: 0 }
+    }
+    return { major, version: pkg.version }
+  }
+  catch {
+    return { major: 0 }
+  }
 }
 
 /**
- * Patches `@vitejs/plugin-legacy` plugins to be compatible with Nuxt's Vite
- * Environment API mode.
- *
- * plugin-legacy stores the resolved config in a module-level shared variable shared
- * across its three plugins. In env-API mode, `configResolved` runs once per environment
- * (client + ssr), and the ssr environment (where `config.build.ssr === true`) is resolved
- * last, overwriting the shared config. The client environment's `generateBundle` /
- * `renderChunk` then read the stale `config.build.ssr === true` and bail out early
- * (`if (config.build.ssr) return;`), so the legacy polyfill chunk is never emitted.
- *
- * The fix wraps `configResolved` so the ssr environment's config is ignored, leaving the
- * client config as the last write — matching plugin-legacy's single-environment assumption.
+ * Warns when the plugin-legacy major mismatches the Vite major. `too-old` is
+ * skipped because plugin v7's `system` format can't build on rolldown.
+ */
+async function checkPluginLegacyCompatibility(actualMajor: number, actualVersion: string | undefined, viteMajor: number): Promise<PluginLegacyCompatibility> {
+  if (!actualMajor || !viteMajor) {
+    return 'ok'
+  }
+
+  const tooNew = actualMajor > viteMajor
+  const tooOld = actualMajor < viteMajor
+  if (!tooNew && !tooOld) {
+    return 'ok'
+  }
+
+  const versionLabel = actualVersion ?? String(actualMajor)
+  const status = tooNew ? 'too-new' : 'too-old'
+  const expectedRange = `^${viteMajor}.0.0`
+  const detail = tooOld
+    ? `It has been disabled to avoid a build failure — legacy browser support is unavailable until you upgrade.`
+    : ''
+  useLogger('@teages/nuxt-legacy').warn([
+    `Detected @vitejs/plugin-legacy@${versionLabel}, which is ${tooNew ? 'too new' : 'too old'} for Vite ${viteMajor}.`,
+    `Please install @vitejs/plugin-legacy@${expectedRange} to avoid compatibility issues.`,
+    detail,
+  ].filter(Boolean).join(' '))
+  return status
+}
+
+/**
+ * In env-API mode, plugin-legacy's shared `config` gets overwritten by the ssr
+ * environment, dropping the client's legacy polyfill chunk. Skipping the ssr
+ * `configResolved` keeps the client config as the last write.
  */
 function patchForEnvironmentApi(nuxt: Nuxt, plugins: Plugin[]): Plugin[] {
   const usesEnvironmentApi = nuxt.options.experimental.viteEnvironmentApi || getNuxtMajorVersion(nuxt) >= 5
@@ -43,8 +92,6 @@ function patchForEnvironmentApi(nuxt: Nuxt, plugins: Plugin[]): Plugin[] {
     }
     const handler = typeof userConfigResolved === 'function' ? userConfigResolved : userConfigResolved.handler
     function configResolved(this: unknown, config: any) {
-      // Let plugin-legacy skip the ssr environment entirely, so it never overwrites
-      // the shared `config` variable captured by the client environment.
       if (config?.build?.ssr) {
         return
       }
@@ -60,19 +107,30 @@ function patchForEnvironmentApi(nuxt: Nuxt, plugins: Plugin[]): Plugin[] {
   })
 }
 
-export async function setupVite(options: ViteLegacyOptions, nuxt: Nuxt, moduleResolver: ReturnType<typeof createResolver>) {
-  // Resolve from the consuming project (nuxt.options.rootDir) instead of this
-  // module's own location, so each project picks up its own plugin-legacy
-  // version (e.g. v7 for Vite 7, v8 for Vite 8). The resolved path is loaded
-  // via a file URL so the native ESM loader handles it, bypassing jiti which
-  // would otherwise try to transpile the already-compiled package.
+export async function setupVite(options: ViteLegacyOptions, nuxt: Nuxt, moduleResolver: ReturnType<typeof createResolver>, packageName = '@vitejs/plugin-legacy') {
+  // Resolve from the consuming project so each picks up its own plugin-legacy,
+  // loaded via file URL to bypass jiti transpiling the already-compiled package.
+  let resolved: string
+  try {
+    resolved = await resolvePath(packageName)
+  }
+  catch (cause) {
+    throw new Error(`[@teages/nuxt-legacy] failed to resolve ${packageName}`, { cause })
+  }
+
+  const { major: pluginMajor, version: pluginVersion } = await detectPluginLegacyVersion(resolved)
+  const viteMajor = await getViteMajor(nuxt)
+
+  if (await checkPluginLegacyCompatibility(pluginMajor, pluginVersion, viteMajor) === 'too-old') {
+    return pluginMajor
+  }
+
   let legacy
   try {
-    const resolved = await resolvePath('@vitejs/plugin-legacy')
     legacy = await import(pathToFileURL(resolved).href).then(m => m.default || m)
   }
   catch (cause) {
-    throw new Error('[@teages/nuxt-legacy] failed to load @vitejs/plugin-legacy', { cause })
+    throw new Error(`[@teages/nuxt-legacy] failed to load ${packageName}`, { cause })
   }
 
   nuxt.options.vite ??= {}
@@ -116,4 +174,6 @@ export async function setupVite(options: ViteLegacyOptions, nuxt: Nuxt, moduleRe
   if (options.renderLegacyChunks ?? true) {
     addServerPlugin(moduleResolver.resolve('./runtime/server/plugin/vite-legacy'))
   }
+
+  return pluginMajor
 }

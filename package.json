@@ -41,7 +41,7 @@
     "test:types": "vue-tsc --noEmit && pnpm --filter \"./playgrounds/*\" exec vue-tsc --noEmit"
   },
   "peerDependencies": {
-    "@vitejs/plugin-legacy": "^7.0.0",
+    "@vitejs/plugin-legacy": "^7.0.0 || ^8.0.0",
     "nuxt": "^3.18.0 || >=4.0.3"
   },
   "peerDependenciesMeta": {
@@ -67,6 +67,8 @@
     "get-port-please": "catalog:dev",
     "node-html-parser": "catalog:dev",
     "nuxt": "catalog:dev",
+    "plugin-legacy-v7": "catalog:dev",
+    "plugin-legacy-v8": "catalog:dev",
     "selenium-webdriver": "catalog:dev",
     "typescript": "catalog:dev",
     "vitest": "catalog:dev",

@@ -1,0 +1,20 @@
+{
+  "name": "@teages/nuxt-legacy-playground",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev:prepare": "nuxi prepare",
+    "dev": "nuxi dev",
+    "build": "nuxi build",
+    "preview": "nuxi preview",
+    "generate": "nuxi generate"
+  },
+  "dependencies": {
+    "@teages/nuxt-legacy": "workspace:*",
+    "event-target-shim": "catalog:polyfills",
+    "nuxt": "catalog:dev:nuxt-v5"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-legacy": "catalog:dev:nuxt-v5"
+  }
+}

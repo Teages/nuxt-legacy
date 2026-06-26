@@ -1,13 +1,7 @@
 import type {} from '@nuxt/nitro-server'
 import type { NitroAppPlugin } from 'nitropack'
 import type { ModuleOptions } from '../../../../src/module'
-import {
-  detectModernBrowserCode,
-  dynamicFallbackInlineCode,
-  legacyEntryId,
-  legacyPolyfillId,
-  safari10NoModuleFix,
-} from '../../snippets'
+import { selectSnippets } from '../../snippets/index'
 
 const LEGACY_SCRIPT_REGEX = /<script [^>]*src="([^"]+-legacy\.js)"[^>]*><\/script>\s*/g
 const LEGACY_POLYFILL_SCRIPT_REGEX = /<script[^>]*src="([^"]+-legacy\.js#polyfills)"[^>]*><\/script>\s*/g
@@ -16,8 +10,8 @@ const POLYFILL_END_MATCH_REGEX = /#polyfills$/
 export default <NitroAppPlugin>((nitro) => {
   nitro.hooks.hook('render:html', async (html) => {
     // @ts-expect-error nitro virtual template
-    const options = await import('#nuxt-legacy/options.mjs')
-      .then(m => m.options as ModuleOptions)
+    const { options, pluginLegacyMajor } = await import('#nuxt-legacy/options.mjs')
+      .then(m => m as { options: ModuleOptions, pluginLegacyMajor: number })
 
     const genModern = options.vite?.renderModernChunks !== false
     const genLegacy = options.vite?.renderLegacyChunks !== false
@@ -25,6 +19,8 @@ export default <NitroAppPlugin>((nitro) => {
     if (!genLegacy) {
       return
     }
+
+    const { detectModernBrowserCode, dynamicFallbackInlineCode, legacyEntryId, legacyPolyfillId, safari10NoModuleFix } = selectSnippets(pluginLegacyMajor)
 
     const legacyScripts: string[] = []
     const polyfillScripts: string[] = []
@@ -35,7 +31,6 @@ export default <NitroAppPlugin>((nitro) => {
         continue
       }
 
-      // get all src="*-legacy.js"
       const matchLegacy = html.head[index]!.matchAll(LEGACY_SCRIPT_REGEX);
       [...matchLegacy].forEach((match) => {
         if (match) {
@@ -51,7 +46,6 @@ export default <NitroAppPlugin>((nitro) => {
         }
       })
 
-      // get all src="*-legacy.js#polyfills"
       const matchPolyfill = html.head[index]!.matchAll(LEGACY_POLYFILL_SCRIPT_REGEX);
       [...matchPolyfill].forEach((match) => {
         if (match) {
@@ -68,7 +62,7 @@ export default <NitroAppPlugin>((nitro) => {
       })
     }
 
-    // normally there should be only one legacy script and one polyfill script
+    // plugin-legacy emits exactly one of each; bail otherwise.
     if (polyfillScripts.length === 1 && legacyScripts.length === 1) {
       const [polyfillSrc] = polyfillScripts
       const [legacySrc] = legacyScripts

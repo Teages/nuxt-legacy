@@ -38,10 +38,10 @@
     "test": "vitest run --project unit",
     "test:watch": "vitest watch --project unit",
     "test:e2e": "vitest run --project e2e",
-    "test:types": "vue-tsc --noEmit && cd playground && vue-tsc --noEmit"
+    "test:types": "vue-tsc --noEmit && pnpm --filter \"./playgrounds/*\" exec vue-tsc --noEmit"
   },
   "peerDependencies": {
-    "@vitejs/plugin-legacy": "^7.0.0",
+    "@vitejs/plugin-legacy": "^7.0.0 || ^8.0.0",
     "nuxt": "^3.18.0 || >=4.0.3"
   },
   "peerDependenciesMeta": {
@@ -63,12 +63,12 @@
     "@types/selenium-webdriver": "catalog:dev",
     "@vitejs/plugin-legacy": "catalog:dev",
     "browserstack-local": "catalog:dev",
-    "changelogen": "catalog:dev",
-    "changelogithub": "catalog:dev",
     "eslint": "catalog:dev",
     "get-port-please": "catalog:dev",
     "node-html-parser": "catalog:dev",
     "nuxt": "catalog:dev",
+    "plugin-legacy-v7": "catalog:dev",
+    "plugin-legacy-v8": "catalog:dev",
     "selenium-webdriver": "catalog:dev",
     "typescript": "catalog:dev",
     "vitest": "catalog:dev",

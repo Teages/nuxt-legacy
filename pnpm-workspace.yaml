@@ -1,5 +1,12 @@
 catalogMode: prefer
 cleanupUnusedCatalogs: true
+minimumReleaseAge: 360 # 6 hours
+minimumReleaseAgeExclude:
+  - '@nuxt/kit-nightly'
+  - '@nuxt/nitro-server-nightly'
+  - '@nuxt/schema-nightly'
+  - '@nuxt/vite-builder-nightly'
+  - nuxt-nightly
 shamefullyHoist: true
 shellEmulator: true
 
@@ -14,6 +21,8 @@ packages:
 
 patchedDependencies:
   event-target-shim@6.0.2: patches/event-target-shim@6.0.2.patch
+allowUnusedPatches: true
+sharedWorkspaceLockfile: false
 
 strictPeerDependencies: false
 allowBuilds:
@@ -33,12 +42,12 @@ catalogs:
     '@types/selenium-webdriver': ^4.35.6
     '@vitejs/plugin-legacy': ^7.2.1
     browserstack-local: ^1.5.13
-    changelogen: ^0.6.2
-    changelogithub: ^14.0.0
     eslint: ^10.5.0
     get-port-please: ^3.2.0
     node-html-parser: ^7.1.0
     nuxt: ^4.4.8
+    plugin-legacy-v7: npm:@vitejs/plugin-legacy@^7.0.0
+    plugin-legacy-v8: npm:@vitejs/plugin-legacy@^8.0.0
     selenium-webdriver: ^4.45.0
     typescript: ~6.0.3
     vitest: ^4.1.9
@@ -46,6 +55,11 @@ catalogs:
   dev:nuxt-v3:
     # eslint-disable-next-line pnpm/yaml-no-duplicate-catalog-item
     nuxt: ^3.21.4
+  dev:nuxt-v5:
+    # eslint-disable-next-line pnpm/yaml-no-duplicate-catalog-item
+    '@vitejs/plugin-legacy': ^8.0.0
+    # eslint-disable-next-line pnpm/yaml-no-duplicate-catalog-item
+    nuxt: npm:nuxt-nightly@5.0.0-29699187.9208a469
   polyfills:
     event-target-shim: ^6.0.2
   prod:

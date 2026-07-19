@@ -121,7 +121,7 @@ export async function setupVite(options: ViteLegacyOptions, nuxt: Nuxt, moduleRe
   // recommend switching to terser.
   const minify = nuxt.options.vite?.build?.minify
   const usesOxc = minify === undefined || minify === true || minify === 'oxc'
-  if (usesOxc && targetsBelowOxcBaseline(options.targets)) {
+  if (usesOxc && targetsBelowOxcBaseline(options.targets, nuxt.options.rootDir)) {
     useLogger('@teages/nuxt-legacy').warn(
       `Legacy targets include browsers below oxc's effective baseline (Chrome <80, Firefox <74, Safari <13.1). `
       + `plugin-legacy 8.1+ on Vite 8 uses oxc to minify legacy chunks, which may undo babel/preset-env's transpilation `

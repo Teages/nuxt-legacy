@@ -11,7 +11,9 @@ const OXC_BASELINE: Readonly<Record<string, string>> = {
   chrome: '80',
   edge: '80',
   firefox: '74',
-  ios: '13.4',
+  ie: '12',
+  ie_mob: '12',
+  ios_saf: '13.4',
   op_mob: '64',
   opera: '67',
   safari: '13.1',
@@ -24,24 +26,25 @@ function versionBelow(actual: string, required: string): boolean {
   return aMajor < rMajor || (aMajor === rMajor && aMinor < rMinor)
 }
 
-// Returns true if the given browserslist query resolves to at least one
-// browser below oxc's effective baseline. Invalid queries (parse error,
-// empty result, unknown browser names) return false — we only warn when we
-// have positive evidence the user's targets include a browser that will break.
-export function targetsBelowOxcBaseline(targets: unknown): boolean {
-  if (!targets) {
-    return false
-  }
+// Returns true if the explicit query, or the Browserslist config below rootDir,
+// resolves to at least one browser below oxc's effective baseline. Invalid
+// queries (parse error, empty result, unknown browser names) return false — we
+// only warn when we have positive evidence a target browser will break.
+export function targetsBelowOxcBaseline(targets: unknown, rootDir?: string): boolean {
   let list: string[]
   try {
-    list = browserslist(targets as Parameters<typeof browserslist>[0])
+    const configuredTargets = targets || (rootDir ? browserslist.loadConfig({ path: rootDir }) : undefined)
+    if (!configuredTargets) {
+      return false
+    }
+    list = browserslist(configuredTargets as Parameters<typeof browserslist>[0])
   }
   catch {
     return false
   }
   return list.some((entry) => {
     // browserslist entries look like "chrome 49", "safari 13.1", "and_chr 80"
-    const match = entry.match(/^([a-z_]+)\s+(\d+)(?:\.(\d+))?$/i)
+    const match = entry.match(/^([a-z_]+)\s+(\d+(?:\.\d+)?)(?:-\d+(?:\.\d+)?)?$/i)
     if (!match) {
       return false
     }
@@ -50,7 +53,6 @@ export function targetsBelowOxcBaseline(targets: unknown): boolean {
     if (!required) {
       return false
     }
-    const actual = match[3] ? `${match[2]}.${match[3]}` : match[2]!
-    return versionBelow(actual, required)
+    return versionBelow(match[2]!, required)
   })
 }

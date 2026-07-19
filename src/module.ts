@@ -1,3 +1,4 @@
+import type { } from '@nuxt/schema'
 import type { CustomPolyfillsOptions } from './setup/custom'
 import type { ViteLegacyOptions } from './setup/vite'
 import { addServerTemplate, createResolver, defineNuxtModule } from '@nuxt/kit'

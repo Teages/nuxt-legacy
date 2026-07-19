@@ -27,13 +27,27 @@ describe('targetsBelowOxcBaseline', () => {
     expect(targetsBelowOxcBaseline(['Chrome <= 79'])).toBe(true)
   })
 
+  it('returns true for IE 11', () => {
+    expect(targetsBelowOxcBaseline(['IE 11'])).toBe(true)
+  })
+
+  it('recognizes iOS Safari identifiers and version ranges', () => {
+    expect(targetsBelowOxcBaseline(['iOS 12'])).toBe(true)
+    expect(targetsBelowOxcBaseline(['iOS 13.3'])).toBe(true)
+    expect(targetsBelowOxcBaseline(['iOS 13.4'])).toBe(false)
+  })
+
+  it('loads targets from a Browserslist config when inline targets are unset', () => {
+    expect(targetsBelowOxcBaseline(undefined, import.meta.dirname)).toBe(true)
+  })
+
   it('returns false when targets only include browsers at or above the baseline', () => {
     expect(targetsBelowOxcBaseline(['Chrome 80'])).toBe(false)
     expect(targetsBelowOxcBaseline(['fully supports mdn-javascript_operators_optional_chaining'])).toBe(false)
   })
 
-  it('returns false for modern-only queries like "last 2 versions"', () => {
-    expect(targetsBelowOxcBaseline(['last 2 versions'])).toBe(false)
+  it('returns false for modern-only queries', () => {
+    expect(targetsBelowOxcBaseline(['last 2 versions and not dead'])).toBe(false)
   })
 
   it('accepts a string query, not just an array', () => {

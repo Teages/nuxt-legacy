@@ -65,17 +65,17 @@ export default defineNuxtConfig({
 
 ### Nuxt & @vitejs/plugin-legacy
 
-> **On Nuxt 3 or Nuxt 4.0–4.4?** Stay on the last compatible release:
-> - Nuxt 3 → `@teages/nuxt-legacy@2` with `@vitejs/plugin-legacy@^7`
-> - Nuxt 4.0–4.4 → `@teages/nuxt-legacy@3` with `@vitejs/plugin-legacy@^7`
+> **On Nuxt 3 or Nuxt 4.0.3–4.4?** Stay on the last compatible release:
+> - Nuxt 3 → `@teages/nuxt-legacy@2.0.2` with `@vitejs/plugin-legacy@^7`
+> - Nuxt 4.0.3–4.4 → `@teages/nuxt-legacy@2.0.2` with `@vitejs/plugin-legacy@^7`
 >
-> `@teages/nuxt-legacy@4` requires Nuxt `>=4.5.0` (which ships Vite 8) and `@vitejs/plugin-legacy@^8.0.0`.
+> `@teages/nuxt-legacy@3` requires Nuxt `>=4.5.0` (which ships Vite 8) and `@vitejs/plugin-legacy@^8.0.0`.
 
-The module is compatible with Nuxt `>=4.5.0` with this version. It also has experimental support for Nuxt 5 nightly versions. 
+`@teages/nuxt-legacy@3` is compatible with Nuxt `>=4.5.0`. It also has experimental support for Nuxt 5 nightly versions.
 
 Use `@vitejs/plugin-legacy@^8.0.0` (Vite 8 ships with both Nuxt 4.5+ and Nuxt 5).
 
-Since the module does not depend on any implicit behavior, it should work with any later Nuxt version. But I will recheck compatibility after Nuxt releases minor or major versions.
+Compatibility with later Nuxt versions is not guaranteed until those versions have been tested and added to the matrix below.
 
 Check the results for current module version:
 
@@ -89,10 +89,10 @@ Check the results for current module version:
 
 The module is tested with the following browsers:
 
-- Chrome 49: The minimum required version for Vue 3
+- Chrome 49: the oldest Chrome version full Proxy support
 - Chrome 61: supports ESM but does not support [widely-available features](https://vite.dev/guide/build.html#browser-compatibility)
-- Chrome 91: not support `Object.hasOwn` but can be polyfilled
-- latest Chrome
+- Chrome 91: does not support `Object.hasOwn`, but it can be polyfilled
+- Latest Chrome
 
 You can test by yourself by visiting the [playground](https://nuxt-legacy.pages.dev/) with your target browsers.
 
@@ -152,6 +152,7 @@ export default defineNuxtConfig({
 Polyfill is a script that runs before your application code.
 
 Here's an example:
+
 ```ts
 // polyfills/event-target.ts
 import { EventTarget } from 'event-target-shim'
@@ -162,7 +163,8 @@ function setup(self: typeof window) {
   // Check if polyfill is needed
   let isPolyfillNeeded = false
   try {
-    const _ = new self.EventTarget()
+    // eslint-disable-next-line no-new
+    new self.EventTarget()
   }
   catch {
     isPolyfillNeeded = true
@@ -173,7 +175,7 @@ function setup(self: typeof window) {
   }
 
   // Apply polyfill
-  self.EventTarget = EventTarget
+  Object.assign(self, { EventTarget })
 }
 ```
 
@@ -189,28 +191,31 @@ function setup(self: typeof window) {
   <summary>Local development</summary>
 
   ```bash
-  # Install dependencies
-  npm install
+  # Enable Corepack and install dependencies
+  corepack enable
+  pnpm install
 
   # Generate type stubs
-  npm run dev:prepare
+  pnpm dev:prepare
 
   # Develop with the playground
-  npm run dev
+  pnpm dev
 
   # Build the playground
-  npm run dev:build
+  pnpm dev:build
 
   # Run ESLint
-  npm run lint
+  pnpm lint
 
   # Run Vitest
-  npm run test
-  npm run test:watch
+  pnpm test
+  pnpm test:watch
 
-  # Release new version
-  npm run release
+  # Run type checks
+  pnpm test:types
   ```
+
+  Releases are managed by the automated workflow in [`.github/workflows/release.yml`](./.github/workflows/release.yml).
 
 </details>
 

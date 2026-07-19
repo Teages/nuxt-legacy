@@ -76,7 +76,12 @@ Check the results for current module version:
 
 | Nuxt Version | @vitejs/plugin-legacy | Chrome 49 | Chrome 61 | Chrome 91 |
 | ------------ | --------------------- | --------- | --------- | --------- |
-| 4.5.x        | 8.x                   | ✅ PASS   | ✅ PASS   | ✅ PASS   |
+| 4.5.x        | 8.0.0                 | ✅ PASS   | ✅ PASS   | ✅ PASS¹  |
+| 4.5.x        | 8.1+ (incl. latest)   | ⚠️ ²      | ⚠️ ²      | ✅ PASS¹  |
+
+¹ Chrome 91 loads the **legacy** chunk under plugin-legacy v8 — v8's modern detection probes `import.meta.resolve` (Chrome 105+). Hydration still succeeds via the legacy path.
+
+² plugin-legacy 8.1+ regression: legacy chunks contain optional chaining (`?.`, Chrome 80+), which Chrome 49/61 can't parse. Pin `@vitejs/plugin-legacy` to `8.0.0` if you need to support these browsers. Tracked upstream.
 
 ### Browser support
 

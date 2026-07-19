@@ -49,6 +49,13 @@ export default defineNuxtConfig({
         modernPolyfills: true,
       },
     },
+
+    vite: {
+      build: {
+        // required on plugin-legacy 8.1+ to support Chrome <80
+        minify: 'terser',
+      },
+    },
   })
   ```
 

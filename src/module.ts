@@ -21,7 +21,7 @@ export default defineNuxtModule<ModuleOptions>({
   meta: {
     name: '@teages/nuxt-legacy',
     configKey: 'legacy',
-    compatibility: { nuxt: '^3.18.0 || >=4.0.3' },
+    compatibility: { nuxt: '>=4.0.3' },
   },
   defaults: {},
   async setup(options, nuxt) {

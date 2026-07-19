@@ -94,8 +94,6 @@ The module is tested with the following browsers:
 - Chrome 91: not support `Object.hasOwn` but can be polyfilled
 - latest Chrome
 
-Hydration in these browsers is verified automatically via [BrowserStack Automate](https://www.browserstack.com/automate) (Selenium WebDriver), which is the only BrowserStack integration that covers Chrome 49 — the Cypress/Playwright adapters require Chrome 83+. See [`test/e2e.test.ts`](./test/e2e.test.ts) and run `pnpm test:e2e` with your BrowserStack credentials.
-
 You can test by yourself by visiting the [playground](https://nuxt-legacy.pages.dev/) with your target browsers.
 
 ### Content Security Policy

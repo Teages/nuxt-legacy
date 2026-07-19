@@ -57,7 +57,7 @@ jobs:
 
   # Real-browser E2E via BrowserStack Automate (Selenium). Verifies that the
   # legacy chunks + polyfills actually hydrate the playground in Chrome
-  # 49/61/91. Requires repo secrets BROWSERSTACK_USERNAME and
+  # 49/61/104/105/latest. Requires repo secrets BROWSERSTACK_USERNAME and
   # BROWSERSTACK_ACCESS_KEY.
   #
   # GitHub does not expose repo secrets to `pull_request` runs triggered from a

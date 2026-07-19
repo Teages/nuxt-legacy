@@ -1,7 +1,7 @@
 <script setup lang="ts">
 const suggestion = computed(() => [
   {
-    caniuse: 'https://caniuse.com/proxy',
+    url: 'https://caniuse.com/proxy',
     feature: 'Proxy',
     reason: 'Requirement for Vue',
 
@@ -10,7 +10,7 @@ const suggestion = computed(() => [
     safari: '10',
   },
   {
-    caniuse: 'https://caniuse.com/es6-module',
+    url: 'https://caniuse.com/es6-module',
     feature: 'ES6 Modules',
     reason: 'Requirement for vite native support',
 
@@ -19,7 +19,7 @@ const suggestion = computed(() => [
     safari: '11',
   },
   {
-    caniuse: 'https://caniuse.com/es6-module-dynamic-import',
+    url: 'https://caniuse.com/es6-module-dynamic-import',
     feature: 'Dynamic import',
     reason: 'Requirement for vite native support',
 
@@ -28,7 +28,7 @@ const suggestion = computed(() => [
     safari: '11.1',
   },
   {
-    caniuse: 'https://caniuse.com/mdn-javascript_operators_import_meta',
+    url: 'https://caniuse.com/mdn-javascript_operators_import_meta',
     feature: 'import.meta',
     reason: 'Requirement for vite native support',
 
@@ -37,7 +37,16 @@ const suggestion = computed(() => [
     safari: '11.1',
   },
   {
-    caniuse: 'https://caniuse.com/mdn-javascript_builtins_object_hasown',
+    url: 'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/import.meta/resolve',
+    feature: 'import.meta.resolve',
+    reason: 'Requirement for vite modern chunks',
+
+    chrome: '105',
+    firefox: '106',
+    safari: '16.4',
+  },
+  {
+    url: 'https://caniuse.com/mdn-javascript_builtins_object_hasown',
     feature: 'Object.hasOwn',
     reason: 'Test for Object.hasOwn polyfill',
 
@@ -45,11 +54,20 @@ const suggestion = computed(() => [
     firefox: '92',
     safari: '15.4',
   },
+  {
+    url: 'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/toSorted',
+    feature: 'Array.prototype.toSorted',
+    reason: 'Test for modern polyfill',
+
+    chrome: '110',
+    firefox: '115',
+    safari: '16',
+  },
 ] satisfies BrowsersSuggestion[])
 
 interface BrowsersSuggestion {
   feature: string
-  caniuse: string
+  url: string
   reason: string
 
   chrome: string
@@ -71,9 +89,9 @@ interface BrowsersSuggestion {
         </tr>
       </thead>
       <tbody>
-        <tr v-for="item in suggestion" :key="item.caniuse">
+        <tr v-for="item in suggestion" :key="item.url">
           <td>
-            <NuxtLink :to="item.caniuse">
+            <NuxtLink :to="item.url">
               {{ item.feature }}
             </NuxtLink>
           </td>

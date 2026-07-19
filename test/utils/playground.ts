@@ -11,6 +11,7 @@ interface PlaygroundTestOptions {
   dir: string
   server?: boolean
   viteEnvironmentApi?: boolean
+  modernPolyfillContains?: string
 }
 
 export function describePlayground(options: PlaygroundTestOptions) {
@@ -41,7 +42,7 @@ export function describePlayground(options: PlaygroundTestOptions) {
     it('serves modern polyfills as the first script', async () => {
       const document = parse(await $fetch('/'))
 
-      await assertModernPolyfillsFirst(document, $fetch)
+      await assertModernPolyfillsFirst(document, $fetch, options.modernPolyfillContains)
     })
 
     if (options.viteEnvironmentApi) {

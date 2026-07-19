@@ -42,15 +42,16 @@ const LOCAL_IDENTIFIER = 'nuxt-legacy'
 const DEBUG = process.env.E2E_DEBUG === '1'
 
 // Chrome versions mapped to the module's compatibility claims (see README):
-// 49  = min required for Vue 3 (Proxy)
-// 61  = ESM but pre "widely-available features"
-// 91  = no Object.hasOwn, needs core-js polyfill
+// 49     = min required for Vue 3 (Proxy), no native ESM
+// 61     = native ESM but no dynamic import
+// 104    = last Chrome before import.meta.resolve support
+// 105    = plugin-legacy v8's minimum modern Chrome target
 // latest = regression guard
 //
 // `isLegacy` records which chunk each version loads. plugin-legacy v8 changed
 // the modern/legacy boundary: its detect script now probes `import.meta.resolve`
-// (Chrome 105+), so Chrome 91 falls into the legacy bucket under v8 even though
-// v7 treated it as modern.
+// (Chrome 105+). Chrome 104 therefore exercises the new fallback boundary,
+// while Chrome 105 exercises the first modern version.
 //
 // `skipReason` skips a version when the toolchain can't support it. Currently
 // unused — the v4 playground sets `vite.build.minify: 'terser'` to work around
@@ -65,7 +66,8 @@ interface ChromeVersion {
 const CHROME_VERSIONS: readonly ChromeVersion[] = [
   { version: '49.0', isLegacy: true },
   { version: '61.0', isLegacy: true },
-  { version: '91.0', isLegacy: true },
+  { version: '104.0', isLegacy: true },
+  { version: '105.0', isLegacy: false },
   { version: 'latest', isLegacy: false },
 ]
 
@@ -74,6 +76,7 @@ const CHROME_VERSIONS: readonly ChromeVersion[] = [
 // dynamic import / polyfill on the client.
 const DYNAMIC_IMPORT_DONE = '1 + 2 = 3'
 const OBJECT_HAS_OWN_DONE = 'true'
+const ARRAY_TO_SORTED_DONE = 'Array.toSorted result: 1,2,3'
 
 // DecideIsLegacy reports which build the browser loaded, via the compile-time
 // `import.meta.env.LEGACY` flag (true in the legacy build, false in the modern
@@ -300,14 +303,19 @@ async function assertHydrated(driver: WebDriver, chromeVersion: string, isLegacy
   // once the legacy chunk executes the dynamic import on the client.
   await waitForText(driver, label, DYNAMIC_IMPORT_DONE)
 
-  // Secondary: Object.hasOwn is absent in Chrome < 93 — only reachable if the
-  // core-js polyfill loaded and the legacy entry executed.
+  // Secondary: Object.hasOwn is absent in Chrome <93, so the oldest sessions
+  // verify that it is present in the legacy polyfill chunk.
   await waitForText(driver, label, OBJECT_HAS_OWN_DONE)
 
-  // Tertiary: DecideIsLegacy reports which build the browser loaded, via the
+  // Chrome 105 runs the modern build but lacks Array.prototype.toSorted
+  // (introduced in Chrome 110), so this verifies the modern polyfill chunk.
+  // The older sessions exercise the corresponding legacy polyfill.
+  await waitForText(driver, label, ARRAY_TO_SORTED_DONE)
+
+  // DecideIsLegacy reports which build the browser loaded, via the
   // compile-time `import.meta.env.LEGACY` flag. Whether a Chrome version loads
   // the modern or legacy chunk depends on whether it supports the modern ESM
-  // features the detection script probes (import.meta, dynamic import, async
-  // iterators). Empirically: 49/61 fall back to legacy; 91/latest run modern.
+  // features the detection script probes (dynamic import, async generators,
+  // and import.meta.resolve). Chrome 49/61/104 use legacy; 105/latest use modern.
   await waitForText(driver, label, isLegacy ? LEGACY_BROWSER_MARKER : MODERN_BROWSER_MARKER)
 }

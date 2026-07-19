@@ -53,9 +53,9 @@ const DEBUG = process.env.E2E_DEBUG === '1'
 // v7 treated it as modern.
 //
 // `skipReason` skips a version when the toolchain can't support it. Currently
-// plugin-legacy 8.1+ emits optional chaining (`?.`, Chrome 80+) in legacy
-// chunks, which Chrome 49/61 can't parse. Pin plugin-legacy to 8.0.0 if you
-// need to verify these browsers locally.
+// unused — the v4 playground sets `vite.build.minify: 'terser'` to work around
+// plugin-legacy 8.1+'s oxc regression, so Chrome 49/61 are exercisable. Keep
+// the field on the interface for future use.
 interface ChromeVersion {
   version: string
   isLegacy: boolean
@@ -63,8 +63,8 @@ interface ChromeVersion {
 }
 
 const CHROME_VERSIONS: readonly ChromeVersion[] = [
-  { version: '49.0', isLegacy: true, skipReason: 'plugin-legacy 8.1+ regression: legacy chunks contain `?.`, unparseable on Chrome 49' },
-  { version: '61.0', isLegacy: true, skipReason: 'plugin-legacy 8.1+ regression: legacy chunks contain `?.`, unparseable on Chrome 61' },
+  { version: '49.0', isLegacy: true },
+  { version: '61.0', isLegacy: true },
   { version: '91.0', isLegacy: true },
   { version: 'latest', isLegacy: false },
 ]

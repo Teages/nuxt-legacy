@@ -8,6 +8,15 @@ export default defineNuxtConfig({
     },
   },
 
+  // plugin-legacy 8.1+ on Vite 8 defaults to oxc minify, which breaks Chrome
+  // <80 (see the build-time warning from @teages/nuxt-legacy). Use terser to
+  // keep legacy chunks parseable on the playground's full target range.
+  vite: {
+    build: {
+      minify: 'terser',
+    },
+  },
+
   nitro: {
     cloudflare: {},
   },

@@ -1,6 +1,5 @@
-import type { LegacySnippets } from './runtime/snippets/index'
 import crypto from 'node:crypto'
-import { selectSnippets } from './runtime/snippets/index'
+import { detectModernBrowserCode, dynamicFallbackInlineCode, safari10NoModuleFix, systemJSInlineCode } from './runtime/snippets/v8'
 
 const hash = crypto.hash ?? ((
   algorithm: string,
@@ -8,18 +7,9 @@ const hash = crypto.hash ?? ((
   outputEncoding: crypto.BinaryToTextEncoding,
 ) => crypto.createHash(algorithm).update(data).digest(outputEncoding))
 
-// Four `sha256-` (base64) hashes for the inline scripts in a snippet set.
-export function computeCspHashes(snippets: LegacySnippets): string[] {
-  return [
-    snippets.safari10NoModuleFix,
-    snippets.systemJSInlineCode,
-    snippets.detectModernBrowserCode,
-    snippets.dynamicFallbackInlineCode,
-  ].map(i => hash('sha256', i, 'base64'))
-}
-
-// CSP hashes for the installed plugin-legacy major; falls back to the latest
-// vendored snippet set (currently v8) for unknown/future majors.
-export function cspHashesFor(major: number): string[] {
-  return computeCspHashes(selectSnippets(major))
-}
+export const cspHashes = [
+  safari10NoModuleFix,
+  systemJSInlineCode,
+  detectModernBrowserCode,
+  dynamicFallbackInlineCode,
+].map(i => hash('sha256', i, 'base64'))

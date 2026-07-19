@@ -18,7 +18,10 @@ export default defineNuxtConfig({
   },
 
   nitro: {
-    cloudflare: {},
+    preset: 'node-server',
+    prerender: {
+      routes: ['/'],
+    },
   },
 
   devtools: { enabled: true },

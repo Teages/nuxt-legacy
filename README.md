@@ -58,6 +58,8 @@ export default defineNuxtConfig({
 
 ### Nuxt & @vitejs/plugin-legacy
 
+> **Still on Nuxt 3?** Stay on `@teages/nuxt-legacy@2.0.2` together with `@vitejs/plugin-legacy@^7`. Nuxt 3 reaches [end-of-life on July 31, 2026](https://nuxt.com/blog/v3-auto-upgrade-nov-2025), and `@teages/nuxt-legacy@3` only supports Nuxt `>=4.0.3`.
+
 The module is compatible with Nuxt `>=4.0.3` with this version. It also has experimental support for Nuxt 5 nightly versions. 
 
 Use @vitejs/plugin-legacy `^7.0.0` for Nuxt 4, and `^8.0.0` for Nuxt 5.

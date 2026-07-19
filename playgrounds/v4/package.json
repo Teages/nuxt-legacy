@@ -5,7 +5,7 @@
   "scripts": {
     "dev:prepare": "nuxi prepare",
     "dev": "nuxi dev",
-    "build": "nuxi build",
+    "build": "nuxi generate",
     "preview": "nuxi preview",
     "generate": "nuxi generate"
   },
@@ -15,6 +15,7 @@
     "nuxt": "catalog:dev"
   },
   "devDependencies": {
+    "@unhead/vue": "catalog:dev",
     "@vitejs/plugin-legacy": "catalog:dev"
   }
 }

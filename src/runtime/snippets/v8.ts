@@ -12,8 +12,13 @@ export const systemJSInlineCode: string = `System.import(document.getElementById
 
 const detectModernBrowserVarName = '__vite_is_modern_browser'
 
+// Built via `[...].join('.')` so the literal `import.meta.*` does not appear in
+// the source — Nitro's server-bundle replace would otherwise rewrite it to
+// `globalThis._importMeta_.*` at build time and the inline script's CSP hash
+// would diverge from `@vitejs/plugin-legacy`'s exported `cspHashes`.
+const importMetaResolve = ['import', 'meta', 'resolve'].join('.')
 const detectImportMetaResolveSupportModule: string
-  = 'data:text/javascript,if(!import.meta.resolve)throw Error("import.meta.resolve not supported")'
+  = `data:text/javascript,if(!${importMetaResolve})throw Error("${importMetaResolve} not supported")`
 
 export const detectModernBrowserDetector: string = `${['import', 'meta', 'url'].join('.')};import("_").catch(()=>1);(async function*(){})().next()`
 

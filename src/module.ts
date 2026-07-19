@@ -1,10 +1,11 @@
+import type { } from '@nuxt/schema'
 import type { CustomPolyfillsOptions } from './setup/custom'
 import type { ViteLegacyOptions } from './setup/vite'
 import { addServerTemplate, createResolver, defineNuxtModule } from '@nuxt/kit'
 import { setupCustomPolyfills } from './setup/custom'
 import { setupVite } from './setup/vite'
 
-export { cspHashes, cspHashesFor } from './csp'
+export { cspHashes } from './csp'
 
 export interface ModuleOptions {
   vite?: ViteLegacyOptions
@@ -21,7 +22,7 @@ export default defineNuxtModule<ModuleOptions>({
   meta: {
     name: '@teages/nuxt-legacy',
     configKey: 'legacy',
-    compatibility: { nuxt: '>=4.0.3' },
+    compatibility: { nuxt: '>=4.5.0' },
   },
   defaults: {},
   async setup(options, nuxt) {

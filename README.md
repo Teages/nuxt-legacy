@@ -58,9 +58,9 @@ export default defineNuxtConfig({
 
 ### Nuxt & @vitejs/plugin-legacy
 
-The module is compatible with Nuxt `^3.18.0 || >=4.0.3` with this version. It also has experimental support for Nuxt 5 nightly versions. 
+The module is compatible with Nuxt `>=4.0.3` with this version. It also has experimental support for Nuxt 5 nightly versions. 
 
-Use @vitejs/plugin-legacy `^7.0.0` for Nuxt 3 or 4, and `^8.0.0` for Nuxt 5.
+Use @vitejs/plugin-legacy `^7.0.0` for Nuxt 4, and `^8.0.0` for Nuxt 5.
 
 Since the module does not depend on any implicit behavior, it should work with any later Nuxt version. But I will recheck compatibility after Nuxt releases minor or major versions.
 
@@ -70,7 +70,6 @@ Check the results for current module version:
 
 | Nuxt Version | @vitejs/plugin-legacy | Chrome 49 | Chrome 61 | Chrome 91 |
 | ------------ | --------------------- | --------- | --------- | --------- |
-| 3.20.1       | 7.0.0                 | ✅ PASS   | ✅ PASS   | ✅ PASS   |
 | 4.2.1        | 7.0.0                 | ✅ PASS   | ✅ PASS   | ✅ PASS   |
 
 ### Browser support
@@ -88,9 +87,9 @@ You can test by yourself by visiting the [playground](https://nuxt-legacy.pages.
 
 ### Content Security Policy
 
-It injects some inline scripts to [fix legacy browser compatibility](https://github.com/vitejs/vite/tree/main/packages/plugin-legacy#content-security-policy). The hashes keep sync with the installed version of `@vitejs/plugin-legacy` — v7 (Nuxt 3/4) and v8 (Nuxt 5) differ in one inline script, so both sets are listed:
+It injects some inline scripts to [fix legacy browser compatibility](https://github.com/vitejs/vite/tree/main/packages/plugin-legacy#content-security-policy). The hashes keep sync with the installed version of `@vitejs/plugin-legacy` — v7 (Nuxt 4) and v8 (Nuxt 5) differ in one inline script, so both sets are listed:
 
-**plugin-legacy v7 (Nuxt 3 / 4)**
+**plugin-legacy v7 (Nuxt 4)**
 
 - `sha256-MS6/3FCg4WjP9gwgaBGwLpRCY6fZBgwmhVCdrPrNf3E=`
 - `sha256-tQjf8gvb2ROOMapIxFvFAYBeUJ0v1HCbOcSmDNXGtDo=`
@@ -121,7 +120,7 @@ The module supports custom polyfills to provide additional compatibility for leg
 
 This allows you to add polyfills for specific APIs that may not be covered by the Vite legacy plugin (it uses `babel` and `core-js`).
 
-> Since Nuxt 4.2 and Nuxt 3.20, you need to add `AbortController` polyfill because it will be used in `useFetch` and `useAsyncData` and its polyfill is not included in `core-js`.
+> Since Nuxt 4.2, you need to add `AbortController` polyfill because it will be used in `useFetch` and `useAsyncData` and its polyfill is not included in `core-js`.
 
 ### Configuration
 

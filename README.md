@@ -74,10 +74,9 @@ Check the results for current module version:
 
 > The test result runs with custom `AbortController` polyfill, which is not included in this module and you need to add it by yourself, see [Custom Polyfills](#custom-polyfills).
 
-| Nuxt Version | @vitejs/plugin-legacy              | Chrome 49 | Chrome 61 | Chrome 91 |
-| ------------ | ---------------------------------- | --------- | --------- | --------- |
-| 4.5.x        | 8.x with `minify: 'terser'`        | ✅ PASS   | ✅ PASS   | ✅ PASS   |
-| 4.5.x        | 8.x                                | ⚠️        | ⚠️        | ✅ PASS   |
+| Nuxt Version | @vitejs/plugin-legacy | Chrome 49                     | Chrome 61                     | Chrome 91 |
+| ------------ | --------------------- | ----------------------------- | ----------------------------- | --------- |
+| 4.5.x        | 8.x                   | ✅ (with `minify: 'terser'`) | ✅ (with `minify: 'terser'`) | ✅ PASS   |
 
 ### Browser support
 

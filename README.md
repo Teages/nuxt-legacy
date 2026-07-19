@@ -49,6 +49,13 @@ export default defineNuxtConfig({
         modernPolyfills: true,
       },
     },
+
+    vite: {
+      build: {
+        // required on plugin-legacy 8.1+ to support Chrome <80
+        minify: 'terser',
+      },
+    },
   })
   ```
 
@@ -58,11 +65,15 @@ export default defineNuxtConfig({
 
 ### Nuxt & @vitejs/plugin-legacy
 
-> **Still on Nuxt 3?** Stay on `@teages/nuxt-legacy@2.0.2` together with `@vitejs/plugin-legacy@^7`. Nuxt 3 reaches [end-of-life on July 31, 2026](https://nuxt.com/blog/v3-auto-upgrade-nov-2025), and `@teages/nuxt-legacy@3` only supports Nuxt `>=4.0.3`.
+> **On Nuxt 3 or Nuxt 4.0–4.4?** Stay on the last compatible release:
+> - Nuxt 3 → `@teages/nuxt-legacy@2` with `@vitejs/plugin-legacy@^7`
+> - Nuxt 4.0–4.4 → `@teages/nuxt-legacy@3` with `@vitejs/plugin-legacy@^7`
+>
+> `@teages/nuxt-legacy@4` requires Nuxt `>=4.5.0` (which ships Vite 8) and `@vitejs/plugin-legacy@^8.0.0`.
 
-The module is compatible with Nuxt `>=4.0.3` with this version. It also has experimental support for Nuxt 5 nightly versions. 
+The module is compatible with Nuxt `>=4.5.0` with this version. It also has experimental support for Nuxt 5 nightly versions. 
 
-Use @vitejs/plugin-legacy `^7.0.0` for Nuxt 4, and `^8.0.0` for Nuxt 5.
+Use `@vitejs/plugin-legacy@^8.0.0` (Vite 8 ships with both Nuxt 4.5+ and Nuxt 5).
 
 Since the module does not depend on any implicit behavior, it should work with any later Nuxt version. But I will recheck compatibility after Nuxt releases minor or major versions.
 
@@ -70,9 +81,9 @@ Check the results for current module version:
 
 > The test result runs with custom `AbortController` polyfill, which is not included in this module and you need to add it by yourself, see [Custom Polyfills](#custom-polyfills).
 
-| Nuxt Version | @vitejs/plugin-legacy | Chrome 49 | Chrome 61 | Chrome 91 |
-| ------------ | --------------------- | --------- | --------- | --------- |
-| 4.2.1        | 7.0.0                 | ✅ PASS   | ✅ PASS   | ✅ PASS   |
+| Nuxt Version | @vitejs/plugin-legacy | Chrome 49                     | Chrome 61                     | Chrome 91 |
+| ------------ | --------------------- | ----------------------------- | ----------------------------- | --------- |
+| 4.5.x        | 8.x                   | ✅ (with `minify: 'terser'`) | ✅ (with `minify: 'terser'`) | ✅ PASS   |
 
 ### Browser support
 
@@ -83,38 +94,22 @@ The module is tested with the following browsers:
 - Chrome 91: not support `Object.hasOwn` but can be polyfilled
 - latest Chrome
 
-Hydration in these browsers is verified automatically via [BrowserStack Automate](https://www.browserstack.com/automate) (Selenium WebDriver), which is the only BrowserStack integration that covers Chrome 49 — the Cypress/Playwright adapters require Chrome 83+. See [`test/e2e.test.ts`](./test/e2e.test.ts) and run `pnpm test:e2e` with your BrowserStack credentials.
-
 You can test by yourself by visiting the [playground](https://nuxt-legacy.pages.dev/) with your target browsers.
 
 ### Content Security Policy
 
-It injects some inline scripts to [fix legacy browser compatibility](https://github.com/vitejs/vite/tree/main/packages/plugin-legacy#content-security-policy). The hashes keep sync with the installed version of `@vitejs/plugin-legacy` — v7 (Nuxt 4) and v8 (Nuxt 5) differ in one inline script, so both sets are listed:
-
-**plugin-legacy v7 (Nuxt 4)**
-
-- `sha256-MS6/3FCg4WjP9gwgaBGwLpRCY6fZBgwmhVCdrPrNf3E=`
-- `sha256-tQjf8gvb2ROOMapIxFvFAYBeUJ0v1HCbOcSmDNXGtDo=`
-- `sha256-ZxAi3a7m9Mzbc+Z1LGuCCK5Xee6reDkEPRas66H9KSo=`
-- `sha256-+5XkZFazzJo8n0iOP4ti/cLCMUudTf//Mzkb7xNPXIc=`
-
-**plugin-legacy v8 (Nuxt 5)**
+It injects some inline scripts to [fix legacy browser compatibility](https://github.com/vitejs/vite/tree/main/packages/plugin-legacy#content-security-policy). The hashes keep sync with the latest version of `@vitejs/plugin-legacy`, the current value is:
 
 - `sha256-MS6/3FCg4WjP9gwgaBGwLpRCY6fZBgwmhVCdrPrNf3E=`
 - `sha256-tQjf8gvb2ROOMapIxFvFAYBeUJ0v1HCbOcSmDNXGtDo=`
 - `sha256-w36slEqa9euNKxfvkw+LLGsDIr++3rsZXpZxtmRh8Aw=`
 - `sha256-+5XkZFazzJo8n0iOP4ti/cLCMUudTf//Mzkb7xNPXIc=`
 
-`cspHashesFor(major)` returns the hash set for a given `@vitejs/plugin-legacy` major:
+`cspHashes` is also available in the module:
 
 ```ts
-import { cspHashesFor } from '@teages/nuxt-legacy'
-
-// plugin-legacy v8 (Nuxt 5) — pass your installed major
-cspHashesFor(8)
+import { cspHashes } from '@teages/nuxt-legacy'
 ```
-
-`cspHashes` (plugin-legacy v7) is also exported for backwards compatibility.
 
 ## Custom Polyfills
 

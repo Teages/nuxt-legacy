@@ -8,6 +8,7 @@ import { pathToFileURL } from 'node:url'
 import { addServerPlugin, resolvePath, useLogger } from '@nuxt/kit'
 import { parseNodeModulePath } from '../utils/node-module'
 import { getNuxtMajorVersion } from '../utils/nuxt'
+import { targetsBelowOxcBaseline } from '../utils/targets'
 import { getViteMajor } from '../utils/vite'
 
 const LEGACY_SCRIPT_REGEX = /-legacy\.js$/
@@ -105,9 +106,28 @@ export async function setupVite(options: ViteLegacyOptions, nuxt: Nuxt, moduleRe
   const { major: pluginMajor, version: pluginVersion } = await detectPluginLegacyVersion(resolved)
   const viteMajor = await getViteMajor(nuxt)
 
-  // `too-old` is skipped because plugin v7's `system` format can't build on rolldown.
+  // Skip plugin load on too-old mismatch — major-version skew between
+  // plugin-legacy and Vite can fail the build (e.g. v7's `system` output is
+  // incompatible with rolldown).
   if (await checkPluginLegacyCompatibility(pluginMajor, pluginVersion, viteMajor) === 'too-old') {
     return pluginMajor
+  }
+
+  // plugin-legacy 8.1+ on Vite 8 uses oxc to minify legacy chunks. oxc's
+  // effective baseline is Chrome 80 / Firefox 74 / Safari 13.1 (ES2020):
+  // below that, oxc can re-introduce modern syntax that babel/preset-env had
+  // transpiled (e.g. `?.`, `??`) and the output won't parse. If the user's
+  // targets include any such browser and they haven't opted out of oxc,
+  // recommend switching to terser.
+  const minify = nuxt.options.vite?.build?.minify
+  const usesOxc = minify === undefined || minify === true || minify === 'oxc'
+  if (usesOxc && targetsBelowOxcBaseline(options.targets, nuxt.options.rootDir)) {
+    useLogger('@teages/nuxt-legacy').warn(
+      `Legacy targets include browsers below oxc's effective baseline (Chrome <80, Firefox <74, Safari <13.1). `
+      + `plugin-legacy 8.1+ on Vite 8 uses oxc to minify legacy chunks, which may undo babel/preset-env's transpilation `
+      + `of ES2020-era syntax (e.g. \`?.\`, \`??\`) — these browsers can't parse the output. `
+      + `Set \`vite.build.minify: 'terser'\` in your nuxt.config.ts to restore support.`,
+    )
   }
 
   let legacy

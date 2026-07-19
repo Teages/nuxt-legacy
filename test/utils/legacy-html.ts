@@ -1,10 +1,10 @@
 import { expect } from 'vitest'
-import { v7 } from '../../src/runtime/snippets/index'
+import { v8 } from '../../src/runtime/snippets/index'
 
 const LEGACY_SCRIPT_REGEX = /\/_nuxt\/.+-legacy\.js/
-const DETECT_MODERN_BROWSER_CODE = v7.detectModernBrowserCode
-const DYNAMIC_FALLBACK_CODE = v7.dynamicFallbackInlineCode
-const SAFARI_10_NOMODULE_FIX_CODE = v7.safari10NoModuleFix
+const DETECT_MODERN_BROWSER_CODE = v8.detectModernBrowserCode
+const DYNAMIC_FALLBACK_CODE = v8.dynamicFallbackInlineCode
+const SAFARI_10_NOMODULE_FIX_CODE = v8.safari10NoModuleFix
 
 interface ParsedDocument {
   querySelector: (selector: string) => ParsedElement | null

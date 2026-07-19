@@ -2,11 +2,14 @@ catalogMode: prefer
 cleanupUnusedCatalogs: true
 minimumReleaseAge: 360 # 6 hours
 minimumReleaseAgeExclude:
+  - '@unhead/bundler'
+  - '@unhead/vue'
   - '@nuxt/kit-nightly'
   - '@nuxt/nitro-server-nightly'
   - '@nuxt/schema-nightly'
   - '@nuxt/vite-builder-nightly'
   - nuxt-nightly
+  - unhead
 shamefullyHoist: true
 shellEmulator: true
 
@@ -36,16 +39,17 @@ catalogs:
     '@nuxt/devtools': 3.2.4
     '@nuxt/eslint-config': ^1.16.0
     '@nuxt/module-builder': ^1.0.2
-    '@nuxt/schema': ^4.4.8
+    '@nuxt/schema': ^4.5.0
     '@nuxt/test-utils': ^4.0.3
     '@types/node': ^24.13.2
     '@types/selenium-webdriver': ^4.35.6
-    '@vitejs/plugin-legacy': ^7.2.1
+    '@unhead/vue': 3.2.0
+    '@vitejs/plugin-legacy': ^8.0.0
     browserstack-local: ^1.5.13
     eslint: ^10.5.0
     get-port-please: ^3.2.0
     node-html-parser: ^7.1.0
-    nuxt: ^4.4.8
+    nuxt: ^4.5.0
     plugin-legacy-v7: npm:@vitejs/plugin-legacy@^7.0.0
     plugin-legacy-v8: npm:@vitejs/plugin-legacy@^8.0.0
     selenium-webdriver: ^4.45.0
@@ -60,4 +64,5 @@ catalogs:
   polyfills:
     event-target-shim: ^6.0.2
   prod:
-    '@nuxt/kit': ^4.4.8
+    '@nuxt/kit': ^4.5.0
+    browserslist: ^4.28.6

@@ -47,15 +47,27 @@ const DEBUG = process.env.E2E_DEBUG === '1'
 // 91  = no Object.hasOwn, needs core-js polyfill
 // latest = regression guard
 //
-// `isLegacy` records which chunk each version loads: old Chrome falls back to
-// the legacy (nomodule) build, recent Chrome runs the modern build. Used by the
-// DecideIsLegacy assertion below.
-const CHROME_VERSIONS = [
+// `isLegacy` records which chunk each version loads. plugin-legacy v8 changed
+// the modern/legacy boundary: its detect script now probes `import.meta.resolve`
+// (Chrome 105+), so Chrome 91 falls into the legacy bucket under v8 even though
+// v7 treated it as modern.
+//
+// `skipReason` skips a version when the toolchain can't support it. Currently
+// unused — the v4 playground sets `vite.build.minify: 'terser'` to work around
+// plugin-legacy 8.1+'s oxc regression, so Chrome 49/61 are exercisable. Keep
+// the field on the interface for future use.
+interface ChromeVersion {
+  version: string
+  isLegacy: boolean
+  skipReason?: string
+}
+
+const CHROME_VERSIONS: readonly ChromeVersion[] = [
   { version: '49.0', isLegacy: true },
   { version: '61.0', isLegacy: true },
-  { version: '91.0', isLegacy: false },
+  { version: '91.0', isLegacy: true },
   { version: 'latest', isLegacy: false },
-] as const
+]
 
 // Text that only appears after client-side hydration succeeds: SSR renders
 // `Loading...`; the value lands only once the legacy chunk has executed the
@@ -113,7 +125,7 @@ describe('e2e', async () => {
     await stopTunnel(bsLocal)
   })
 
-  for (const { version, isLegacy } of CHROME_VERSIONS) {
+  for (const { version, isLegacy, skipReason } of CHROME_VERSIONS) {
     describe(`e2e: Chrome ${version}`, () => {
       let driver: WebDriver
 
@@ -143,7 +155,8 @@ describe('e2e', async () => {
         }
       })
 
-      it('hydrates the legacy chunks and runs polyfills', async () => {
+      const test = skipReason ? it.skip : it
+      test('hydrates the legacy chunks and runs polyfills', async () => {
         await driver.get(targetUrl)
         // Wait for the SSR-rendered <h1> first — it needs no JS, so reaching it
         // proves the page loaded (vs. tunnel / DNS failure).

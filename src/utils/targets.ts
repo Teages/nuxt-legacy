@@ -44,7 +44,7 @@ export function targetsBelowOxcBaseline(targets: unknown, rootDir?: string): boo
   }
   return list.some((entry) => {
     // browserslist entries look like "chrome 49", "safari 13.1", "and_chr 80"
-    const match = entry.match(/^([a-z_]+)\s+(\d+(?:\.\d+)?)(?:-\d+(?:\.\d+)?)?$/i)
+    const match = entry.match(/^([a-z_]+)\s+(\d+(?:\.\d+)*)(?:-\d+(?:\.\d+)*)?$/i)
     if (!match) {
       return false
     }

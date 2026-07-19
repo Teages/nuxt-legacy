@@ -93,19 +93,17 @@ You can test by yourself by visiting the [playground](https://nuxt-legacy.pages.
 
 ### Content Security Policy
 
-It injects some inline scripts to [fix legacy browser compatibility](https://github.com/vitejs/vite/tree/main/packages/plugin-legacy#content-security-policy). The hashes keep sync with the installed version of `@vitejs/plugin-legacy` (currently v8):
+It injects some inline scripts to [fix legacy browser compatibility](https://github.com/vitejs/vite/tree/main/packages/plugin-legacy#content-security-policy). The hashes keep sync with the latest version of `@vitejs/plugin-legacy`, the current value is:
 
 - `sha256-MS6/3FCg4WjP9gwgaBGwLpRCY6fZBgwmhVCdrPrNf3E=`
 - `sha256-tQjf8gvb2ROOMapIxFvFAYBeUJ0v1HCbOcSmDNXGtDo=`
 - `sha256-w36slEqa9euNKxfvkw+LLGsDIr++3rsZXpZxtmRh8Aw=`
 - `sha256-+5XkZFazzJo8n0iOP4ti/cLCMUudTf//Mzkb7xNPXIc=`
 
-`cspHashesFor(major)` returns the hash set for a given `@vitejs/plugin-legacy` major:
+`cspHashes` is also available in the module:
 
 ```ts
-import { cspHashesFor } from '@teages/nuxt-legacy'
-
-cspHashesFor(8)
+import { cspHashes } from '@teages/nuxt-legacy'
 ```
 
 ## Custom Polyfills

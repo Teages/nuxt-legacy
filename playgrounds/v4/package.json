@@ -15,6 +15,7 @@
     "nuxt": "catalog:dev"
   },
   "devDependencies": {
+    "@unhead/vue": "catalog:dev",
     "@vitejs/plugin-legacy": "catalog:dev"
   }
 }

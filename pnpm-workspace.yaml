@@ -2,11 +2,14 @@ catalogMode: prefer
 cleanupUnusedCatalogs: true
 minimumReleaseAge: 360 # 6 hours
 minimumReleaseAgeExclude:
+  - '@unhead/bundler'
+  - '@unhead/vue'
   - '@nuxt/kit-nightly'
   - '@nuxt/nitro-server-nightly'
   - '@nuxt/schema-nightly'
   - '@nuxt/vite-builder-nightly'
   - nuxt-nightly
+  - unhead
 shamefullyHoist: true
 shellEmulator: true
 
@@ -40,6 +43,7 @@ catalogs:
     '@nuxt/test-utils': ^4.0.3
     '@types/node': ^24.13.2
     '@types/selenium-webdriver': ^4.35.6
+    '@unhead/vue': 3.2.0
     '@vitejs/plugin-legacy': ^8.0.0
     browserstack-local: ^1.5.13
     eslint: ^10.5.0

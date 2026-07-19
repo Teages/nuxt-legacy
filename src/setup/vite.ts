@@ -105,7 +105,9 @@ export async function setupVite(options: ViteLegacyOptions, nuxt: Nuxt, moduleRe
   const { major: pluginMajor, version: pluginVersion } = await detectPluginLegacyVersion(resolved)
   const viteMajor = await getViteMajor(nuxt)
 
-  // `too-old` is skipped because plugin v7's `system` format can't build on rolldown.
+  // Skip plugin load on too-old mismatch — major-version skew between
+  // plugin-legacy and Vite can fail the build (e.g. v7's `system` output is
+  // incompatible with rolldown).
   if (await checkPluginLegacyCompatibility(pluginMajor, pluginVersion, viteMajor) === 'too-old') {
     return pluginMajor
   }

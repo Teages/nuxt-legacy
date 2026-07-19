@@ -1,7 +1,7 @@
 {
   "name": "@teages/nuxt-legacy",
   "type": "module",
-  "version": "3.0.0",
+  "version": "4.0.0",
   "packageManager": "pnpm@11.8.0",
   "description": "A Nuxt module for supporting legacy browsers.",
   "license": "MIT",
@@ -39,8 +39,8 @@
     "test:types": "vue-tsc --noEmit && pnpm --filter \"./playgrounds/*\" exec vue-tsc --noEmit"
   },
   "peerDependencies": {
-    "@vitejs/plugin-legacy": "^7.0.0 || ^8.0.0",
-    "nuxt": ">=4.0.3"
+    "@vitejs/plugin-legacy": "^8.0.0",
+    "nuxt": ">=4.5.0"
   },
   "peerDependenciesMeta": {
     "@vitejs/plugin-legacy": {

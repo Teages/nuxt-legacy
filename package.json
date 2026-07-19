@@ -1,7 +1,7 @@
 {
   "name": "@teages/nuxt-legacy",
   "type": "module",
-  "version": "2.0.2",
+  "version": "3.0.0",
   "packageManager": "pnpm@11.8.0",
   "description": "A Nuxt module for supporting legacy browsers.",
   "license": "MIT",
@@ -29,9 +29,7 @@
   "scripts": {
     "prepack": "nuxt-module-build build",
     "dev": "pnpm -C playgrounds/v4 dev",
-    "dev:v3": "pnpm -C playgrounds/v3 dev",
     "dev:build": "pnpm -C playgrounds/v4 build",
-    "dev:build-v3": "pnpm -C playgrounds/v3 build",
     "dev:prepare": "nuxt-module-build build --stub && nuxt-module-build prepare && pnpm --filter \"./playgrounds/*\" dev:prepare",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
@@ -42,7 +40,7 @@
   },
   "peerDependencies": {
     "@vitejs/plugin-legacy": "^7.0.0 || ^8.0.0",
-    "nuxt": "^3.18.0 || >=4.0.3"
+    "nuxt": ">=4.0.3"
   },
   "peerDependenciesMeta": {
     "@vitejs/plugin-legacy": {

@@ -48,7 +48,8 @@
     }
   },
   "dependencies": {
-    "@nuxt/kit": "catalog:prod"
+    "@nuxt/kit": "catalog:prod",
+    "browserslist": "catalog:prod"
   },
   "devDependencies": {
     "@antfu/eslint-config": "catalog:dev",

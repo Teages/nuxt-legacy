@@ -76,12 +76,8 @@ Check the results for current module version:
 
 | Nuxt Version | @vitejs/plugin-legacy              | Chrome 49 | Chrome 61 | Chrome 91 |
 | ------------ | ---------------------------------- | --------- | --------- | --------- |
-| 4.5.x        | 8.x with `minify: 'terser'`        | ✅ PASS   | ✅ PASS   | ✅ PASS¹  |
-| 4.5.x        | 8.x                                | ⚠️ ²      | ⚠️ ²      | ✅ PASS¹  |
-
-¹ Chrome 91 loads the **legacy** chunk under plugin-legacy v8 — v8's modern detection probes `import.meta.resolve` (Chrome 105+). Hydration still succeeds via the legacy path.
-
-² plugin-legacy 8.1+ with the default oxc minify re-introduces ES2020-era syntax (`?.`, `??`) in legacy chunks; Chrome <80 can't parse the output. The module emits a build-time warning recommending `vite.build.minify: 'terser'`.
+| 4.5.x        | 8.x with `minify: 'terser'`        | ✅ PASS   | ✅ PASS   | ✅ PASS   |
+| 4.5.x        | 8.x                                | ⚠️        | ⚠️        | ✅ PASS   |
 
 ### Browser support
 

@@ -51,8 +51,12 @@ export function assertLegacyHtml(document: ParsedDocument) {
 export async function assertModernPolyfillsFirst(
   document: ParsedDocument,
   fetchText: (path: string) => Promise<string>,
+  expectedContent?: string,
 ) {
   const firstScript = document.querySelector('script[src]')
   const scriptContent = await fetchText(firstScript!.getAttribute('src')!)
   expect(scriptContent).toContain('https://github.com/zloirock/core-js')
+  if (expectedContent) {
+    expect(scriptContent).toContain(expectedContent)
+  }
 }

@@ -81,18 +81,19 @@ Check the results for current module version:
 
 > The test result runs with custom `AbortController` polyfill, which is not included in this module and you need to add it by yourself, see [Custom Polyfills](#custom-polyfills).
 
-| Nuxt Version | @vitejs/plugin-legacy | Chrome 49                     | Chrome 61                     | Chrome 91 |
-| ------------ | --------------------- | ----------------------------- | ----------------------------- | --------- |
-| 4.5.x        | 8.x                   | ✅ (with `minify: 'terser'`) | ✅ (with `minify: 'terser'`) | ✅ PASS   |
+| Nuxt Version | @vitejs/plugin-legacy | Chrome 49                     | Chrome 61                     | Chrome 104 | Chrome 105 | Latest Chrome |
+| ------------ | --------------------- | ----------------------------- | ----------------------------- | ---------- | ---------- | ------------- |
+| 4.5.x        | 8.x                   | ✅ (with `minify: 'terser'`) | ✅ (with `minify: 'terser'`) | ✅ legacy  | ✅ modern  | ✅ modern     |
 
 ### Browser support
 
 The module is tested with the following browsers:
 
-- Chrome 49: the oldest Chrome version full Proxy support
-- Chrome 61: supports ESM but does not support [widely-available features](https://vite.dev/guide/build.html#browser-compatibility)
-- Chrome 91: does not support `Object.hasOwn`, but it can be polyfilled
-- Latest Chrome
+- Chrome 49: the oldest Chrome version with full Proxy support; exercises the non-ESM legacy path
+- Chrome 61: supports ESM but not dynamic import; exercises the ESM fallback path
+- Chrome 104: the last version before `import.meta.resolve`; exercises the plugin-legacy v8 fallback boundary
+- Chrome 105: the first modern Chrome target in plugin-legacy v8; exercises modern chunks and the `Array.prototype.toSorted` polyfill
+- Latest Chrome: regression guard for current browsers
 
 You can test by yourself by visiting the [playground](https://nuxt-legacy.pages.dev/) with your target browsers.
 

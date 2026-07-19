@@ -6,6 +6,7 @@
     <h1>@teages/nuxt-legacy</h1>
     <DynamicImport />
     <ObjectHasOwnPolyfill />
+    <ArrayToSortedPolyfill />
 
     <div>
       Try these browsers to visit the page:

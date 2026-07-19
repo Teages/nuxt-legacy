@@ -1,10 +1,11 @@
 import browserslist from 'browserslist'
 
-// Minimum browser versions that support optional chaining (`?.`).
-// Source: https://caniuse.com/mdn-javascript_operators_optional_chaining
-// Any browser below these thresholds can't parse `?.` and will fail to load
-// legacy chunks that plugin-legacy 8.1+ produces under oxc minification.
-const OPTIONAL_CHAINING_MIN: Readonly<Record<string, string>> = {
+// Minimum browser versions that oxc's minifier effectively supports. Empirically
+// derived from caniuse-lite's optional-chaining data: plugin-legacy 8.1+ on
+// Vite 8 runs oxc on legacy chunks, which can re-introduce ES2020-era syntax
+// (`?.`, `??`, ...) that babel/preset-env had transpiled. Chrome 80 / Firefox
+// 74 / Safari 13.1 is the observed threshold below which the output breaks.
+const OXC_BASELINE: Readonly<Record<string, string>> = {
   and_chr: '80',
   and_ff: '79',
   chrome: '80',
@@ -24,11 +25,10 @@ function versionBelow(actual: string, required: string): boolean {
 }
 
 // Returns true if the given browserslist query resolves to at least one
-// browser that does NOT support optional chaining (`?.`). Invalid queries
-// (parse error, empty result, unknown browser names) return false — we only
-// warn when we have positive evidence the user's targets include a browser
-// that will break.
-export function targetsIncludeBrowsersWithoutOptionalChaining(targets: unknown): boolean {
+// browser below oxc's effective baseline. Invalid queries (parse error,
+// empty result, unknown browser names) return false — we only warn when we
+// have positive evidence the user's targets include a browser that will break.
+export function targetsBelowOxcBaseline(targets: unknown): boolean {
   if (!targets) {
     return false
   }
@@ -46,7 +46,7 @@ export function targetsIncludeBrowsersWithoutOptionalChaining(targets: unknown):
       return false
     }
     const name = match[1]!.toLowerCase()
-    const required = OPTIONAL_CHAINING_MIN[name]
+    const required = OXC_BASELINE[name]
     if (!required) {
       return false
     }

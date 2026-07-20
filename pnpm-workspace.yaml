@@ -49,7 +49,7 @@ catalogs:
     browserstack-local: ^1.5.13
     eslint: ^10.7.0
     get-port-please: ^3.2.0
-    node-html-parser: ^7.1.0
+    node-html-parser: ^9.0.0
     nuxt: ^4.5.0
     plugin-legacy-v7: npm:@vitejs/plugin-legacy@^7.2.1
     plugin-legacy-v8: npm:@vitejs/plugin-legacy@^8.2.1

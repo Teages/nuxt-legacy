@@ -54,7 +54,7 @@ catalogs:
     plugin-legacy-v7: npm:@vitejs/plugin-legacy@^7.2.1
     plugin-legacy-v8: npm:@vitejs/plugin-legacy@^8.2.1
     selenium-webdriver: ^4.46.0
-    typescript: ~6.0.3
+    typescript: ~7.0.2
     vitest: ^4.1.10
     vue-tsc: ^3.3.7
   dev:nuxt-v5:

@@ -10,6 +10,7 @@ minimumReleaseAgeExclude:
   - '@nuxt/vite-builder-nightly'
   - nuxt-nightly
   - unhead
+  - verkit
 shamefullyHoist: true
 shellEmulator: true
 

@@ -51,7 +51,7 @@ catalogs:
     get-port-please: ^3.2.0
     node-html-parser: ^9.0.0
     nuxt: ^4.5.0
-    plugin-legacy-v7: npm:@vitejs/plugin-legacy@^7.2.1
+    plugin-legacy-v7: npm:@vitejs/plugin-legacy@^8.2.2
     plugin-legacy-v8: npm:@vitejs/plugin-legacy@^8.2.1
     selenium-webdriver: ^4.46.0
     typescript: ~6.0.3

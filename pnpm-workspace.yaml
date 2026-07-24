@@ -36,34 +36,34 @@ allowBuilds:
   unrs-resolver: true
 catalogs:
   dev:
-    '@antfu/eslint-config': ^9.1.0
-    '@nuxt/devtools': 3.2.4
+    '@antfu/eslint-config': ^9.2.0
+    '@nuxt/devtools': 3.3.1
     '@nuxt/eslint-config': ^1.16.0
-    '@nuxt/module-builder': ^1.0.2
+    '@nuxt/module-builder': ^1.0.3
     '@nuxt/schema': ^4.5.0
     '@nuxt/test-utils': ^4.0.3
     '@types/node': ^24.13.3
     '@types/selenium-webdriver': ^4.35.6
-    '@unhead/vue': 3.2.1
-    '@vitejs/plugin-legacy': ^8.2.1
+    '@unhead/vue': 3.2.3
+    '@vitejs/plugin-legacy': ^8.2.2
     browserstack-local: ^1.5.13
     eslint: ^10.7.0
     get-port-please: ^3.2.0
     node-html-parser: ^9.0.0
     nuxt: ^4.5.0
     plugin-legacy-v7: npm:@vitejs/plugin-legacy@^7.2.1
-    plugin-legacy-v8: npm:@vitejs/plugin-legacy@^8.2.1
+    plugin-legacy-v8: npm:@vitejs/plugin-legacy@^8.2.2
     selenium-webdriver: ^4.46.0
     typescript: ~6.0.3
     vitest: ^4.1.10
-    vue-tsc: ^3.3.7
+    vue-tsc: ^3.3.8
   dev:nuxt-v5:
     # eslint-disable-next-line pnpm/yaml-no-duplicate-catalog-item
-    '@vitejs/plugin-legacy': ^8.2.1
+    '@vitejs/plugin-legacy': ^8.2.2
     # eslint-disable-next-line pnpm/yaml-no-duplicate-catalog-item
-    nuxt: npm:nuxt-nightly@5.0.0-29741672.8f613b6e
+    nuxt: npm:nuxt-nightly@5.0.0-29748099.9315d7fe
   polyfills:
     event-target-shim: ^6.0.2
   prod:
     '@nuxt/kit': ^4.5.0
-    browserslist: ^4.28.6
+    browserslist: ^4.28.7

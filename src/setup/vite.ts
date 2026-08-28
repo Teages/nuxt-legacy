@@ -11,7 +11,9 @@ import { getNuxtMajorVersion } from '../utils/nuxt'
 import { targetsBelowOxcBaseline } from '../utils/targets'
 import { getViteMajor } from '../utils/vite'
 
-const LEGACY_SCRIPT_REGEX = /-legacy\.js$/
+// Legacy filenames end in either `-legacy.js` (older defaults) or
+// `-legacy-<hash>.js` (newer vite/nitro environment builds).
+const LEGACY_SCRIPT_REGEX = /-legacy(?:-[\w.-]+)?\.js$/
 
 export type { ViteLegacyOptions }
 
@@ -61,6 +63,24 @@ async function checkPluginLegacyCompatibility(actualMajor: number, actualVersion
   return status
 }
 
+// plugin-legacy appends its legacy output configs to the top-level
+// `build.rolldownOptions.output`. Under the environment API, nitro defines
+// `environments.client.build.rollupOptions`, so the client environment no
+// longer inherits the top-level outputs and legacy chunks silently disappear.
+// Mirror the outputs plugin-legacy just added onto the client environment.
+function mirrorLegacyOutputsToClientEnvironment(config: any): void {
+  const outputs = config?.build?.rolldownOptions?.output
+  const clientBuild = config?.environments?.client?.build
+  if (!Array.isArray(outputs) || outputs.length < 2 || !clientBuild) {
+    return
+  }
+  clientBuild.rolldownOptions ??= {}
+  if (Array.isArray(clientBuild.rolldownOptions.output) && clientBuild.rolldownOptions.output.length) {
+    return
+  }
+  clientBuild.rolldownOptions.output = [...outputs]
+}
+
 // `configResolved` is either a function or `{ handler, order }`.
 function wrapConfigResolved(plugin: any): void {
   const userConfigResolved = plugin.configResolved
@@ -72,7 +92,9 @@ function wrapConfigResolved(plugin: any): void {
     if (config?.build?.ssr) {
       return
     }
-    return handler.call(this, config)
+    const result = handler.call(this, config)
+    mirrorLegacyOutputsToClientEnvironment(config)
+    return result
   }
 
   plugin.configResolved = typeof userConfigResolved === 'function'
@@ -183,7 +205,7 @@ export async function setupVite(options: ViteLegacyOptions, nuxt: Nuxt, moduleRe
     // mark legacy chunks and disable preload
     manifestEntities
       .forEach(([_key, meta]) => {
-        if (!meta.file.endsWith('-legacy.js')) {
+        if (!LEGACY_SCRIPT_REGEX.test(meta.file)) {
           return
         }
         Object.assign(meta, {
@@ -193,7 +215,7 @@ export async function setupVite(options: ViteLegacyOptions, nuxt: Nuxt, moduleRe
         } satisfies Partial<typeof manifest[string]>)
 
         if (meta.name === 'polyfills') {
-          meta.file = meta.file.replace(LEGACY_SCRIPT_REGEX, '-legacy.js#polyfills')
+          meta.file = meta.file.replace(/(-legacy(?:-[\w.-]+)?\.js)$/, '$1#polyfills')
         }
       })
 

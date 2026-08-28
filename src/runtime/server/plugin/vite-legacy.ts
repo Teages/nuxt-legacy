@@ -3,8 +3,12 @@ import type { NitroAppPlugin } from 'nitropack'
 import type { ModuleOptions } from '../../../../src/module'
 import { selectSnippets } from '../../snippets/index'
 
-const LEGACY_SCRIPT_REGEX = /<script [^>]*src="([^"]+-legacy\.js)"[^>]*><\/script>\s*/g
-const LEGACY_POLYFILL_SCRIPT_REGEX = /<script[^>]*src="([^"]+-legacy\.js#polyfills)"[^>]*><\/script>\s*/g
+// Matches both legacy filename shapes: `entry-legacy.js` (hash before
+// `-legacy`, older defaults) and `entry-legacy-<hash>.js` (hash after, from
+// newer vite/nitro environment builds).
+const LEGACY_FILE = '-legacy(?:-[\\w.-]+)?\\.js'
+const LEGACY_SCRIPT_REGEX = new RegExp(`<script [^>]*src="([^"]+${LEGACY_FILE})"[^>]*><\\/script>\\s*`, 'g')
+const LEGACY_POLYFILL_SCRIPT_REGEX = new RegExp(`<script[^>]*src="([^"]+${LEGACY_FILE}#polyfills)"[^>]*><\\/script>\\s*`, 'g')
 const POLYFILL_END_MATCH_REGEX = /#polyfills$/
 
 export default <NitroAppPlugin>((nitro) => {

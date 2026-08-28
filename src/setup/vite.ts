@@ -11,7 +11,9 @@ import { getNuxtMajorVersion } from '../utils/nuxt'
 import { targetsBelowOxcBaseline } from '../utils/targets'
 import { getViteMajor } from '../utils/vite'
 
-const LEGACY_SCRIPT_REGEX = /-legacy\.js$/
+// Legacy filenames end in either `-legacy.js` (older defaults) or
+// `-legacy-<hash>.js` (newer vite/nitro environment builds).
+const LEGACY_SCRIPT_REGEX = /-legacy(?:-[\w.-]+)?\.js$/
 
 export type { ViteLegacyOptions }
 
@@ -61,6 +63,70 @@ async function checkPluginLegacyCompatibility(actualMajor: number, actualVersion
   return status
 }
 
+// plugin-legacy appends its legacy output configs to the top-level
+// `build.rolldownOptions.output`. Under the environment API, nitro defines
+// `environments.client.build.rollupOptions`, so the client environment no
+// longer inherits the top-level outputs and legacy chunks silently disappear.
+// Mirror the outputs plugin-legacy just added onto the client environment.
+function mirrorLegacyOutputsToClientEnvironment(config: any): void {
+  const outputs = config?.build?.rolldownOptions?.output
+  const clientBuild = config?.environments?.client?.build
+  if (!Array.isArray(outputs) || outputs.length < 2 || !clientBuild) {
+    return
+  }
+  clientBuild.rolldownOptions ??= {}
+  if (Array.isArray(clientBuild.rolldownOptions.output) && clientBuild.rolldownOptions.output.length) {
+    return
+  }
+  clientBuild.rolldownOptions.output = [...outputs]
+}
+
+// `configResolved` is either a function or `{ handler, order }`.
+function wrapConfigResolved(plugin: any): void {
+  const userConfigResolved = plugin.configResolved
+  if (typeof userConfigResolved !== 'function' && typeof userConfigResolved?.handler !== 'function') {
+    return
+  }
+  const handler = typeof userConfigResolved === 'function' ? userConfigResolved : userConfigResolved.handler
+  function configResolved(this: unknown, config: any) {
+    if (config?.build?.ssr) {
+      return
+    }
+    const result = handler.call(this, config)
+    mirrorLegacyOutputsToClientEnvironment(config)
+    return result
+  }
+
+  plugin.configResolved = typeof userConfigResolved === 'function'
+    ? configResolved
+    : { ...userConfigResolved, handler: configResolved }
+}
+
+// plugin-legacy guards its build hooks with `config.build.ssr`, which stays
+// falsy for the ssr environment under the environment API — so its transforms
+// (e.g. the `__vite_legacy_guard` prepended to entry chunks, which contains a
+// literal `import("_")`) leak into server bundles and fail to resolve when
+// nitro re-bundles them. Skip these hooks outside the client environment.
+const SERVER_ENV_SKIP_HOOKS = ['renderChunk', 'renderStart', 'generateBundle'] as const
+
+function wrapHook(plugin: any, hook: string): void {
+  const userHook = plugin[hook]
+  if (typeof userHook !== 'function' && typeof userHook?.handler !== 'function') {
+    return
+  }
+  const handler = typeof userHook === 'function' ? userHook : userHook.handler
+  function guarded(this: unknown, ...args: any[]) {
+    const environment = (this as any)?.environment
+    if (environment && environment.name !== 'client') {
+      return
+    }
+    return handler.call(this, ...args)
+  }
+  plugin[hook] = typeof userHook === 'function'
+    ? guarded
+    : { ...userHook, handler: guarded }
+}
+
 // In env-API mode, plugin-legacy's shared `config` is overwritten by the ssr
 // environment, dropping the client's legacy polyfill chunk. Skip ssr configResolved.
 function patchForEnvironmentApi(nuxt: Nuxt, plugins: Plugin[]): Plugin[] {
@@ -71,25 +137,13 @@ function patchForEnvironmentApi(nuxt: Nuxt, plugins: Plugin[]): Plugin[] {
   }
 
   return plugins.map((plugin) => {
+    const patched = { ...(plugin as any) }
     // `configResolved` is either a function or `{ handler, order }`.
-    const userConfigResolved = (plugin as any).configResolved
-    if (typeof userConfigResolved !== 'function' && typeof userConfigResolved?.handler !== 'function') {
-      return plugin
+    wrapConfigResolved(patched)
+    for (const hook of SERVER_ENV_SKIP_HOOKS) {
+      wrapHook(patched, hook)
     }
-    const handler = typeof userConfigResolved === 'function' ? userConfigResolved : userConfigResolved.handler
-    function configResolved(this: unknown, config: any) {
-      if (config?.build?.ssr) {
-        return
-      }
-      return handler.call(this, config)
-    }
-
-    return {
-      ...plugin,
-      configResolved: typeof userConfigResolved === 'function'
-        ? configResolved
-        : { ...userConfigResolved, handler: configResolved },
-    } as Plugin
+    return patched as Plugin
   })
 }
 
@@ -151,7 +205,7 @@ export async function setupVite(options: ViteLegacyOptions, nuxt: Nuxt, moduleRe
     // mark legacy chunks and disable preload
     manifestEntities
       .forEach(([_key, meta]) => {
-        if (!meta.file.endsWith('-legacy.js')) {
+        if (!LEGACY_SCRIPT_REGEX.test(meta.file)) {
           return
         }
         Object.assign(meta, {
@@ -161,7 +215,7 @@ export async function setupVite(options: ViteLegacyOptions, nuxt: Nuxt, moduleRe
         } satisfies Partial<typeof manifest[string]>)
 
         if (meta.name === 'polyfills') {
-          meta.file = meta.file.replace(LEGACY_SCRIPT_REGEX, '-legacy.js#polyfills')
+          meta.file = meta.file.replace(/(-legacy(?:-[\w.-]+)?\.js)$/, '$1#polyfills')
         }
       })
 

@@ -61,6 +61,50 @@ async function checkPluginLegacyCompatibility(actualMajor: number, actualVersion
   return status
 }
 
+// `configResolved` is either a function or `{ handler, order }`.
+function wrapConfigResolved(plugin: any): void {
+  const userConfigResolved = plugin.configResolved
+  if (typeof userConfigResolved !== 'function' && typeof userConfigResolved?.handler !== 'function') {
+    return
+  }
+  const handler = typeof userConfigResolved === 'function' ? userConfigResolved : userConfigResolved.handler
+  function configResolved(this: unknown, config: any) {
+    if (config?.build?.ssr) {
+      return
+    }
+    return handler.call(this, config)
+  }
+
+  plugin.configResolved = typeof userConfigResolved === 'function'
+    ? configResolved
+    : { ...userConfigResolved, handler: configResolved }
+}
+
+// plugin-legacy guards its build hooks with `config.build.ssr`, which stays
+// falsy for the ssr environment under the environment API — so its transforms
+// (e.g. the `__vite_legacy_guard` prepended to entry chunks, which contains a
+// literal `import("_")`) leak into server bundles and fail to resolve when
+// nitro re-bundles them. Skip these hooks outside the client environment.
+const SERVER_ENV_SKIP_HOOKS = ['renderChunk', 'renderStart', 'generateBundle'] as const
+
+function wrapHook(plugin: any, hook: string): void {
+  const userHook = plugin[hook]
+  if (typeof userHook !== 'function' && typeof userHook?.handler !== 'function') {
+    return
+  }
+  const handler = typeof userHook === 'function' ? userHook : userHook.handler
+  function guarded(this: unknown, ...args: any[]) {
+    const environment = (this as any)?.environment
+    if (environment && environment.name !== 'client') {
+      return
+    }
+    return handler.call(this, ...args)
+  }
+  plugin[hook] = typeof userHook === 'function'
+    ? guarded
+    : { ...userHook, handler: guarded }
+}
+
 // In env-API mode, plugin-legacy's shared `config` is overwritten by the ssr
 // environment, dropping the client's legacy polyfill chunk. Skip ssr configResolved.
 function patchForEnvironmentApi(nuxt: Nuxt, plugins: Plugin[]): Plugin[] {
@@ -71,25 +115,13 @@ function patchForEnvironmentApi(nuxt: Nuxt, plugins: Plugin[]): Plugin[] {
   }
 
   return plugins.map((plugin) => {
+    const patched = { ...(plugin as any) }
     // `configResolved` is either a function or `{ handler, order }`.
-    const userConfigResolved = (plugin as any).configResolved
-    if (typeof userConfigResolved !== 'function' && typeof userConfigResolved?.handler !== 'function') {
-      return plugin
+    wrapConfigResolved(patched)
+    for (const hook of SERVER_ENV_SKIP_HOOKS) {
+      wrapHook(patched, hook)
     }
-    const handler = typeof userConfigResolved === 'function' ? userConfigResolved : userConfigResolved.handler
-    function configResolved(this: unknown, config: any) {
-      if (config?.build?.ssr) {
-        return
-      }
-      return handler.call(this, config)
-    }
-
-    return {
-      ...plugin,
-      configResolved: typeof userConfigResolved === 'function'
-        ? configResolved
-        : { ...userConfigResolved, handler: configResolved },
-    } as Plugin
+    return patched as Plugin
   })
 }
 

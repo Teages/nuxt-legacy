@@ -11,6 +11,8 @@ minimumReleaseAgeExclude:
   - nuxt-nightly
   - unhead
   - verkit
+  # Renovate security update: @nuxt/devtools@3.3.1
+  - "@nuxt/devtools@3.3.1"
 shamefullyHoist: true
 shellEmulator: true
 
@@ -37,7 +39,7 @@ allowBuilds:
 catalogs:
   dev:
     '@antfu/eslint-config': ^9.3.0
-    '@nuxt/devtools': 3.2.4
+    '@nuxt/devtools': 3.3.1
     '@nuxt/eslint-config': ^1.17.0
     '@nuxt/module-builder': ^1.0.3
     '@nuxt/schema': ^4.5.2

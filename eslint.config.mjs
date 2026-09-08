@@ -19,4 +19,12 @@ export default createConfigForNuxt({
         curly: ['error', 'all'],
       },
     }),
+    {
+      files: ['pnpm-workspace.yaml'],
+      rules: {
+        // Renovate writes double-quoted entries (e.g. minimumReleaseAgeExclude)
+        // into this file; do not enforce a quote style on it.
+        'yaml/quotes': 'off',
+      },
+    },
   )

@@ -12,7 +12,7 @@ minimumReleaseAgeExclude:
   - unhead
   - verkit
   # Renovate security update: @nuxt/devtools@3.3.1
-  - "@nuxt/devtools@3.3.1"
+  - '@nuxt/devtools@3.3.1'
 shamefullyHoist: true
 shellEmulator: true
 

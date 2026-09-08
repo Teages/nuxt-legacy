@@ -11,6 +11,8 @@ minimumReleaseAgeExclude:
   - nuxt-nightly
   - unhead
   - verkit
+  # Renovate security update: nuxt@4.5.1
+  - nuxt@4.5.1
 shamefullyHoist: true
 shellEmulator: true
 

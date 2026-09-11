@@ -20,7 +20,7 @@ jobs:
       # packageManager-pinned pnpm plus the Node runtime directly.
       - uses: pnpm/setup@703c52620218391530e48b9e8870d5c0082e1b9b # v2.1.0
         with:
-          runtime: node@24.20.0
+          runtime: node@24.21.0
           install: false
 
       - name: Install dependencies
@@ -38,7 +38,7 @@ jobs:
           persist-credentials: false
       - uses: pnpm/setup@703c52620218391530e48b9e8870d5c0082e1b9b # v2.1.0
         with:
-          runtime: node@24.20.0
+          runtime: node@24.21.0
           install: false
 
       - name: Install dependencies
@@ -75,7 +75,7 @@ jobs:
           persist-credentials: false
       - uses: pnpm/setup@703c52620218391530e48b9e8870d5c0082e1b9b # v2.1.0
         with:
-          runtime: node@24.20.0
+          runtime: node@24.21.0
           install: false
 
       - name: Install dependencies

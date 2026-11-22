@@ -19,6 +19,8 @@ minimumReleaseAgeExclude:
   - verkit
   # Renovate security update: @nuxt/devtools@3.3.1
   - '@nuxt/devtools@3.3.1'
+  # Renovate security update: @nuxt/schema@4.6.4
+  - "@nuxt/schema@4.6.4"
 
 trustPolicy: no-downgrade
 trustPolicyExclude:
@@ -55,7 +57,7 @@ catalogs:
     '@nuxt/devtools': 3.3.1
     '@nuxt/eslint-config': ^1.17.0
     '@nuxt/module-builder': ^1.0.3
-    '@nuxt/schema': ^4.5.2
+    '@nuxt/schema': ^4.6.4
     '@nuxt/test-utils': ^4.2.0
     '@types/node': ^24.13.3
     '@types/selenium-webdriver': ^4.35.6

@@ -27,7 +27,7 @@ jobs:
         run: pnpm install
 
       - name: Lint
-        run: npm run lint
+        run: pnpm run lint
 
   test:
     runs-on: ubuntu-latest
@@ -48,13 +48,13 @@ jobs:
         run: pnpm pack --pack-destination ${{ runner.temp }}
 
       - name: Playground prepare
-        run: npm run dev:prepare
+        run: pnpm run dev:prepare
 
       - name: Type check
-        run: npm run test:types
+        run: pnpm run test:types
 
       - name: Test
-        run: npm run test
+        run: pnpm run test
 
   # Real-browser E2E via BrowserStack Automate (Selenium). Verifies that the
   # legacy chunks + polyfills actually hydrate the playground in Chrome
@@ -82,7 +82,7 @@ jobs:
         run: pnpm install
 
       - name: Playground prepare
-        run: npm run dev:prepare
+        run: pnpm run dev:prepare
 
       - name: Run BrowserStack Automate E2E
         timeout-minutes: 20
@@ -90,4 +90,4 @@ jobs:
           BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
           BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
           GITHUB_REF_NAME: ${{ github.ref_name }}
-        run: npm run test:e2e
+        run: pnpm run test:e2e

@@ -82,7 +82,9 @@ async function listFiles(dir: string): Promise<string[]> {
   const nested = await Promise.all(
     entries.map((entry) => {
       const resolved = join(dir, entry.name)
-      return entry.isDirectory() ? listFiles(resolved) : [resolved]
+      return entry.isDirectory()
+        ? listFiles(resolved)
+        : [resolved]
     }),
   )
   return nested.flat()

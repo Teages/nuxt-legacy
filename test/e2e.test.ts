@@ -94,7 +94,9 @@ describe('e2e', async () => {
   // describe callback async lets us `await` it during the (synchronous) suite
   // registration phase, so those hooks are in place before vitest collects
   // them — without leaving the describe scope.
-  const port = await getPort({ ports: [10000, 10001, 10002] })
+  const port = await getPort({
+    ports: [10000, 10001, 10002],
+  })
   await setup({
     rootDir: fileURLToPath(new URL('../playgrounds/v4', import.meta.url)),
     port,
@@ -148,7 +150,10 @@ describe('e2e', async () => {
           const status = testPassed ? 'passed' : 'failed'
           try {
             await driver.executeScript(
-              `browserstack_executor: ${JSON.stringify({ action: 'setSessionStatus', arguments: { status } })}`,
+              `browserstack_executor: ${JSON.stringify({
+                action: 'setSessionStatus',
+                arguments: { status },
+              })}`,
             )
           }
           catch {

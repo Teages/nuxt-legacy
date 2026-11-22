@@ -33,7 +33,9 @@ function versionBelow(actual: string, required: string): boolean {
 export function targetsBelowOxcBaseline(targets: unknown, rootDir?: string): boolean {
   let list: string[]
   try {
-    const configuredTargets = targets || (rootDir ? browserslist.loadConfig({ path: rootDir }) : undefined)
+    const configuredTargets = targets || (rootDir
+      ? browserslist.loadConfig({ path: rootDir })
+      : undefined)
     if (!configuredTargets) {
       return false
     }

@@ -35,6 +35,8 @@ export function parseNodeModulePath(path: string): {
   return {
     dir,
     name,
-    subpath: subpath ? `.${subpath}` : undefined,
+    subpath: subpath
+      ? `.${subpath}`
+      : undefined,
   }
 }

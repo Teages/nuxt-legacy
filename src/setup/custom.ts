@@ -26,7 +26,14 @@ export async function setupCustomPolyfills(nuxt: Nuxt, options: CustomPolyfillsO
 
   options.scanDirs ??= ['polyfills']
   if (options.scanDirs.length > 0) {
-    const jsExts = new Set(['.js', '.mjs', '.cjs', '.ts', '.mts', '.cts'])
+    const jsExts = new Set([
+      '.js',
+      '.mjs',
+      '.cjs',
+      '.ts',
+      '.mts',
+      '.cts',
+    ])
     const found = (await resolveFiles(nuxt.options.srcDir, options.scanDirs))
       .filter(p => jsExts.has(p.slice(p.lastIndexOf('.'))))
       .sort()

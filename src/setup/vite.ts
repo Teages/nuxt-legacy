@@ -87,7 +87,9 @@ function wrapConfigResolved(plugin: any): void {
   if (typeof userConfigResolved !== 'function' && typeof userConfigResolved?.handler !== 'function') {
     return
   }
-  const handler = typeof userConfigResolved === 'function' ? userConfigResolved : userConfigResolved.handler
+  const handler = typeof userConfigResolved === 'function'
+    ? userConfigResolved
+    : userConfigResolved.handler
   function configResolved(this: unknown, config: any) {
     if (config?.build?.ssr) {
       return
@@ -114,7 +116,9 @@ function wrapHook(plugin: any, hook: string): void {
   if (typeof userHook !== 'function' && typeof userHook?.handler !== 'function') {
     return
   }
-  const handler = typeof userHook === 'function' ? userHook : userHook.handler
+  const handler = typeof userHook === 'function'
+    ? userHook
+    : userHook.handler
   function guarded(this: unknown, ...args: any[]) {
     const environment = (this as any)?.environment
     if (environment && environment.name !== 'client') {
@@ -195,7 +199,9 @@ export async function setupVite(options: ViteLegacyOptions, nuxt: Nuxt, moduleRe
   nuxt.options.vite ??= {}
   nuxt.options.vite.plugins ??= []
   const resolvedLegacy = legacy(options)
-  const legacyPlugins = (Array.isArray(resolvedLegacy) ? resolvedLegacy : [resolvedLegacy]) as Plugin[]
+  const legacyPlugins = (Array.isArray(resolvedLegacy)
+    ? resolvedLegacy
+    : [resolvedLegacy]) as Plugin[]
   nuxt.options.vite.plugins.unshift(...patchForEnvironmentApi(nuxt, legacyPlugins))
 
   nuxt.hook('build:manifest', (manifest) => {

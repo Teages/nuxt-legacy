@@ -1,6 +1,9 @@
+sharedWorkspaceLockfile: false
 catalogMode: prefer
 cleanupUnusedCatalogs: true
+
 minimumReleaseAge: 360 # 6 hours
+minimumReleaseAgeExcludePrune: true
 minimumReleaseAgeExclude:
   - '@unhead/bundler'
   - '@unhead/vue'
@@ -13,13 +16,15 @@ minimumReleaseAgeExclude:
   - verkit
   # Renovate security update: @nuxt/devtools@3.3.1
   - '@nuxt/devtools@3.3.1'
-shamefullyHoist: true
-shellEmulator: true
 
 trustPolicy: no-downgrade
 trustPolicyExclude:
   - chokidar@4.0.3
   - semver@6.3.1
+
+strictPeerDependencies: false
+shamefullyHoist: true
+shellEmulator: true
 
 packages:
   - ./
@@ -27,15 +32,15 @@ packages:
 
 patchedDependencies:
   event-target-shim@6.0.2: patches/event-target-shim@6.0.2.patch
-allowUnusedPatches: true
-sharedWorkspaceLockfile: false
 
-strictPeerDependencies: false
+allowUnusedPatches: true
+
 allowBuilds:
   '@parcel/watcher': true
   core-js: false
   esbuild: true
   unrs-resolver: true
+
 catalogs:
   dev:
     '@antfu/eslint-config': ^10.0.0

@@ -2,7 +2,18 @@
   "name": "@teages/nuxt-legacy",
   "type": "module",
   "version": "3.0.1",
-  "packageManager": "pnpm@12.3.4",
+  "devEngines": {
+    "runtime": {
+      "name": "node",
+      "version": "^26.0.0",
+      "onFail": "download"
+    },
+    "packageManager": {
+      "name": "pnpm",
+      "version": "12.21.0",
+      "onFail": "download"
+    }
+  },
   "description": "A Nuxt module for supporting legacy browsers.",
   "license": "MIT",
   "repository": {

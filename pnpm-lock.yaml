@@ -20,7 +20,7 @@
 					"version": "1.0.4",
 				},
 				"@nuxt/schema": {
-					"specifier": "^4.5.2",
+					"specifier": "^4.6.4",
 					"version": "4.6.4",
 				},
 				"@nuxt/test-utils": {

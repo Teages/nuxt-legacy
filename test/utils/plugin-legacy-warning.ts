@@ -24,7 +24,10 @@ export function findMismatchWarning(stderr: string): RegExpMatchArray | null {
 export function legacyConfigOverride(packageName: string) {
   return {
     legacy: {
-      vite: { targets: ['fully supports proxy'], modernPolyfills: true },
+      vite: {
+        targets: ['fully supports proxy'],
+        modernPolyfills: true,
+      },
       viteLegacyPackageName: packageName,
     },
   }

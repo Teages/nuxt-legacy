@@ -19,7 +19,9 @@ export async function getViteMajor(nuxt: Nuxt): Promise<number> {
     const pkg = JSON.parse(await readFile(packagePath, 'utf8')) as { version?: string }
 
     const major = Number.parseInt(String(pkg.version ?? '').match(/^\d+/)?.[0] ?? '', 10)
-    return Number.isInteger(major) ? major : 0
+    return Number.isInteger(major)
+      ? major
+      : 0
   }
   catch {
     return 0

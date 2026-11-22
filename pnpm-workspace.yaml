@@ -19,6 +19,8 @@ minimumReleaseAgeExclude:
   - verkit
   # Renovate security update: @nuxt/devtools@3.3.1
   - '@nuxt/devtools@3.3.1'
+  # Renovate security update: nuxt@4.6.4
+  - nuxt@4.6.4
 
 trustPolicy: no-downgrade
 trustPolicyExclude:
@@ -65,7 +67,7 @@ catalogs:
     eslint: ^10.9.1
     get-port-please: ^3.2.0
     node-html-parser: ^9.0.1
-    nuxt: ^4.5.2
+    nuxt: ^4.6.4
     plugin-legacy-v7: npm:@vitejs/plugin-legacy@^7.2.1
     plugin-legacy-v8: npm:@vitejs/plugin-legacy@^8.2.3
     selenium-webdriver: ^4.48.0

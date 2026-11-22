@@ -56,7 +56,7 @@
 					"version": "9.0.7",
 				},
 				"nuxt": {
-					"specifier": "^4.5.2",
+					"specifier": "^4.6.4",
 					"version": "4.6.4",
 				},
 				"plugin-legacy-v7": {

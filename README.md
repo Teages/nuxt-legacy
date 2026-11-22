@@ -192,8 +192,7 @@ function setup(self: typeof window) {
   <summary>Local development</summary>
 
   ```bash
-  # Enable Corepack and install dependencies
-  corepack enable
+  # Install dependencies
   pnpm install
 
   # Generate type stubs

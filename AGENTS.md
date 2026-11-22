@@ -4,7 +4,7 @@
 
 This repository contains `@teages/nuxt-legacy`, a TypeScript Nuxt module that adds legacy-browser support through `@vitejs/plugin-legacy` and optional custom polyfills.
 
-Use Node.js (version see `.nvmrc`), Corepack, and pnpm. Prefer `pnpm` and the scripts in the root `package.json`; do not introduce npm- or yarn-specific lockfiles.
+Use Node.js and pnpm, versions see `devEngine` in `package.json`. MUST use `pnpm` to run the scripts in the root `package.json`; do not introduce npm- or yarn-specific lockfiles.
 
 ## Repository map
 

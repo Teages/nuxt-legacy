@@ -2,6 +2,9 @@ sharedWorkspaceLockfile: false
 catalogMode: prefer
 cleanupUnusedCatalogs: true
 
+# Runtimes are supplied by fnm (node) and jup (pnpm); pnpm must not self-manage.
+runtime: false
+
 minimumReleaseAge: 360 # 6 hours
 minimumReleaseAgeExcludePrune: true
 minimumReleaseAgeExclude:
@@ -24,7 +27,12 @@ trustPolicyExclude:
 
 strictPeerDependencies: false
 shamefullyHoist: true
+
+lockfile:
+  format: v13
+
 shellEmulator: true
+pmOnFail: ignore
 
 packages:
   - ./

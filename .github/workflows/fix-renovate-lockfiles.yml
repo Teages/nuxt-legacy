@@ -6,12 +6,16 @@
 #
 # This workflow finds open Renovate PRs whose lockfiles no longer match the
 # catalogs, regenerates them with `pnpm install --lockfile-only`, and pushes
-# the fix to the PR branch so checks re-run and automerge can proceed.
+# the fix to the PR branch. Only the playground-facing catalog entries are
+# affected (nuxt, nuxt-nightly, @vitejs/plugin-legacy, @unhead/vue and
+# event-target-shim), so this stays rare.
 #
-# Pushes use the LOCKFILE_BOT_TOKEN secret (a fine-grained PAT with
-# "Contents: read and write" for this repository). A PAT is required because
-# pushes made with GITHUB_TOKEN do not trigger the pull_request workflows,
-# which would leave the fix commit without any checks.
+# It deliberately uses only the default GITHUB_TOKEN (no extra
+# authorization). The trade-off: GITHUB_TOKEN pushes do not trigger the
+# pull_request workflows, so the fix commit lands without CI runs and
+# Renovate's automerge keeps waiting for checks. The commit itself is
+# validated by the frozen-lockfile self-test below; the PR then needs a
+# manual merge, or a close + reopen once to re-run CI on the new commit.
 name: fix-renovate-lockfiles
 
 on:
@@ -55,6 +59,8 @@ jobs:
     if: needs.find.outputs.branches != '[]'
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    permissions:
+      contents: write
     strategy:
       matrix:
         branch: ${{ fromJSON(needs.find.outputs.branches) }}
@@ -64,7 +70,6 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ matrix.branch }}
-          token: ${{ secrets.LOCKFILE_BOT_TOKEN || github.token }}
 
       # pnpm no longer recommends corepack; pnpm/setup installs the
       # packageManager-pinned pnpm plus the Node runtime directly. The pinned
@@ -80,10 +85,6 @@ jobs:
           BRANCH: ${{ matrix.branch }}
         run: |
           set -euo pipefail
-
-          if [ -z "${{ secrets.LOCKFILE_BOT_TOKEN }}" ]; then
-            echo '::warning::LOCKFILE_BOT_TOKEN is not set; falling back to GITHUB_TOKEN. Pushes made with GITHUB_TOKEN do not trigger the pull_request workflows, so the fix commit will have no checks and Renovate cannot automerge.'
-          fi
 
           if pnpm install --frozen-lockfile --lockfile-only > /dev/null 2>&1; then
             echo "Lockfiles already match the catalogs; nothing to do."

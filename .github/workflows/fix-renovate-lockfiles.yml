@@ -4,10 +4,10 @@
 # (renovatebot/renovate#37485). Catalog PRs then fail CI with
 # ERR_PNPM_LOCKFILE_CONFIG_MISMATCH and automerge never fires.
 #
-# This workflow finds open Renovate PRs whose lockfiles no longer match the
-# catalogs, regenerates them with `pnpm install --lockfile-only`, and pushes
-# the fix to the PR branch. Only the playground-facing catalog entries are
-# affected (nuxt, nuxt-nightly, @vitejs/plugin-legacy, @unhead/vue and
+# This workflow runs whenever Renovate pushes to a `renovate/*` branch,
+# regenerates the stale lockfiles with `pnpm install --lockfile-only`, and
+# pushes the fix to the PR branch. Only the playground-facing catalog entries
+# are affected (nuxt, nuxt-nightly, @vitejs/plugin-legacy, @unhead/vue and
 # event-target-shim), so this stays rare.
 #
 # It deliberately uses only the default GITHUB_TOKEN (no extra
@@ -16,14 +16,23 @@
 # Renovate's automerge keeps waiting for checks. The commit itself is
 # validated by the frozen-lockfile self-test below; the PR then needs a
 # manual merge, or a close + reopen once to re-run CI on the new commit.
+#
+# Note: `push` workflows run the workflow file from the pushed branch, so
+# this only fires for branches that contain this file. Renovate branches are
+# cut from main's HEAD, so every branch created after this file landed on
+# main is covered.
 name: fix-renovate-lockfiles
 
 on:
-  schedule:
-    # Every 30 minutes inside the Renovate/automerge window
-    # (01:00-04:30 Asia/Shanghai == 17:00-20:30 UTC).
-    - cron: '17,47 17-20 * * *'
-  workflow_dispatch: {}
+  push:
+    branches:
+      - renovate/**
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: Renovate branch to fix (e.g. renovate/all-minor-patch)
+        type: string
+        required: false
 
 permissions:
   contents: read
@@ -33,43 +42,18 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  find:
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    permissions:
-      contents: read
-      pull-requests: read
-    outputs:
-      branches: ${{ steps.list.outputs.branches }}
-    steps:
-      - name: List open Renovate branches
-        id: list
-        env:
-          GH_TOKEN: ${{ github.token }}
-          REPO: ${{ github.repository }}
-        run: |
-          branches=$(gh pr list --repo "$REPO" --state open --author 'app/renovate' \
-            --json headRefName \
-            --jq '[.[].headRefName | select(startswith("renovate/"))]')
-          echo "branches=$branches" >> "$GITHUB_OUTPUT"
-          echo "Renovate branches: $branches"
-
   fix:
-    needs: find
-    if: needs.find.outputs.branches != '[]'
+    if: github.event_name == 'push' || inputs.branch != ''
     runs-on: ubuntu-latest
     timeout-minutes: 15
     permissions:
       contents: write
-    strategy:
-      matrix:
-        branch: ${{ fromJSON(needs.find.outputs.branches) }}
     steps:
       # persist-credentials stays enabled (unlike ci.yml) so the fix commit
       # can be pushed back to the Renovate branch.
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: ${{ matrix.branch }}
+          ref: ${{ github.event_name == 'push' && github.ref_name || inputs.branch }}
 
       # pnpm no longer recommends corepack; pnpm/setup installs the
       # packageManager-pinned pnpm plus the Node runtime directly. The pinned
@@ -82,7 +66,7 @@ jobs:
 
       - name: Regenerate stale lockfiles
         env:
-          BRANCH: ${{ matrix.branch }}
+          BRANCH: ${{ github.event_name == 'push' && github.ref_name || inputs.branch }}
         run: |
           set -euo pipefail
 

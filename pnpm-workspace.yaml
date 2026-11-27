@@ -68,7 +68,7 @@ catalogs:
     plugin-legacy-v8: npm:@vitejs/plugin-legacy@^8.2.4
     selenium-webdriver: ^4.54.0
     typescript: ~6.0.3
-    vitest: ^4.1.12
+    vitest: ^5.1.1
     vue-tsc: ^3.3.14
   dev:nuxt-v5:
     # eslint-disable-next-line pnpm/yaml-no-duplicate-catalog-item

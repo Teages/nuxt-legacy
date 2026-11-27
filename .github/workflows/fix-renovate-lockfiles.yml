@@ -1,0 +1,101 @@
+# Renovate only regenerates the root pnpm-lock.yaml when it bumps pnpm
+# catalog versions. With `shared-workspace-lockfile: false`, every playground
+# owns its own lockfile, and Renovate leaves those stale
+# (renovatebot/renovate#37485). Catalog PRs then fail CI with
+# ERR_PNPM_LOCKFILE_CONFIG_MISMATCH and automerge never fires.
+#
+# This workflow runs whenever Renovate pushes to a `renovate/*` branch,
+# regenerates the stale lockfiles with `pnpm install --lockfile-only`, and
+# pushes the fix to the PR branch. Only the playground-facing catalog entries
+# are affected (nuxt, nuxt-nightly, @vitejs/plugin-legacy, @unhead/vue and
+# event-target-shim), so this stays rare.
+#
+# It deliberately uses only the default GITHUB_TOKEN (no extra
+# authorization). The trade-off: GITHUB_TOKEN pushes do not trigger the
+# pull_request workflows, so the fix commit lands without CI runs and
+# Renovate's automerge keeps waiting for checks. The commit itself is
+# validated by the frozen-lockfile self-test below; the PR then needs a
+# manual merge, or a close + reopen once to re-run CI on the new commit.
+#
+# Note: `push` workflows run the workflow file from the pushed branch, so
+# this only fires for branches that contain this file. Renovate branches are
+# cut from main's HEAD, so every branch created after this file landed on
+# main is covered.
+name: fix-renovate-lockfiles
+
+on:
+  push:
+    branches:
+      - renovate/**
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: Renovate branch to fix (e.g. renovate/all-minor-patch)
+        type: string
+        required: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: fix-renovate-lockfiles
+  cancel-in-progress: false
+
+jobs:
+  fix:
+    if: github.event_name == 'push' || inputs.branch != ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+    steps:
+      # persist-credentials stays enabled (unlike ci.yml) so the fix commit
+      # can be pushed back to the Renovate branch.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event_name == 'push' && github.ref_name || inputs.branch }}
+
+      # pnpm no longer recommends corepack; pnpm/setup installs the
+      # packageManager-pinned pnpm plus the Node runtime directly. The pinned
+      # version is read from this branch's devEngines, so catalog PRs that
+      # bump pnpm itself are handled with the right tool.
+      - uses: pnpm/setup@731dfb6463bbd11c11fd0ee11fe00ed0e36d48a1 # v3.2.0
+        with:
+          runtime: node@26.13.1
+          install: false
+
+      - name: Regenerate stale lockfiles
+        env:
+          BRANCH: ${{ github.event_name == 'push' && github.ref_name || inputs.branch }}
+        run: |
+          set -euo pipefail
+
+          if pnpm install --frozen-lockfile --lockfile-only > /dev/null 2>&1; then
+            echo "Lockfiles already match the catalogs; nothing to do."
+            exit 0
+          fi
+
+          echo "Lockfiles are stale; regenerating."
+          pnpm install --no-frozen-lockfile --lockfile-only
+
+          # Confirm the result satisfies the same frozen check CI runs.
+          pnpm install --frozen-lockfile --lockfile-only > /dev/null
+
+          # Only ever push lockfile updates; bail out if anything else changed.
+          unsafe=$(git status --porcelain | cut -c4- \
+            | grep -vE '^(playgrounds/[^/]+/)?pnpm-lock\.yaml$|^pnpm-workspace\.yaml$' \
+            || true)
+          if [ -n "$unsafe" ]; then
+            echo "::warning::Unexpected changes outside the lockfiles, not pushing: $unsafe"
+            exit 1
+          fi
+
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git commit \
+            -m 'fix(deps): regenerate playground lockfiles to match updated catalogs' \
+            -m 'Renovate does not regenerate per-project lockfiles when only pnpm catalog versions change (renovatebot/renovate#37485), so frozen installs fail with ERR_PNPM_LOCKFILE_CONFIG_MISMATCH. Regenerated with pnpm so checks re-run and automerge can proceed.'
+          git push origin "HEAD:refs/heads/$BRANCH"
+
+          echo "### Pushed lockfile fix to \`$BRANCH\`" >> "$GITHUB_STEP_SUMMARY"

@@ -3,7 +3,7 @@ import { detectModernBrowserCode, dynamicFallbackInlineCode, safari10NoModuleFix
 
 const hash = crypto.hash ?? ((
   algorithm: string,
-  data: crypto.BinaryLike,
+  data: string,
   outputEncoding: crypto.BinaryToTextEncoding,
 ) => crypto.createHash(algorithm).update(data).digest(outputEncoding))
 

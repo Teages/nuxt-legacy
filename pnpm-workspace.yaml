@@ -50,12 +50,12 @@ allowBuilds:
 catalogs:
   dev:
     '@antfu/eslint-config': ^10.0.0
-    '@nuxt/devtools': 3.4.4
+    '@nuxt/devtools': 4.2.0
     '@nuxt/eslint-config': ^1.17.0
     '@nuxt/module-builder': ^1.0.4
     '@nuxt/schema': ^4.7.0
     '@nuxt/test-utils': ^4.4.0
-    '@types/node': ^26.6.6
+    '@types/node': ^24.19.2
     '@types/selenium-webdriver': ^4.35.7
     '@unhead/vue': 3.5.0
     '@vitejs/plugin-legacy': ^8.2.4
